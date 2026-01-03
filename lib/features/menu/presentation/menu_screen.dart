@@ -15,17 +15,24 @@ class MenuScreen extends ConsumerStatefulWidget {
 
 class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStateMixin {
   TabController? _tabController;
+  bool _isSearching = false;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
-    // Logic moved to provider initialization, but we can force refresh if needed
-    // ref.read(menuProvider.notifier).refresh(); // optional if provider auto-inits
+    _searchController.addListener(() {
+      setState(() {
+        _searchQuery = _searchController.text.toLowerCase();
+      });
+    });
   }
 
   @override
   void dispose() {
     _tabController?.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -50,7 +57,41 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
       );
     }
 
-    if (categories.isEmpty && menuState.status == DataStatus.success) {
+    // Error and Empty checks omitted for brevity (keep existing)
+    if (menuState.status == DataStatus.error) {
+       return Scaffold(
+        appBar: AppBar(title: const Text('Menu Management')),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 60, color: AppColors.error),
+              const SizedBox(height: 16),
+              Text(
+                'Failed to load menu',
+                style: AppTextStyles.headlineMedium,
+              ),
+               Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  menuState.error ?? 'Unknown error',
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryLight),
+                ),
+              ),
+              const SizedBox(height: 24),
+              FilledButton.icon(
+                onPressed: () => ref.read(menuProvider.notifier).refresh(),
+                icon: const Icon(Icons.refresh),
+                label: const Text('Retry'),
+              )
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (categories.isEmpty && (menuState.status == DataStatus.success || menuState.status == DataStatus.initial)) {
       return Scaffold(
         appBar: AppBar(title: const Text('Menu Management')),
         body: Center(
@@ -68,6 +109,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
       );
     }
 
+
      // Initialize controller now that we have categories
     if (categories.isNotEmpty) {
       _initTabController(categories.length);
@@ -80,16 +122,38 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Menu Management'),
+        title: _isSearching 
+          ? TextField(
+              controller: _searchController,
+              autofocus: true,
+              style: AppTextStyles.bodyLarge,
+              decoration: const InputDecoration(
+                hintText: 'Search items...',
+                border: InputBorder.none,
+                hintStyle: TextStyle(color: Colors.grey),
+              ),
+            )
+          : const Text('Menu Management'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {},
+            icon: Icon(_isSearching ? Icons.close : Icons.search),
+            onPressed: () {
+              setState(() {
+                if (_isSearching) {
+                  _isSearching = false;
+                  _searchController.clear();
+                  _searchQuery = '';
+                } else {
+                  _isSearching = true;
+                }
+              });
+            },
           ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () => ref.read(menuProvider.notifier).refresh(),
-          ),
+          if (!_isSearching)
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: () => ref.read(menuProvider.notifier).refresh(),
+            ),
         ],
         bottom: TabBar(
           controller: _tabController,
@@ -103,7 +167,10 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
       body: TabBarView(
         controller: _tabController,
         children: categories.map((category) {
-          final categoryProducts = products.where((p) => p.categoryId == category.id).toList();
+          final categoryProducts = products.where((p) => 
+            p.categoryId == category.id && 
+            (_searchQuery.isEmpty || p.name.toLowerCase().contains(_searchQuery))
+          ).toList();
 
           if (categoryProducts.isEmpty) {
             return Center(

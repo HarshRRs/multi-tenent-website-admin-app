@@ -45,13 +45,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             SliverAppBar(
               pinned: true,
               expandedHeight: 80,
-              backgroundColor: AppColors.backgroundLight,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               surfaceTintColor: Colors.transparent,
               flexibleSpace: FlexibleSpaceBar(
                 titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
                 title: Text(
                   'Good Morning, John', // Ideally fetch user name from AuthProvider
-                  style: AppTextStyles.headlineMedium.copyWith(color: AppColors.textLight),
+                  style: AppTextStyles.headlineMedium.copyWith(color: Theme.of(context).colorScheme.onSurface),
                 ),
               ),
               actions: [
@@ -62,13 +62,24 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                    ),
                 IconButton(
                   icon: const Icon(Icons.notifications_outlined),
-                  onPressed: () {},
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('No new notifications')),
+                    );
+                  },
                 ),
-                const Padding(
-                  padding: EdgeInsets.only(right: 16.0),
-                  child: CircleAvatar(
-                    backgroundColor: AppColors.secondaryLight,
-                    child: Icon(Icons.person, color: AppColors.primaryLight),
+                Padding(
+                  padding: const EdgeInsets.only(right: 16.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Profile settings coming soon')),
+                      );
+                    },
+                    child: const CircleAvatar(
+                      backgroundColor: AppColors.secondaryLight,
+                      child: Icon(Icons.person, color: AppColors.primaryLight),
+                    ),
                   ),
                 ),
               ],
@@ -143,7 +154,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       children: [
                         Text(
                           'Recent Orders',
-                          style: AppTextStyles.headlineMedium,
+                          style: AppTextStyles.headlineMedium.copyWith(color: Theme.of(context).colorScheme.onSurface),
                         ),
                         TextButton(
                           onPressed: () {}, // Navigate to Orders tab logic if needed
@@ -201,7 +212,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white, // In dark mode this should be handled by theme or card color
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -227,7 +238,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(orderId, style: AppTextStyles.labelLarge),
-                Text(name, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryLight)),
+                Text(name, style: AppTextStyles.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
               ],
             ),
           ),
@@ -236,7 +247,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             children: [
               Text(amount, style: AppTextStyles.labelLarge),
               Container(
-                margin: const EdgeInsets.top(4),
+                margin: const EdgeInsets.only(top: 4),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.1),

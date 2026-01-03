@@ -30,7 +30,7 @@ class AppTheme {
         centerTitle: false,
         titleTextStyle: AppTextStyles.headlineMedium.copyWith(color: AppColors.textLight),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AppColors.surfaceLight,
         elevation: 2,
         shadowColor: Colors.black.withValues(alpha: 0.1),
@@ -73,7 +73,7 @@ class AppTheme {
         centerTitle: false,
         titleTextStyle: AppTextStyles.headlineMedium.copyWith(color: AppColors.textDark),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AppColors.surfaceDark,
         elevation: 2,
         shadowColor: Colors.black.withValues(alpha: 0.3),

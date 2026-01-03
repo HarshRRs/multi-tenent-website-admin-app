@@ -6,20 +6,24 @@ class CustomTextField extends StatelessWidget {
   final String label;
   final String? hint;
   final IconData? prefixIcon;
+  final Widget? suffixIcon; // Added parameter
   final bool obscureText;
   final TextEditingController? controller;
   final String? Function(String?)? validator;
   final TextInputType? keyboardType;
+  final int maxLines;
 
   const CustomTextField({
     super.key,
     required this.label,
     this.hint,
     this.prefixIcon,
+    this.suffixIcon, // Added to constructor
     this.obscureText = false,
     this.controller,
     this.validator,
     this.keyboardType,
+    this.maxLines = 1,
   });
 
   @override
@@ -37,11 +41,13 @@ class CustomTextField extends StatelessWidget {
           obscureText: obscureText,
           validator: validator,
           keyboardType: keyboardType,
+          maxLines: maxLines,
           style: AppTextStyles.bodyLarge,
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(color: AppColors.textSecondaryLight.withValues(alpha: 0.5)),
             prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: AppColors.primaryLight) : null,
+            suffixIcon: suffixIcon, // Passed to decoration
             filled: true,
             fillColor: AppColors.surfaceLight,
             border: OutlineInputBorder(

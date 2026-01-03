@@ -23,8 +23,8 @@ class ProductCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
+            color: Colors.black.withValues(alpha: 0.08), // Enhanced shadow
+            blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
@@ -54,12 +54,15 @@ class ProductCard extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.7),
+                        color: AppColors.error.withValues(alpha: 0.9), // Red badge
                         borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                           BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 4),
+                        ],
                       ),
                       child: Text(
                         'Out of Stock',
-                        style: AppTextStyles.labelMedium.copyWith(color: Colors.white),
+                        style: AppTextStyles.labelMedium.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),

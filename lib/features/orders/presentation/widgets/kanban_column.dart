@@ -62,8 +62,15 @@ class KanbanColumn extends StatelessWidget {
                       child: Icon(icon, color: headerColor, size: 20),
                     ),
                     const SizedBox(width: 12),
-                    Text(title, style: AppTextStyles.headlineMedium.copyWith(fontSize: 18)),
-                    const Spacer(),
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: AppTextStyles.headlineMedium.copyWith(fontSize: 18),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
