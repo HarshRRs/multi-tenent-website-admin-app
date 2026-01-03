@@ -18,6 +18,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _obscurePassword = true; // State for password visibility
 
   @override
   void dispose() {
@@ -37,15 +38,33 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Listen for state changes to handle navigation and errors
     ref.listen(authNotifierProvider, (previous, next) {
       if (next.status == AuthStatus.authenticated) {
         context.go('/');
       } else if (next.status == AuthStatus.error) {
+        String errorMessage = 'Authentication failed';
+        if (next.error != null) {
+          if (next.error!.contains('DioException') || next.error!.contains('connection')) {
+             errorMessage = 'Network Error: Cannot connect to server. Please check your internet.';
+          } else if (next.error!.contains('401')) {
+             errorMessage = 'Invalid Email or Password';
+          } else {
+             errorMessage = next.error!;
+          }
+        }
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(next.error ?? 'Authentication failed'),
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(child: Text(errorMessage)),
+              ],
+            ),
             backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         );
       }
@@ -69,7 +88,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Logo/Brand area (Placeholder for animated logo)
+                // Logo/Brand area
                 Container(
                   height: 100,
                   width: 100,
@@ -130,8 +149,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           label: 'Password',
                           hint: '••••••••',
                           prefixIcon: Icons.lock_outline,
-                          obscureText: true,
+                          obscureText: _obscurePassword,
                           controller: _passwordController,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                              color: Colors.white70,
+                            ),
+                            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                          ),
                           validator: (value) {
                             if (value == null || value.isEmpty) return 'Please enter your password';
                             return null;

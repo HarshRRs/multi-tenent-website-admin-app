@@ -5,11 +5,52 @@ import 'package:rockster/core/theme/app_colors.dart';
 import 'package:rockster/core/theme/app_text_styles.dart';
 import 'package:rockster/core/theme/theme_provider.dart';
 
-class SettingsScreen extends ConsumerWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  // Local state for "Edit" simulation
+  String _restaurantName = 'Rockstar Diner';
+  String _address = '123 Music Ave, Nashville, TN';
+  String _phone = '+1 (555) 123-4567';
+  bool _autoPrint = true;
+
+  Future<void> _showEditDialog(String title, String currentValue, Function(String) onSave) async {
+    final controller = TextEditingController(text: currentValue);
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Edit \$title', style: AppTextStyles.headlineMedium),
+        content: TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            hintText: 'Enter new \$title',
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => context.pop(), child: const Text('Cancel')),
+          FilledButton(
+            onPressed: () {
+              onSave(controller.text);
+              context.pop();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('\$title updated successfully!')),
+              );
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final isDarkMode = ref.watch(isDarkModeProvider);
 
     return Scaffold(
@@ -38,20 +79,20 @@ class SettingsScreen extends ConsumerWidget {
           _buildInfoTile(
             icon: Icons.store,
             title: 'Restaurant Name',
-            value: 'Rockstar Diner',
-            onTap: () {},
+            value: _restaurantName,
+            onTap: () => _showEditDialog('Restaurant Name', _restaurantName, (val) => setState(() => _restaurantName = val)),
           ),
           _buildInfoTile(
             icon: Icons.location_on,
             title: 'Address',
-            value: '123 Music Ave, Nashville, TN',
-            onTap: () {},
+            value: _address,
+            onTap: () => _showEditDialog('Address', _address, (val) => setState(() => _address = val)),
           ),
            _buildInfoTile(
             icon: Icons.phone,
             title: 'Phone',
-            value: '+1 (555) 123-4567',
-            onTap: () {},
+            value: _phone,
+            onTap: () => _showEditDialog('Phone', _phone, (val) => setState(() => _phone = val)),
           ),
 
           const SizedBox(height: 24),
@@ -61,8 +102,8 @@ class SettingsScreen extends ConsumerWidget {
             icon: Icons.print,
             title: 'Auto-print Orders',
             subtitle: 'Print receipt when order arrives',
-            value: true,
-            onChanged: (val) {}, // Mock
+            value: _autoPrint,
+            onChanged: (val) => setState(() => _autoPrint = val),
           ),
           _buildStatusTile(
             icon: Icons.wifi_tethering,

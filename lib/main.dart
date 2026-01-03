@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rockster/core/router/app_router.dart';
 import 'package:rockster/core/theme/app_theme.dart';
+import 'package:rockster/core/theme/theme_provider.dart';
 
 void main() {
   runApp(const ProviderScope(child: RocksterApp()));
@@ -19,7 +20,7 @@ class RocksterApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.light, // Can be controlled by a provider later
+      themeMode: ref.watch(themeModeProvider),
       routerConfig: router,
     );
   }

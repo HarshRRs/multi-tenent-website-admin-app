@@ -20,9 +20,9 @@ class OrderCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.08), // Slightly darker for depth
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
         border: Border(
@@ -53,6 +53,8 @@ class OrderCard extends StatelessWidget {
           Text(
             order.customerName,
             style: AppTextStyles.headlineMedium.copyWith(fontSize: 18),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 12),
           const Divider(height: 1),
@@ -71,7 +73,7 @@ class OrderCard extends StatelessWidget {
                       child: Text('\${item.quantity}x', style: AppTextStyles.labelSmall),
                     ),
                     const SizedBox(width: 8),
-                    Expanded(child: Text(item.name, style: AppTextStyles.bodyMedium)),
+                    Expanded(child: Text(item.name, style: AppTextStyles.bodyMedium, overflow: TextOverflow.ellipsis, maxLines: 1)),
                   ],
                 ),
               )),

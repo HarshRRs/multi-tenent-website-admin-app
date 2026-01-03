@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rockster/core/providers/providers.dart';
 import 'package:rockster/core/theme/app_colors.dart';
+import 'package:rockster/core/theme/app_text_styles.dart';
 import 'package:rockster/features/orders/domain/order_model.dart';
 import 'package:rockster/features/orders/presentation/orders_provider.dart';
 import 'package:rockster/features/orders/presentation/widgets/kanban_column.dart';
@@ -82,9 +83,67 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
           ),
         ],
       ),
-      body: isLoading 
-          ? const Center(child: CircularProgressIndicator())
-          : Scrollbar(
+      body: _buildBody(ordersState, allOrders, isLoading),
+    );
+  }
+
+  Widget _buildBody(OrdersState state, List<Order> allOrders, bool isLoading) {
+    if (state.status == DataStatus.error) {
+       return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 60, color: AppColors.error),
+              const SizedBox(height: 16),
+              Text(
+                'Failed to load orders',
+                style: AppTextStyles.headlineMedium,
+              ),
+               Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  state.error ?? 'Unknown error',
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryLight),
+                ),
+              ),
+              const SizedBox(height: 24),
+              FilledButton.icon(
+                onPressed: () => ref.read(ordersProvider.notifier).refresh(),
+                icon: const Icon(Icons.refresh),
+                label: const Text('Retry'),
+              )
+            ],
+          ),
+        );
+    }
+
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (allOrders.isEmpty && state.status == DataStatus.success) {
+      return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.inbox, size: 64, color: Colors.grey[300]),
+              const SizedBox(height: 16),
+              Text('No live orders', style: AppTextStyles.headlineMedium),
+               const SizedBox(height: 8),
+              Text('New orders will appear here automatically', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryLight)),
+              const SizedBox(height: 24),
+              FilledButton.icon(
+                onPressed: () => ref.read(ordersProvider.notifier).refresh(),
+                icon: const Icon(Icons.refresh),
+                label: const Text('Check for Updates'),
+              )
+            ],
+          ),
+        );
+    }
+
+    return Scrollbar(
               thumbVisibility: true,
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -127,7 +186,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
                   ],
                 ),
               ),
-            ),
-    );
+            );
+
   }
 }

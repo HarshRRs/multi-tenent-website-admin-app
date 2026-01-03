@@ -19,10 +19,11 @@ class ApiClient {
   // Use 10.0.2.2 for Android Emulator, localhost for iOS/Web
   static String get baseUrl {
     if (kReleaseMode) {
-      return 'https://api.rockster.com';
+      return 'https://rockster-production.up.railway.app';
     }
     if (kIsWeb) {
-      return 'http://localhost:3000';
+      // Use production backend for easier browser testing
+      return 'https://rockster-production.up.railway.app';
     }
     // Simple check for Android Emulator vs others (simplified)
     // In a real app, use DeviceInfo or Platform.isAndroid

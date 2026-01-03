@@ -6,6 +6,9 @@ import 'package:rockster/features/orders/data/order_service.dart';
 import 'package:rockster/features/orders/domain/order_model.dart';
 import 'package:rockster/features/dashboard/presentation/dashboard_provider.dart';
 
+enum DataStatus { initial, loading, success, error }
+
+
 class OrdersState {
   final DataStatus status;
   final List<Order> orders;
