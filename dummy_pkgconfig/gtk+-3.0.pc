@@ -1,0 +1,3 @@
+Name: gtk+-3.0
+Description: Mock GTK
+Version: 3.0
