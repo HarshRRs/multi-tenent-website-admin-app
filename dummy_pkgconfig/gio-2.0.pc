@@ -1,0 +1,3 @@
+Name: gio-2.0
+Description: Mock GIO
+Version: 2.0
