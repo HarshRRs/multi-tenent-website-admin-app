@@ -1,8 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:rockster/features/auth/domain/auth_models.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 class AuthService {
   final Dio _dio;
+  static const String _tokenKey = 'auth_token';
 
   AuthService(this._dio);
 
@@ -12,7 +15,19 @@ class AuthService {
       data: LoginRequest(email: email, password: password).toJson(),
     );
 
-    return AuthResponse.fromJson(response.data);
+    final authResponse = AuthResponse.fromJson(response.data);
+    await _saveToken(authResponse.token); // Persist token
+    return authResponse;
+  }
+
+  Future<void> _saveToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_tokenKey, token);
+  }
+
+  Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_tokenKey);
   }
 
   Future<AuthResponse> register(String email, String password, String name) async {
@@ -29,7 +44,9 @@ class AuthService {
   }
 
   Future<void> logout() async {
-    await _dio.post('/auth/logout');
+    // await _dio.post('/auth/logout'); // Optional API call if backend invalidates tokens
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_tokenKey);
   }
 
   Future<User> getCurrentUser() async {

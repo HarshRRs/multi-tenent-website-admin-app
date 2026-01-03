@@ -22,8 +22,8 @@ class ApiClient {
       return 'https://rockster-production.up.railway.app';
     }
     if (kIsWeb) {
-      // Use production backend for easier browser testing
-      return 'https://rockster-production.up.railway.app';
+      // Use local backend for development verification
+      return 'http://localhost:3000';
     }
     // Simple check for Android Emulator vs others (simplified)
     // In a real app, use DeviceInfo or Platform.isAndroid

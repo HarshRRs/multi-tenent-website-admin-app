@@ -1,45 +1,71 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart'; // for kIsWeb
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:rockster/core/components/custom_button.dart';
 import 'package:rockster/core/components/custom_text_field.dart';
 import 'package:rockster/core/theme/app_colors.dart';
 import 'package:rockster/core/theme/app_text_styles.dart';
 import 'package:rockster/features/menu/domain/menu_models.dart';
+import 'package:rockster/features/menu/presentation/menu_provider.dart';
+import 'package:rockster/features/menu/data/menu_service.dart';
+import 'package:rockster/core/providers/providers.dart';
 
-class AddEditProductScreen extends StatefulWidget {
+class AddEditProductScreen extends ConsumerStatefulWidget {
   final String? productId;
+  final MenuItem? productExtra; // Passed from list
 
-  const AddEditProductScreen({super.key, this.productId});
+  const AddEditProductScreen({super.key, this.productId, this.productExtra});
 
   @override
-  State<AddEditProductScreen> createState() => _AddEditProductScreenState();
+  ConsumerState<AddEditProductScreen> createState() => _AddEditProductScreenState();
 }
 
-class _AddEditProductScreenState extends State<AddEditProductScreen> {
+class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _priceController = TextEditingController();
   String? _selectedCategory;
   bool _isLoading = false;
-
-  // Mock Categories
-  final List<MenuCategory> _categories = [
-    MenuCategory(id: '1', name: 'Burgers'),
-    MenuCategory(id: '2', name: 'Pizza'),
-    MenuCategory(id: '3', name: 'Pasta'),
-    MenuCategory(id: '4', name: 'Drinks'),
-  ];
+  
+  // Image handling
+  final ImagePicker _picker = ImagePicker();
+  XFile? _pickedFile;
+  String? _currentImageUrl;
 
   @override
   void initState() {
     super.initState();
+    _initData();
+  }
+
+  void _initData() {
     if (widget.productId != null) {
-      // Mock fetching existing data
-      _nameController.text = 'Classic Cheeseburger';
-      _descriptionController.text = 'Beef patty, cheese, lettuce';
-      _priceController.text = '12.50';
-      _selectedCategory = '1';
+      final product = widget.productExtra ?? ref.read(menuProvider).products.firstWhere((p) => p.id == widget.productId, orElse: () => MenuItem(id: '', name: '', description: '', price: 0, imageUrl: '', isAvailable: false, categoryId: ''));
+      
+      if (product.id.isNotEmpty) {
+        _nameController.text = product.name;
+        _descriptionController.text = product.description;
+        _priceController.text = product.price.toString();
+        _selectedCategory = product.categoryId;
+        _currentImageUrl = product.imageUrl;
+      }
+    }
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        setState(() {
+          _pickedFile = image;
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error picking image: $e')));
     }
   }
 
@@ -53,22 +79,68 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
       }
 
       setState(() => _isLoading = true);
-      // Simulate API Save
-      await Future.delayed(const Duration(seconds: 1));
-      
-      if (mounted) {
-        setState(() => _isLoading = false);
-        context.pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(widget.productId == null ? 'Product Added!' : 'Product Updated!')),
+      try {
+        String finalImageUrl = _currentImageUrl ?? '';
+
+        // 1. Upload Image if new one picked
+        if (_pickedFile != null) {
+            final menuService = ref.read(menuServiceProvider); // Get service directly for upload
+            finalImageUrl = await menuService.uploadImage(_pickedFile);
+        }
+
+        // 2. Create Object
+        final product = MenuItem(
+            id: widget.productId ?? '', // Empty for new
+            name: _nameController.text,
+            description: _descriptionController.text,
+            price: double.parse(_priceController.text),
+            categoryId: _selectedCategory!,
+            imageUrl: finalImageUrl,
+            isAvailable: true,
         );
+
+        // 3. Call Notifier
+        if (widget.productId == null) {
+            await ref.read(menuProvider.notifier).addProduct(product);
+        } else {
+            await ref.read(menuProvider.notifier).updateProduct(product);
+        }
+
+        if (mounted) {
+            context.pop();
+            ScaffoldMessenger.of(context).showSnackBar(
+             SnackBar(content: Text(widget.productId == null ? 'Product Added!' : 'Product Updated!')),
+            );
+        }
+      } catch (e) {
+         if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+         }
+      } finally {
+         if (mounted) setState(() => _isLoading = false);
       }
     }
+  }
+  
+  Future<void> _handleDelete() async {
+      if (widget.productId == null) return;
+      setState(() => _isLoading = true);
+      try {
+          await ref.read(menuProvider.notifier).deleteProduct(widget.productId!);
+          if (mounted) context.pop();
+      } catch (e) {
+          if (mounted) {
+            setState(() => _isLoading = false);
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Delete failed: $e')));
+          }
+      }
   }
 
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.productId != null;
+    final menuState = ref.watch(menuProvider);
+    final categories = menuState.categories;
 
     return Scaffold(
       appBar: AppBar(
@@ -85,23 +157,33 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Image Picker Placeholder
-              Container(
-                height: 200,
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceLight,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
-                ),
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.add_photo_alternate_outlined, size: 48, color: AppColors.primaryLight),
-                      const SizedBox(height: 8),
-                      Text('Tap to upload image', style: AppTextStyles.labelMedium.copyWith(color: AppColors.textSecondaryLight)),
-                    ],
+              // Image Picker
+              GestureDetector(
+                onTap: _pickImage,
+                child: Container(
+                  height: 200,
+                  clipBehavior: Clip.hardEdge,
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceLight,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
                   ),
+                  child: _pickedFile != null 
+                    ? (kIsWeb 
+                        ? Image.network(_pickedFile!.path, fit: BoxFit.cover) 
+                        : Image.file(File(_pickedFile!.path), fit: BoxFit.cover))
+                    : (_currentImageUrl != null && _currentImageUrl!.isNotEmpty
+                        ? Image.network(_currentImageUrl!, fit: BoxFit.cover, errorBuilder: (c,e,s) => const Icon(Icons.broken_image))
+                        : Center(
+                            child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                Icon(Icons.add_photo_alternate_outlined, size: 48, color: AppColors.primaryLight),
+                                const SizedBox(height: 8),
+                                Text('Tap to upload image', style: AppTextStyles.labelMedium.copyWith(color: AppColors.textSecondaryLight)),
+                                ],
+                            ),
+                            )),
                 ),
               ),
               const SizedBox(height: 24),
@@ -158,7 +240,7 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
                               value: _selectedCategory,
                               isExpanded: true,
                               hint: const Text('Select'),
-                              items: _categories.map((c) => DropdownMenuItem(
+                              items: categories.map((c) => DropdownMenuItem(
                                 value: c.id,
                                 child: Text(c.name),
                               )).toList(),
@@ -184,9 +266,7 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
                 CustomButton(
                   text: 'Delete Product',
                   isOutlined: true,
-                  onPressed: () {
-                    // Confirm delete dialog logic here
-                  },
+                  onPressed: _handleDelete,
                 ),
               ],
             ],

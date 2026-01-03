@@ -64,6 +64,15 @@ class ReservationsNotifier extends StateNotifier<ReservationsState> {
   Future<void> refresh() async {
     await loadData();
   }
+
+  Future<void> addTable(String name, int seats, double x, double y) async {
+    try {
+      await _service.createTable(name, seats, x, y);
+      await loadData();
+    } catch (e) {
+      state = state.copyWith(error: "Failed to create table: $e");
+    }
+  }
 }
 
 final reservationsProvider = StateNotifierProvider<ReservationsNotifier, ReservationsState>((ref) {

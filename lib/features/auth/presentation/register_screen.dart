@@ -21,6 +21,75 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _restaurantNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _obscurePassword = true;
+  bool _acceptedTerms = false;
+  
+  static const String _termsText = '''
+Terms of Service: Rockstar Admin Platform
+Last Updated: January 2026
+
+1. The Service
+Rockstar Admin (the "Platform") provides a multi-tenant management system that allows Restaurant Owners ("Users") to manage menus, receive orders, and customize their provided web engine. By using our platform, you agree to these terms.
+
+2. Subscription & Fees
+Flat Monthly Fee: Access to the platform is granted for a recurring fee of €48.00 per month.
+
+Billing: This fee is billed in advance every 30 days. Failure to pay will result in the temporary suspension of your website and admin access.
+
+No Commissions: Rockstar Admin does not take a percentage of your sales. All revenue generated through your website (minus Stripe fees) belongs entirely to you.
+
+3. Payments & Stripe Connect
+Direct Payouts: Rockstar Admin uses Stripe Connect to facilitate payments. Money from your customers goes directly from the customer to your linked Stripe account.
+
+Liability: Rockstar Admin is not responsible for delayed payouts, disputed charges (chargebacks), or technical issues within Stripe’s infrastructure.
+
+Taxes: You are responsible for collecting and reporting all applicable taxes (VAT/Sales Tax) for the food sold through your website.
+
+4. Use of the "Web Engine"
+License: We grant you a limited license to use our universal web engine to host your restaurant’s menu and accept orders.
+
+Content: You are responsible for all images, prices, and descriptions uploaded to your menu. You must own the rights to the photos you upload.
+
+5. Limitation of Liability
+Rockstar Admin is a software tool. We are not liable for:
+
+Loss of revenue due to temporary internet outages or server downtime.
+
+Mistakes in orders made by customers on your website.
+
+Any health or safety issues related to the food prepared by your restaurant.
+
+Maximum Liability: In any event, our total liability to you is limited to the amount of the last monthly subscription fee paid (€48.00).
+
+6. Termination
+Cancel Anytime: You can cancel your subscription at any time through the Admin App settings. Access will remain until the end of your current billing cycle.
+
+Data Retrieval: Upon cancellation, you have 30 days to export your order history before the data is permanently deleted from our servers.
+
+7. Modifications
+We may update these terms to reflect new features. Continued use of the app after an update constitutes acceptance of the new terms.
+''';
+
+  void _showTermsDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Terms & Conditions'),
+        content: Scrollbar(
+          thumbVisibility: true,
+          child: SingleChildScrollView(
+            child: Text(_termsText, style: AppTextStyles.bodyMedium),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -33,6 +102,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   Future<void> _handleRegister() async {
     if (_formKey.currentState!.validate()) {
+      if (!_acceptedTerms) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('You must accept the Terms & Conditions'), backgroundColor: AppColors.error),
+          );
+          return;
+      }
+      
       // Note: Restaurant Name is currently unused in the backend API
       await ref.read(authNotifierProvider.notifier).register(
             _emailController.text.trim(),
@@ -129,9 +205,54 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           label: 'Password',
                           hint: '••••••••',
                           prefixIcon: Icons.lock_outline,
-                          obscureText: true,
+                          obscureText: _obscurePassword,
                           controller: _passwordController,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                              color: AppColors.textSecondaryLight,
+                            ),
+                            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                          ),
                           validator: (v) => (v != null && v.length >= 6) ? null : 'Min 6 chars',
+                        ),
+                        const SizedBox(height: 16),
+                        
+                        // Terms Checkbox
+                        Theme(
+                          data: Theme.of(context).copyWith(
+                            checkboxTheme: CheckboxThemeData(
+                              fillColor: MaterialStateProperty.resolveWith((states) {
+                                if (states.contains(MaterialState.selected)) {
+                                  return AppColors.primaryLight;
+                                }
+                                return Colors.white;
+                              }),
+                              checkColor: MaterialStateProperty.all(Colors.white),
+                            ),
+                          ),
+                          child: CheckboxListTile(
+                            value: _acceptedTerms,
+                            onChanged: (val) => setState(() => _acceptedTerms = val ?? false),
+                            title: Row(
+                              children: [
+                                const Text("I accept the ", style: TextStyle(color: Colors.white70)),
+                                GestureDetector(
+                                  onTap: _showTermsDialog,
+                                  child: Text(
+                                    "Terms & Conditions",
+                                    style: TextStyle(
+                                      color: AppColors.primaryLight,
+                                      decoration: TextDecoration.underline,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            controlAffinity: ListTileControlAffinity.leading,
+                            contentPadding: EdgeInsets.zero,
+                          ),
                         ),
                         const SizedBox(height: 32),
                         CustomButton(

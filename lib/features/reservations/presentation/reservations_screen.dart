@@ -87,6 +87,78 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
     );
   }
 
+  Future<void> _showAddTableDialog() async {
+    final nameController = TextEditingController();
+    final seatsController = TextEditingController();
+    final xController = TextEditingController(text: '0.5');
+    final yController = TextEditingController(text: '0.5');
+    final formKey = GlobalKey<FormState>();
+
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('New Table', style: AppTextStyles.headlineMedium),
+        content: Form(
+          key: formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: 'Table Name'),
+                  validator: (v) => v!.isEmpty ? 'Required' : null,
+                ),
+                TextFormField(
+                  controller: seatsController,
+                  decoration: const InputDecoration(labelText: 'Seats'),
+                  keyboardType: TextInputType.number,
+                  validator: (v) => v!.isEmpty ? 'Required' : null,
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: xController,
+                        decoration: const InputDecoration(labelText: 'X (0.0-1.0)'),
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextFormField(
+                        controller: yController,
+                        decoration: const InputDecoration(labelText: 'Y (0.0-1.0)'),
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => context.pop(), child: const Text('Cancel')),
+          FilledButton(
+            onPressed: () {
+              if (formKey.currentState!.validate()) {
+                final name = nameController.text;
+                final seats = int.tryParse(seatsController.text) ?? 4;
+                final x = double.tryParse(xController.text) ?? 0.5;
+                final y = double.tryParse(yController.text) ?? 0.5;
+                
+                ref.read(reservationsProvider.notifier).addTable(name, seats, x, y);
+                context.pop();
+              }
+            },
+            child: const Text('Add Table'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(reservationsProvider);
@@ -103,8 +175,9 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
             onPressed: () => ref.read(reservationsProvider.notifier).refresh(),
           ),
           IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: _showAddReservationDialog,
+            icon: Icon(_showMap ? Icons.add_location_alt : Icons.add_circle),
+            tooltip: _showMap ? 'Add Table' : 'Add Reservation',
+            onPressed: _showMap ? _showAddTableDialog : _showAddReservationDialog,
           ),
         ],
       ),

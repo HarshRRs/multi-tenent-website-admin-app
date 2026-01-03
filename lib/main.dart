@@ -4,7 +4,13 @@ import 'package:rockster/core/router/app_router.dart';
 import 'package:rockster/core/theme/app_theme.dart';
 import 'package:rockster/core/theme/theme_provider.dart';
 
+import 'package:rockster/core/services/background_service.dart';
+
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Initialize Background Service (Fire & Forget)
+  BackgroundService.initializeService();
+  
   runApp(const ProviderScope(child: RocksterApp()));
 }
 

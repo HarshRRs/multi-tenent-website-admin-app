@@ -9,13 +9,27 @@ class ReservationService {
 
   // Tables
   Future<List<RestaurantTable>> getTables() async {
-    final response = await _dio.get('/reservations/tables');
+    final response = await _dio.get('/tables');
     return tablesFromJson(response.data);
   }
 
+  Future<RestaurantTable> createTable(String name, int seats, double x, double y) async {
+    final response = await _dio.post(
+      '/tables',
+      data: {
+        'name': name,
+        'seats': seats,
+        'x': x,
+        'y': y,
+        'status': 'available',
+      },
+    );
+    return tableFromJson(response.data);
+  }
+
   Future<RestaurantTable> updateTableStatus(String id, TableStatus status) async {
-    final response = await _dio.patch(
-      '/reservations/tables/$id/status',
+    final response = await _dio.put(
+      '/tables/$id',
       data: {'status': status.name},
     );
     return tableFromJson(response.data);

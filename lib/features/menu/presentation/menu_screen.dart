@@ -44,6 +44,39 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
     }
   }
 
+  void _showAddCategoryDialog(BuildContext context) {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('New Category', style: AppTextStyles.headlineMedium),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            labelText: 'Category Name',
+            hintText: 'e.g. Sushi, Italian, Desserts',
+          ),
+          autofocus: true,
+        ),
+        actions: [
+           TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+               if (controller.text.isNotEmpty) {
+                 ref.read(menuProvider.notifier).addCategory(controller.text.trim());
+                 Navigator.pop(context);
+               }
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final menuState = ref.watch(menuProvider);
@@ -99,6 +132,12 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text('No categories found'),
+              const SizedBox(height: 16),
+              FilledButton.icon(
+                onPressed: () => _showAddCategoryDialog(context),
+                icon: const Icon(Icons.add),
+                label: const Text('Create First Category'),
+              ),
               TextButton(
                 onPressed: () => ref.read(menuProvider.notifier).refresh(),
                 child: const Text('Retry'),
@@ -137,6 +176,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
         actions: [
           IconButton(
             icon: Icon(_isSearching ? Icons.close : Icons.search),
+            tooltip: 'Search Items',
             onPressed: () {
               setState(() {
                 if (_isSearching) {
@@ -152,7 +192,13 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
           if (!_isSearching)
             IconButton(
               icon: const Icon(Icons.refresh),
+              tooltip: 'Refresh Menu',
               onPressed: () => ref.read(menuProvider.notifier).refresh(),
+            ),
+           IconButton(
+              icon: const Icon(Icons.playlist_add),
+              tooltip: 'Add Category',
+              onPressed: () => _showAddCategoryDialog(context),
             ),
         ],
         bottom: TabBar(
