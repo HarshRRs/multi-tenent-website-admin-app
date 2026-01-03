@@ -13,6 +13,17 @@ class MenuService {
     return categoriesFromJson(response.data);
   }
 
+  Future<MenuCategory> createCategory(String name) async {
+    final response = await _dio.post(
+      '/menu/categories',
+      data: {'name': name},
+    );
+    // Determine response type: list or single object
+    // Our backend returns the created object
+    final data = response.data;
+    return MenuCategory(id: data['id'], name: data['name']);
+  }
+
   // Products
   Future<List<MenuItem>> getProducts({String? categoryId}) async {
     final queryParams = <String, dynamic>{};
@@ -56,5 +67,25 @@ class MenuService {
 
   Future<void> deleteProduct(String id) async {
     await _dio.delete('/menu/products/$id');
+  }
+
+  Future<String> uploadImage(dynamic file) async {
+    // Handling XFile from image_picker
+    String fileName = 'upload.jpg';
+    List<int> bytes;
+    
+    if (file.runtimeType.toString().contains('XFile')) {
+        bytes = await file.readAsBytes();
+        fileName = file.name;
+    } else {
+        throw Exception('Unsupported file type');
+    }
+
+    final formData = FormData.fromMap({
+      'image': MultipartFile.fromBytes(bytes, filename: fileName),
+    });
+
+    final response = await _dio.post('/upload', data: formData);
+    return response.data['url'];
   }
 }

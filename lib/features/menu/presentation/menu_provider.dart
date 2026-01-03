@@ -90,6 +90,44 @@ class MenuNotifier extends StateNotifier<MenuState> {
       );
     }
   }
+  Future<void> addCategory(String name) async {
+    try {
+      await _menuService.createCategory(name);
+      await loadMenu(); // Refresh list
+    } catch (e) {
+      state = state.copyWith(error: "Failed to add category: $e");
+    }
+  }
+
+  Future<void> addProduct(MenuItem product) async {
+    try {
+      await _menuService.createProduct(product);
+      await loadMenu();
+    } catch (e) {
+      state = state.copyWith(error: "Failed to add product: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> updateProduct(MenuItem product) async {
+    try {
+      await _menuService.updateProduct(product);
+      await loadMenu();
+    } catch (e) {
+      state = state.copyWith(error: "Failed to update product: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> deleteProduct(String id) async {
+    try {
+      await _menuService.deleteProduct(id);
+      await loadMenu();
+    } catch (e) {
+      state = state.copyWith(error: "Failed to delete product: $e");
+      rethrow;
+    }
+  }
 }
 
 final menuProvider = StateNotifierProvider<MenuNotifier, MenuState>((ref) {

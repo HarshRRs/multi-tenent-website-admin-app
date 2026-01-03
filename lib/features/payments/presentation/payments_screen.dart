@@ -20,11 +20,29 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(paymentsProvider.notifier).refresh();
+      ref.read(paymentsProvider.notifier).initStripe();
     });
   }
 
   void _handleConnectStripe() {
     ref.read(paymentsProvider.notifier).connectStripe();
+  }
+  
+  Future<void> _handlePayment() async {
+      try {
+          await ref.read(paymentsProvider.notifier).processPayment(10.00, 'EUR');
+          if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Payment Successful!'), backgroundColor: AppColors.success),
+              );
+          }
+      } catch (e) {
+          if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Payment Failed: $e'), backgroundColor: AppColors.error),
+              );
+          }
+      }
   }
 
   @override
@@ -56,6 +74,39 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+             // Payment Terminal (Test)
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4)),
+                ],
+              ),
+              child: Row(
+                children: [
+                   const Icon(Icons.point_of_sale, size: 32, color: AppColors.primaryLight),
+                   const SizedBox(width: 16),
+                   Expanded(
+                       child: Column(
+                           crossAxisAlignment: CrossAxisAlignment.start,
+                           children: [
+                               Text('Payment Terminal', style: AppTextStyles.headlineSmall),
+                               Text('Simulate a card payment', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryLight)),
+                           ],
+                       ),
+                   ),
+                   FilledButton.icon(
+                       onPressed: _handlePayment, 
+                       icon: const Icon(Icons.credit_card), 
+                       label: const Text('Charge €10.00'),
+                   ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
             // Stripe Connect Card
             Container(
               padding: const EdgeInsets.all(24),

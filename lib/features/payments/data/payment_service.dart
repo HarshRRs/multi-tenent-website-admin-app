@@ -7,18 +7,32 @@ class PaymentService {
 
   PaymentService(this._dio);
 
+  Future<String> getStripePublishableKey() async {
+    final response = await _dio.get('/payments/config');
+    return response.data['publishableKey'];
+  }
+
+  Future<Map<String, dynamic>> createPaymentIntent(double amount, String currency) async {
+    final response = await _dio.post(
+      '/payments/create-payment-intent',
+      data: {
+        'amount': amount,
+        'currency': currency,
+      },
+    );
+    return response.data; // { clientSecret: '...' }
+  }
+
+  // Keep these for now, returning empty/default to avoid UI errors since I removed backend mocks
   Future<StripeStatus> getStripeStatus() async {
-    final response = await _dio.get('/payments/stripe/status');
-    return StripeStatus.fromJson(response.data);
+      return StripeStatus(isConnected: false, accountId: '', availableBalance: 0, pendingBalance: 0);
   }
 
   Future<String> connectStripe() async {
-    final response = await _dio.post('/payments/stripe/connect');
-    return response.data['url']; // Returns the onboarding URL
+    throw UnimplementedError("Stripe Connect not fully implemented yet");
   }
 
   Future<List<Transaction>> getTransactions() async {
-    final response = await _dio.get('/payments/transactions');
-    return transactionsFromJson(response.data);
+    return []; 
   }
 }

@@ -89,21 +89,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Logo/Brand area
+                // Logo/Brand area
                 Container(
-                  height: 100,
-                  width: 100,
+                  height: 120,
+                  width: 120,
                   decoration: BoxDecoration(
-                    color: AppColors.primaryLight,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primaryLight.withValues(alpha: 0.5),
-                        blurRadius: 20,
-                        spreadRadius: 5,
+                        color: AppColors.primaryLight.withValues(alpha: 0.2),
+                        blurRadius: 40,
+                        spreadRadius: 0,
                       ),
                     ],
                   ),
-                  child: const Icon(Icons.restaurant, size: 50, color: Colors.white),
+                  child: Image.asset(
+                    'assets/images/logo.png',
+                    fit: BoxFit.contain,
+                  ),
                 ),
                 const SizedBox(height: 32),
                 

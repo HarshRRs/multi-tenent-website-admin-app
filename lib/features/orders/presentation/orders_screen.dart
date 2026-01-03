@@ -6,6 +6,7 @@ import 'package:rockster/core/theme/app_text_styles.dart';
 import 'package:rockster/features/orders/domain/order_model.dart';
 import 'package:rockster/features/orders/presentation/orders_provider.dart';
 import 'package:rockster/features/orders/presentation/widgets/kanban_column.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class OrdersScreen extends ConsumerStatefulWidget {
   const OrdersScreen({super.key});
@@ -14,14 +15,25 @@ class OrdersScreen extends ConsumerStatefulWidget {
   ConsumerState<OrdersScreen> createState() => _OrdersScreenState();
 }
 
+
+
 class _OrdersScreenState extends ConsumerState<OrdersScreen> {
   @override
   void initState() {
     super.initState();
+    // Enable Wake Lock for Kitchen Display
+    WakelockPlus.enable();
+    
     // Refresh orders when screen opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(ordersProvider.notifier).refresh();
     });
+  }
+
+  @override
+  void dispose() {
+    WakelockPlus.disable();
+    super.dispose();
   }
 
   void _onOrderDropped(Order order, OrderStatus newStatus) {
