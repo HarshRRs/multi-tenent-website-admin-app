@@ -1,0 +1,72 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rockster/core/providers/providers.dart';
+import 'package:rockster/features/reservations/data/reservation_service.dart';
+import 'package:rockster/features/reservations/domain/reservation_models.dart';
+
+enum DataStatus { initial, loading, success, error }
+
+class ReservationsState {
+  final DataStatus status;
+  final List<RestaurantTable> tables;
+  final List<Reservation> reservations;
+  final String? error;
+
+  ReservationsState({
+    required this.status,
+    this.tables = const [],
+    this.reservations = const [],
+    this.error,
+  });
+
+  ReservationsState copyWith({
+    DataStatus? status,
+    List<RestaurantTable>? tables,
+    List<Reservation>? reservations,
+    String? error,
+  }) {
+    return ReservationsState(
+      status: status ?? this.status,
+      tables: tables ?? this.tables,
+      reservations: reservations ?? this.reservations,
+      error: error ?? this.error,
+    );
+  }
+}
+
+class ReservationsNotifier extends StateNotifier<ReservationsState> {
+  final ReservationService _service;
+
+  ReservationsNotifier(this._service) : super(ReservationsState(status: DataStatus.initial)) {
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    state = state.copyWith(status: DataStatus.loading);
+    try {
+      final results = await Future.wait([
+        _service.getTables(),
+        _service.getReservations(),
+      ]);
+
+      state = state.copyWith(
+        status: DataStatus.success,
+        tables: results[0] as List<RestaurantTable>,
+        reservations: results[1] as List<Reservation>,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        status: DataStatus.error,
+        error: e.toString(),
+      );
+    }
+  }
+
+  Future<void> refresh() async {
+    await loadData();
+  }
+}
+
+final reservationsProvider = StateNotifierProvider<ReservationsNotifier, ReservationsState>((ref) {
+  final service = ref.watch(reservationServiceProvider);
+  return ReservationsNotifier(service);
+});
