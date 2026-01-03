@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rockster/core/components/main_layout.dart';
 import 'package:rockster/features/dashboard/presentation/dashboard_screen.dart';
@@ -10,6 +11,7 @@ import 'package:rockster/features/payments/presentation/payments_screen.dart';
 import 'package:rockster/features/website_customizer/presentation/website_customizer_screen.dart';
 import 'package:rockster/features/notifications/presentation/notifications_screen.dart';
 import 'package:rockster/features/settings/presentation/settings_screen.dart';
+import 'package:rockster/features/more/presentation/more_screen.dart';
 import 'package:rockster/features/auth/presentation/login_screen.dart';
 import 'package:rockster/features/auth/presentation/register_screen.dart';
 import 'package:rockster/features/orders/presentation/order_detail_screen.dart';
@@ -17,6 +19,10 @@ import 'package:rockster/features/auth/presentation/forgot_password_screen.dart'
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>();
+
+final routerProvider = Provider<GoRouter>((ref) {
+  return appRouter;
+});
 
 final appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
