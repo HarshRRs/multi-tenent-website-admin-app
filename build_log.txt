@@ -1,0 +1,181 @@
+﻿Running Gradle task 'assembleRelease'...                        
+Warning: The plugin flutter_plugin_android_lifecycle requires Android SDK version 36 or higher.
+For more information about build configuration, see https://flutter.dev/to/review-gradle-config.
+Warning: The plugin image_picker_android requires Android SDK version 36 or higher.
+For more information about build configuration, see https://flutter.dev/to/review-gradle-config.
+Warning: The plugin package_info_plus requires Android SDK version 36 or higher.
+For more information about build configuration, see https://flutter.dev/to/review-gradle-config.
+Warning: The plugin path_provider_android requires Android SDK version 36 or higher.
+For more information about build configuration, see https://flutter.dev/to/review-gradle-config.
+Warning: The plugin shared_preferences_android requires Android SDK version 36 or higher.
+For more information about build configuration, see https://flutter.dev/to/review-gradle-config.
+Warning: The plugin stripe_android requires Android SDK version 35 or higher.
+For more information about build configuration, see https://flutter.dev/to/review-gradle-config.
+Warning: The plugin url_launcher_android requires Android SDK version 36 or higher.
+For more information about build configuration, see https://flutter.dev/to/review-gradle-config.
+Warning: The plugin wakelock_plus requires Android SDK version 36 or higher.
+For more information about build configuration, see https://flutter.dev/to/review-gradle-config.
+flutter : Your 
+project is 
+configured to 
+compile against 
+Android SDK 34, but 
+the following 
+plugin(s) require to 
+be compiled against 
+a higher Android SDK 
+version:
+At line:1 char:1
++ flutter build apk 
+--release 2>&1 | 
+Out-File -FilePath 
+"build_log.txt" ...
++ ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (Your pr   
+ oject is...id SD    
+K version::Strin    
+g) [], RemoteExc    
+eption
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+- flutter_plugin_andr
+oid_lifecycle 
+compiles against 
+Android SDK 36
+- 
+image_picker_android 
+compiles against 
+Android SDK 36
+- package_info_plus 
+compiles against 
+Android SDK 36
+- path_provider_andro
+id compiles against 
+Android SDK 36
+- shared_preferences_
+android compiles 
+against Android SDK 
+36
+- stripe_android 
+compiles against 
+Android SDK 35
+- 
+url_launcher_android 
+compiles against 
+Android SDK 36
+- wakelock_plus 
+compiles against 
+Android SDK 36
+Fix this issue by 
+compiling against 
+the highest Android 
+SDK version (they 
+are backward 
+compatible).
+Add the following to 
+C:\Users\SHAH HARSH\.
+gemini\antigravity\sc
+ratch\.vscode\my\rock
+ster\android\app\buil
+d.gradle.kts:
+
+    android {
+        compileSdk = 
+36
+        ...
+    }
+lib/features/payments
+/presentation/payment
+s_screen.dart:95:78: 
+Error: Member not 
+found: 
+'headlineSmall'.
+                     
+          
+Text('Payment 
+Terminal', style: App
+TextStyles.headlineSm
+all),
+                     
+                     
+                     
+              
+^^^^^^^^^^^^^
+lib/features/payments
+/presentation/payment
+s_provider.dart:100:2
+4: Error: Not a 
+constant expression.
+              
+primary: 
+Color(0xFF635BFF),
+                     
+  ^^^^^
+lib/features/auth/dat
+a/auth_service.dart:1
+9:35: Error: The 
+getter 'token' isn't 
+defined for the type 
+'AuthResponse'.
+ - 'AuthResponse' is 
+from 'package:rockste
+r/features/auth/domai
+n/auth_models.dart' (
+'lib/features/auth/do
+main/auth_models.dart
+').
+Try correcting the 
+name to the name of 
+an existing getter, 
+or defining a getter 
+or field named 
+'token'.
+    await _saveToken(
+authResponse.token); 
+// Persist token
+                     
+             ^^^^^
+Target kernel_snapsho
+t_program failed: 
+Exception
+
+
+FAILURE: Build 
+failed with an 
+exception.
+
+* What went wrong:
+Execution failed for 
+task ':app:compileFlu
+tterBuildRelease'.
+> Process 'command 'C
+:\dev\flutter\bin\flu
+tter.bat'' finished 
+with non-zero exit 
+value 1
+
+* Try:
+> Run with 
+--stacktrace option 
+to get the stack 
+trace.
+> Run with --info or 
+--debug option to 
+get more log output.
+> Run with --scan to 
+get full insights.
+> Get more help at ht
+tps://help.gradle.org
+.
+
+BUILD FAILED in 14s
+Running Gradle task 'assembleRelease'...                           14.8s
+Gradle task 
+assembleRelease 
+failed with exit 
+code 1

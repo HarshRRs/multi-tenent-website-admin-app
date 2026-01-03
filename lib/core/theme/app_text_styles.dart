@@ -26,6 +26,12 @@ class AppTextStyles {
         height: 1.3,
       );
 
+  static TextStyle get headlineSmall => GoogleFonts.inter(
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        height: 1.3,
+      );
+
   static TextStyle get bodyLarge => GoogleFonts.inter(
         fontSize: 16,
         fontWeight: FontWeight.normal,
