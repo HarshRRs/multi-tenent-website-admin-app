@@ -16,7 +16,7 @@ class AuthService {
     );
 
     final authResponse = AuthResponse.fromJson(response.data);
-    await _saveToken(authResponse.token); // Persist token
+    await _saveToken(authResponse.accessToken); // Persist token
     return authResponse;
   }
 

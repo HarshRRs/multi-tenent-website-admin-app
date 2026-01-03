@@ -29,6 +29,16 @@ app.use('/tables', require('./src/routes/tableRoutes'));
 app.use('/upload', require('./src/routes/uploadRoutes'));
 app.use('/payments', require('./src/routes/paymentRoutes'));
 
+// Health Check (Root endpoint)
+app.get('/', (req, res) => {
+    res.json({
+        status: 'ok',
+        service: 'Rockster Backend',
+        version: '1.0.0',
+        timestamp: new Date().toISOString()
+    });
+});
+
 // --- MOCK DATA ---
 
 // Auth - REPLACED WITH REAL ROUTES
