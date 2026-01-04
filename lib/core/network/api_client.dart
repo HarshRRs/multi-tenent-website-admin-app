@@ -25,9 +25,10 @@ class ApiClient {
       // Use local backend for development verification
       return 'http://localhost:3000';
     }
-    // Simple check for Android Emulator vs others (simplified)
-    // In a real app, use DeviceInfo or Platform.isAndroid
-    return 'http://10.0.2.2:3000'; 
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      return 'http://10.0.2.2:3000';
+    }
+    return 'http://localhost:3000';
   }
   
   static const Duration connectTimeout = Duration(seconds: 60);
