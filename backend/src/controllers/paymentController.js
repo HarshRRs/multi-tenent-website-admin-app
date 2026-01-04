@@ -1,6 +1,10 @@
 const Stripe = require('stripe');
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
 
+if (!stripe) {
+    console.warn('Warning: Stripe Secret Key is missing. Payment features will be disabled.');
+}
+
 exports.createPaymentIntent = async (req, res) => {
     if (!stripe) {
         console.error('Stripe Secret Key is missing');
