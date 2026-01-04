@@ -8,12 +8,14 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  name      String
-  role      String   @default("manager")
-  createdAt DateTime @default(now())
+  id             String   @id @default(uuid())
+  email          String   @unique
+  password       String
+  name           String
+  restaurantName String?
+  stripeAccountId String?
+  role           String   @default("manager")
+  createdAt      DateTime @default(now())
 }
 
 model Category {

@@ -24,7 +24,6 @@ exports.createPaymentIntent = async (req, res) => {
 
         res.json({
             clientSecret: paymentIntent.client_secret,
-            id: paymentIntent.id,
         });
     } catch (error) {
         console.error('Stripe Error:', error);
@@ -36,30 +35,4 @@ exports.getStripeConfig = (req, res) => {
     res.json({
         publishableKey: process.env.STRIPE_PUBLISHABLE_KEY
     });
-};
-
-exports.verifyPaymentStatus = async (req, res) => {
-    if (!stripe) {
-        console.error('Stripe Secret Key is missing');
-        return res.status(503).json({ message: 'Payment service unavailable (Configuration Error)' });
-    }
-
-    try {
-        const { paymentId } = req.params;
-
-        if (!paymentId) {
-            return res.status(400).json({ message: 'Payment ID is required' });
-        }
-
-        const paymentIntent = await stripe.paymentIntents.retrieve(paymentId);
-
-        res.json({
-            status: paymentIntent.status,
-            amount: paymentIntent.amount,
-            currency: paymentIntent.currency,
-        });
-    } catch (error) {
-        console.error('Stripe Error:', error);
-        res.status(500).json({ message: 'Payment verification failed', error: error.message });
-    }
 };

@@ -109,11 +109,11 @@ We may update these terms to reflect new features. Continued use of the app afte
           return;
       }
       
-      // Note: Restaurant Name is currently unused in the backend API
       await ref.read(authNotifierProvider.notifier).register(
             _emailController.text.trim(),
             _passwordController.text,
             _nameController.text.trim(),
+            restaurantName: _restaurantNameController.text.trim(),
           );
     }
   }
@@ -189,7 +189,6 @@ We may update these terms to reflect new features. Continued use of the app afte
                           hint: "John's Burger Joint",
                           prefixIcon: Icons.store_outlined,
                           controller: _restaurantNameController,
-                          // Optional for now
                         ),
                         const SizedBox(height: 24),
                         CustomTextField(

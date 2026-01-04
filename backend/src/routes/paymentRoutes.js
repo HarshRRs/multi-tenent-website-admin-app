@@ -5,6 +5,5 @@ const auth = require('../middleware/authMiddleware');
 
 router.get('/config', paymentController.getStripeConfig);
 router.post('/create-payment-intent', auth, paymentController.createPaymentIntent);
-router.get('/status/:paymentId', auth, paymentController.verifyPaymentStatus);
 
 module.exports = router;

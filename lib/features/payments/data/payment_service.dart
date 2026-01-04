@@ -20,7 +20,7 @@ class PaymentService {
         'currency': currency,
       },
     );
-    return response.data; // { clientSecret: '...', id: '...' }
+    return response.data; // { clientSecret: '...' }
   }
 
   // Keep these for now, returning empty/default to avoid UI errors since I removed backend mocks
@@ -34,10 +34,5 @@ class PaymentService {
 
   Future<List<Transaction>> getTransactions() async {
     return []; 
-  }
-
-  Future<String> verifyPaymentStatus(String paymentId) async {
-    final response = await _dio.get('/payments/status/$paymentId');
-    return response.data['status'];
   }
 }

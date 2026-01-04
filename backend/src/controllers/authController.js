@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 exports.register = async (req, res) => {
     try {
-        const { name, email, password, role } = req.body;
+        const { name, email, password, role, restaurantName } = req.body;
 
         if (!email || !password || !name) {
             return res.status(400).json({ message: 'Please provide name, email and password' });
@@ -24,6 +24,7 @@ exports.register = async (req, res) => {
                 name,
                 email,
                 password: hashedPassword,
+                restaurantName,
                 role: role || 'manager'
             }
         });
@@ -41,6 +42,7 @@ exports.register = async (req, res) => {
                 id: user.id,
                 name: user.name,
                 email: user.email,
+                restaurantName: user.restaurantName,
                 role: user.role
             }
         });
@@ -83,6 +85,7 @@ exports.login = async (req, res) => {
                 id: user.id,
                 name: user.name,
                 email: user.email,
+                restaurantName: user.restaurantName,
                 role: user.role
             }
         });

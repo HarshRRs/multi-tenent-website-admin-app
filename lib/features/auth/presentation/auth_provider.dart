@@ -90,11 +90,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  Future<void> register(String email, String password, String name) async {
+  Future<void> register(String email, String password, String name, {String? restaurantName}) async {
     state = AuthState(status: AuthStatus.loading);
     
     try {
-      final response = await _authRepository.register(email, password, name);
+      final response = await _authRepository.register(email, password, name, restaurantName: restaurantName);
       state = AuthState(
         status: AuthStatus.authenticated,
         user: response.user,
