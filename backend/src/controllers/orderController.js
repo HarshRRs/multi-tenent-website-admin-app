@@ -4,7 +4,11 @@ const prisma = new PrismaClient();
 exports.getOrders = async (req, res) => {
     try {
         const { status } = req.query;
-        const where = status ? { status } : {};
+        // Ensure filtering by userId
+        const where = {
+            userId: req.user.id,
+            ...(status ? { status } : {})
+        };
 
         const orders = await prisma.order.findMany({
             where,
@@ -20,8 +24,12 @@ exports.getOrders = async (req, res) => {
 exports.getOrder = async (req, res) => {
     try {
         const { id } = req.params;
-        const order = await prisma.order.findUnique({
-            where: { id },
+        // Use findFirst to ensure ownership check (userId)
+        const order = await prisma.order.findFirst({
+            where: {
+                id,
+                userId: req.user.id
+            },
             include: { items: true }
         });
 
@@ -42,16 +50,12 @@ exports.createOrder = async (req, res) => {
             return res.status(400).json({ message: 'Order must contain items' });
         }
 
-        // Calculate total if not provided or verify it?
-        // For now, trust the frontend or calculate it.
-        // Let's rely on provided totalAmount or sum up items if we had product prices.
-        // Since OrderItem has price, let's assume valid data.
-
         const order = await prisma.order.create({
             data: {
                 customerName: customerName || 'Guest',
                 totalAmount: parseFloat(totalAmount) || 0,
                 status: 'pending',
+                userId: req.user.id, // Assign to current user
                 items: {
                     create: items.map(item => ({
                         name: item.name,
@@ -79,17 +83,27 @@ exports.updateOrderStatus = async (req, res) => {
             return res.status(400).json({ message: 'Status is required' });
         }
 
-        const order = await prisma.order.update({
+        // Security: Ensure ownership
+        const result = await prisma.order.updateMany({
+            where: {
+                id,
+                userId: req.user.id
+            },
+            data: { status }
+        });
+
+        if (result.count === 0) {
+            return res.status(404).json({ message: 'Order not found or access denied' });
+        }
+
+        // Return updated order
+        const updatedOrder = await prisma.order.findFirst({
             where: { id },
-            data: { status },
             include: { items: true }
         });
 
-        res.json(order);
+        res.json(updatedOrder);
     } catch (error) {
-        if (error.code === 'P2025') {
-            return res.status(404).json({ message: 'Order not found' });
-        }
         res.status(500).json({ message: 'Error updating order status', error: error.message });
     }
 };

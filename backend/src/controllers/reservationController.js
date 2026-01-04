@@ -4,6 +4,9 @@ const prisma = new PrismaClient();
 exports.getReservations = async (req, res) => {
     try {
         const reservations = await prisma.reservation.findMany({
+            where: {
+                userId: req.user.id
+            },
             include: { table: true },
             orderBy: { time: 'asc' }
         });
@@ -26,7 +29,8 @@ exports.createReservation = async (req, res) => {
                 customerName,
                 partySize: parseInt(partySize),
                 time: new Date(time),
-                tableId: tableId || null
+                tableId: tableId || null,
+                userId: req.user.id
             },
             include: { table: true }
         });

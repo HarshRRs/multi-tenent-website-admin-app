@@ -15,11 +15,34 @@ model User {
   role      String   @default("manager")
   stripeAccountId String?
   createdAt DateTime @default(now())
+  
+  // Relations
+  products      Product[]
+  categories    Category[]
+  tables        Table[]
+  orders        Order[]
+  reservations  Reservation[]
+  websiteConfig WebsiteConfig?
+}
+
+model WebsiteConfig {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id])
+  headline        String?
+  subheadline     String?
+  primaryColor    String?  @default("#D97706")
+  heroImageUrl    String?
+  startButtonText String?  @default("Order Now")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model Category {
   id        String    @id @default(uuid())
   name      String
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
   products  Product[]
 }
 
@@ -32,6 +55,8 @@ model Product {
   isAvailable Boolean  @default(true)
   categoryId  String
   category    Category @relation(fields: [categoryId], references: [id])
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
   createdAt   DateTime @default(now())
 }
 
@@ -42,6 +67,8 @@ model Table {
   x            Float
   y            Float
   status       String        @default("available")
+  userId       String
+  user         User          @relation(fields: [userId], references: [id])
   reservations Reservation[]
 }
 
@@ -52,6 +79,8 @@ model Reservation {
   time         DateTime
   tableId      String?
   table        Table?   @relation(fields: [tableId], references: [id])
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
   createdAt    DateTime @default(now())
 }
 
@@ -60,6 +89,8 @@ model Order {
   customerName String
   totalAmount  Float
   status       String      @default("pending")
+  userId       String
+  user         User        @relation(fields: [userId], references: [id])
   items        OrderItem[]
   createdAt    DateTime    @default(now())
 }

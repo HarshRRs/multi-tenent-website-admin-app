@@ -5,6 +5,7 @@ const prisma = new PrismaClient();
 exports.getTables = async (req, res) => {
     try {
         const tables = await prisma.table.findMany({
+            where: { userId: req.user.id },
             include: { reservations: true } // Include reservations for status checks if needed
         });
         res.json(tables);
@@ -29,7 +30,8 @@ exports.createTable = async (req, res) => {
                 seats: parseInt(seats),
                 x: x || 0.0,
                 y: y || 0.0,
-                status: status || 'available'
+                status: status || 'available',
+                userId: req.user.id
             }
         });
         res.status(201).json(table);
@@ -44,8 +46,9 @@ exports.updateTable = async (req, res) => {
         const { id } = req.params;
         const { name, seats, x, y, status } = req.body;
 
-        const table = await prisma.table.update({
-            where: { id },
+        // Security: Update only if owned
+        const result = await prisma.table.updateMany({
+            where: { id, userId: req.user.id },
             data: {
                 name,
                 seats: seats ? parseInt(seats) : undefined,
@@ -54,11 +57,14 @@ exports.updateTable = async (req, res) => {
                 status
             }
         });
+
+        if (result.count === 0) {
+            return res.status(404).json({ message: 'Table not found or access denied' });
+        }
+
+        const table = await prisma.table.findFirst({ where: { id } });
         res.json(table);
     } catch (error) {
-        if (error.code === 'P2025') {
-            return res.status(404).json({ message: 'Table not found' });
-        }
         res.status(500).json({ message: 'Error updating table', error: error.message });
     }
 };
@@ -67,12 +73,15 @@ exports.updateTable = async (req, res) => {
 exports.deleteTable = async (req, res) => {
     try {
         const { id } = req.params;
-        await prisma.table.delete({ where: { id } });
+        const result = await prisma.table.deleteMany({
+            where: { id, userId: req.user.id }
+        });
+
+        if (result.count === 0) {
+            return res.status(404).json({ message: 'Table not found or access denied' });
+        }
         res.json({ message: 'Table deleted' });
     } catch (error) {
-        if (error.code === 'P2025') {
-            return res.status(404).json({ message: 'Table not found' });
-        }
         res.status(500).json({ message: 'Error deleting table', error: error.message });
     }
 };

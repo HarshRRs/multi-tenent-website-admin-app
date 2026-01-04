@@ -10,7 +10,6 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS
 
 app.use(cors({
     origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
         if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
             callback(null, true);
@@ -31,13 +30,15 @@ app.use('/payments', require('./src/routes/paymentRoutes'));
 app.use('/orders', require('./src/routes/orderRoutes'));
 app.use('/dashboard', require('./src/routes/dashboardRoutes'));
 app.use('/reservations', require('./src/routes/reservationRoutes'));
+app.use('/website', require('./src/routes/websiteRoutes')); // Multi-Tenant Config
+app.use('/public', require('./src/routes/publicRoutes')); // Consumer Website API
 
-// Health Check (Root endpoint)
+// Health Check
 app.get('/', (req, res) => {
     res.json({
         status: 'ok',
-        service: 'Rockster Backend',
-        version: '1.0.0',
+        service: 'Rockster Backend (Multi-Tenant)',
+        version: '2.0.0',
         timestamp: new Date().toISOString()
     });
 });
