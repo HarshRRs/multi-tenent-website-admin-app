@@ -13,6 +13,7 @@ model User {
   password  String
   name      String
   role      String   @default("manager")
+  stripeAccountId String?
   createdAt DateTime @default(now())
 }
 
