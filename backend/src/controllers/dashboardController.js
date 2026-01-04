@@ -3,51 +3,50 @@ const prisma = new PrismaClient();
 
 exports.getStats = async (req, res) => {
     try {
-        // Mock data was:
-        // totalRevenue: 15430.50,
-        // activeOrders: 12,
-        // reservations: 8,
-        // menuItemsActive: 45,
-        // rating: 4.8,
-        // revenueTrend: '+12%',
-        // isRevenueTrendPositive: true
+        const userId = req.user.id; // Tenant isolation
 
-        // 1. Total Revenue (Sum of all completed orders? Or all?)
-        // Let's sum 'completed' orders.
+        // 1. Total Revenue (Sum of all completed orders for THIS user)
         const revenueAgg = await prisma.order.aggregate({
             _sum: { totalAmount: true },
-            where: { status: 'completed' } // Assuming 'completed' is the final status
+            where: {
+                userId,
+                status: 'completed'
+            }
         });
         const totalRevenue = revenueAgg._sum.totalAmount || 0;
 
-        // 2. Active Orders (Not completed or cancelled)
+        // 2. Active Orders
         const activeOrders = await prisma.order.count({
             where: {
+                userId,
                 status: {
-                    notIn: ['completed', 'cancelled', 'served'] // Adjust based on statuses
+                    notIn: ['completed', 'cancelled', 'served']
                 }
             }
         });
 
-        // 3. Reservations (Total future reservations?)
-        // Let's count reservations for today or future.
+        // 3. Reservations
         const reservations = await prisma.reservation.count({
-             where: {
-                 time: {
-                     gte: new Date()
-                 }
-             }
+            where: {
+                userId,
+                time: {
+                    gte: new Date()
+                }
+            }
         });
 
         // 4. Active Menu Items
         const menuItemsActive = await prisma.product.count({
-            where: { isAvailable: true }
+            where: {
+                userId,
+                isAvailable: true
+            }
         });
 
-        // 5. Rating (Hard to calculate without a Review model. Keep mock or 0)
-        const rating = 4.8; // Static for now
+        // 5. Rating (Static)
+        const rating = 4.8;
 
-        // 6. Revenue Trend (Need historical data. Static for now)
+        // 6. Revenue Trend (Static)
         const revenueTrend = '+12%';
         const isRevenueTrendPositive = true;
 
@@ -70,14 +69,13 @@ exports.getStats = async (req, res) => {
 exports.getRecentOrders = async (req, res) => {
     try {
         const recentOrders = await prisma.order.findMany({
+            where: {
+                userId: req.user.id
+            },
             take: 5,
             orderBy: { createdAt: 'desc' },
-            include: { items: true } // Optional: include items
+            include: { items: true }
         });
-
-        // Map to format if needed, but Prisma result is usually fine.
-        // Mock format: { id, customerName, amount, status, timestamp }
-        // Prisma: { id, customerName, totalAmount, status, createdAt, ... }
 
         const formatted = recentOrders.map(order => ({
             id: order.id,
