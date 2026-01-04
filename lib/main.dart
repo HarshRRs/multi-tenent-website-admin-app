@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:rockster/core/router/app_router.dart';
 import 'package:rockster/core/theme/app_theme.dart';
 import 'package:rockster/core/theme/theme_provider.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   // Enable edge-to-edge fullscreen mode
@@ -16,7 +17,20 @@ void main() {
     systemNavigationBarDividerColor: Colors.transparent,
   ));
   
+  // Request permissions on startup
+  await _requestPermissions();
+  
   runApp(const ProviderScope(child: RocksterApp()));
+}
+
+Future<void> _requestPermissions() async {
+  // Request multiple permissions at once
+  await [
+    Permission.camera,
+    Permission.storage,
+    Permission.photos,
+    Permission.notification,
+  ].request();
 }
 
 class RocksterApp extends ConsumerWidget {
