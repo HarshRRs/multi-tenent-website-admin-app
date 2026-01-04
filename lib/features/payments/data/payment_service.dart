@@ -35,4 +35,9 @@ class PaymentService {
   Future<List<Transaction>> getTransactions() async {
     return []; 
   }
+
+  Future<String> verifyPaymentStatus(String paymentId) async {
+    final response = await _dio.get('/payments/status/$paymentId');
+    return response.data['status'];
+  }
 }

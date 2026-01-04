@@ -80,17 +80,41 @@ class PaymentsNotifier extends StateNotifier<PaymentsState> {
   Future<void> processPayment(double amount, String currency) async {
     state = state.copyWith(status: DataStatus.loading);
     try {
-      // Payment processing disabled - flutter_stripe removed due to build issues
-      state = state.copyWith(
-        status: DataStatus.error,
-        error: "Stripe payments temporarily disabled. Add flutter_stripe SDK to enable.",
-      );
+      final paymentIntent = await _service.createPaymentIntent(amount, currency);
+      final paymentId = paymentIntent['id'];
+
+      // Note: In a real app with flutter_stripe, we would confirm the payment here.
+      // Since the SDK is removed, we proceed to verification directly (which may fail or show pending).
+
+      await verifyPayment(paymentId);
     } catch (e) {
       state = state.copyWith(
         status: DataStatus.error,
         error: e.toString(),
       );
       rethrow;
+    }
+  }
+
+  Future<void> verifyPayment(String paymentId) async {
+    // Keep loading state or update if needed
+    try {
+      final status = await _service.verifyPaymentStatus(paymentId);
+      if (status == 'succeeded') {
+        state = state.copyWith(status: DataStatus.success);
+      } else {
+        // For testing/demo without full Stripe flow, we might just log or set a specific state.
+        // Assuming 'succeeded' is the only "success" for now.
+        state = state.copyWith(
+          status: DataStatus.error,
+          error: "Payment verification status: $status",
+        );
+      }
+    } catch (e) {
+      state = state.copyWith(
+        status: DataStatus.error,
+        error: e.toString(),
+      );
     }
   }
 }
