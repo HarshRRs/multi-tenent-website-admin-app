@@ -29,7 +29,10 @@ class PaymentService {
   }
 
   Future<String> connectStripe() async {
-    throw UnimplementedError("Stripe Connect not fully implemented yet");
+    final response = await _dio.post(
+      '/payments/create-connected-account',
+    );
+    return response.data['url'] as String;
   }
 
   Future<List<Transaction>> getTransactions() async {
