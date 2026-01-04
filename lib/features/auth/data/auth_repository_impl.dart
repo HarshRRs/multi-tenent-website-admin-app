@@ -22,8 +22,8 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<AuthResponse> register(String email, String password, String name) async {
-    final response = await _authService.register(email, password, name);
+  Future<AuthResponse> register(String email, String password, String name, {String? restaurantName}) async {
+    final response = await _authService.register(email, password, name, restaurantName: restaurantName);
     
     // Store tokens
     await _secureStorage.setAccessToken(response.accessToken);

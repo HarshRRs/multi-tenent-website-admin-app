@@ -30,13 +30,14 @@ class AuthService {
     return prefs.getString(_tokenKey);
   }
 
-  Future<AuthResponse> register(String email, String password, String name) async {
+  Future<AuthResponse> register(String email, String password, String name, {String? restaurantName}) async {
     final response = await _dio.post(
       '/auth/register',
       data: {
         'email': email,
         'password': password,
         'name': name,
+        if (restaurantName != null) 'restaurantName': restaurantName,
       },
     );
 
