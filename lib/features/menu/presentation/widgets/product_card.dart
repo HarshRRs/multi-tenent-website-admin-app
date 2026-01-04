@@ -82,6 +82,7 @@ class ProductCard extends StatelessWidget {
                     ),
                     child: IconButton(
                       icon: const Icon(Icons.edit, size: 18, color: AppColors.primaryLight),
+                      tooltip: 'Edit item',
                       onPressed: onEdit,
                       constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                       padding: EdgeInsets.zero,
