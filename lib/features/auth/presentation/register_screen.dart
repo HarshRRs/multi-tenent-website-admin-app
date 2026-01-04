@@ -212,6 +212,7 @@ We may update these terms to reflect new features. Continued use of the app afte
                               _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
                               color: AppColors.textSecondaryLight,
                             ),
+                            tooltip: _obscurePassword ? 'Show password' : 'Hide password',
                             onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                           ),
                           validator: (v) => (v != null && v.length >= 6) ? null : 'Min 6 chars',
