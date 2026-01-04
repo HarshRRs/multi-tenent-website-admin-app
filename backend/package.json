@@ -4,8 +4,8 @@
   "description": "Backend for Rockster Restaurant SaaS",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "postinstall": "prisma generate && prisma db push",
+    "start": "prisma db push && node server.js",
+    "postinstall": "prisma generate",
     "db:migrate": "prisma migrate deploy"
   },
   "dependencies": {
