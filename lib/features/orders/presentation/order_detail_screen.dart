@@ -22,11 +22,13 @@ class OrderDetailScreen extends ConsumerWidget {
         title: Text('Order #$orderId'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+          tooltip: 'Back',
           onPressed: () => context.pop(),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.print),
+            tooltip: 'Print Order',
             onPressed: () {},
           ),
         ],

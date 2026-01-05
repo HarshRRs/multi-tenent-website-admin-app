@@ -91,6 +91,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
              ),
           IconButton(
             icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh Orders',
             onPressed: () => ref.read(ordersProvider.notifier).refresh(),
           ),
         ],
