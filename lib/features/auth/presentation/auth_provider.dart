@@ -5,22 +5,9 @@ import 'package:rockster/features/auth/data/auth_repository_impl.dart';
 import 'package:rockster/features/auth/data/auth_service.dart';
 import 'package:rockster/features/auth/domain/auth_models.dart';
 import 'package:rockster/features/auth/domain/auth_repository.dart';
+import 'package:rockster/core/providers/messenger_provider.dart';
 
-// Providers
-final apiClientProvider = Provider<ApiClient>((ref) => ApiClient());
-
-final secureStorageProvider = Provider<SecureStorage>((ref) => SecureStorage());
-
-final authServiceProvider = Provider<AuthService>((ref) {
-  final apiClient = ref.watch(apiClientProvider);
-  return AuthService(apiClient.dio);
-});
-
-final authRepositoryProvider = Provider<AuthRepository>((ref) {
-  final authService = ref.watch(authServiceProvider);
-  final secureStorage = ref.watch(secureStorageProvider);
-  return AuthRepositoryImpl(authService, secureStorage);
-});
+import 'package:rockster/core/providers/providers.dart';
 
 // Auth State
 enum AuthStatus { initial, authenticated, unauthenticated, loading, error }

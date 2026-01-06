@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:rockster/core/components/custom_button.dart';
-import 'package:rockster/core/components/custom_text_field.dart';
 import 'package:rockster/core/theme/app_colors.dart';
 import 'package:rockster/core/theme/app_text_styles.dart';
 import 'package:rockster/features/auth/presentation/auth_provider.dart';
@@ -36,6 +34,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     ref.listen(authNotifierProvider, (previous, next) {
@@ -43,13 +43,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         context.go('/');
       } else if (next.status == AuthStatus.error) {
         String errorMessage = 'Authentication failed';
+
         if (next.error != null) {
-          if (next.error!.contains('DioException') || next.error!.contains('connection')) {
+          final errorLower = next.error!.toLowerCase();
+          
+          if (errorLower.contains('connection timeout') || 
+              errorLower.contains('no internet') || 
+              errorLower.contains('connection error')) {
              errorMessage = 'Network Error: Cannot connect to server. Please check your internet.';
-          } else if (next.error!.contains('401')) {
+          } else if (errorLower.contains('401') || errorLower.contains('400')) {
              errorMessage = 'Invalid Email or Password';
           } else {
-             errorMessage = next.error!;
+             errorMessage = next.error!.replaceAll('Exception:', '').trim();
           }
         }
         
@@ -74,134 +79,194 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final isLoading = authState.status == AuthStatus.loading;
 
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppColors.backgroundDark, AppColors.secondaryDark],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+      backgroundColor: Colors.white,
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 400),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Logo/Brand area
-                // Logo/Brand area
-                Container(
-                  height: 120,
-                  width: 120,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primaryLight.withValues(alpha: 0.2),
-                        blurRadius: 40,
-                        spreadRadius: 0,
+                // Minimalist Text Logo
+                Column(
+                  children: [
+                    Text(
+                      'ROCKSTAR',
+                      style: AppTextStyles.displayLarge.copyWith(
+                        color: AppColors.gold,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 2.0,
+                        fontSize: 42,
                       ),
-                    ],
-                  ),
-                  child: Image.asset(
-                    'assets/images/logo.png',
-                    fit: BoxFit.contain,
-                  ),
+                    ),
+                     const SizedBox(height: 4),
+                    Text(
+                      'RESTAURANT ADMIN',
+                      style: AppTextStyles.labelLarge.copyWith(
+                        color: Colors.black54,
+                        letterSpacing: 4.0,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 32),
                 
-                // Glass Card
-                Container(
-                  padding: const EdgeInsets.all(32),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                const SizedBox(height: 64),
+                
+                // Greeting
+                Text(
+                  'Welcome Back',
+                  style: AppTextStyles.headlineMedium.copyWith(
+                    color: Colors.black87,
+                    fontWeight: FontWeight.bold,
                   ),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          'Welcome Back',
-                          style: AppTextStyles.displayMedium.copyWith(color: Colors.white),
-                          textAlign: TextAlign.center,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Sign in to manage your restaurant',
+                  style: AppTextStyles.bodyMedium.copyWith(color: Colors.black54),
+                  textAlign: TextAlign.center,
+                ),
+                
+                const SizedBox(height: 48),
+
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      // Email Field
+                      TextFormField(
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        style: const TextStyle(color: Colors.black87),
+                        decoration: InputDecoration(
+                          labelText: 'Email Address',
+                          hintText: 'owner@restaurant.com',
+                          labelStyle: TextStyle(color: Colors.black54),
+                          hintStyle: TextStyle(color: Colors.black38),
+                          prefixIcon: const Icon(Icons.email_outlined, color: AppColors.gold),
+                          filled: true,
+                          fillColor: const Color(0xFFFAFAFA),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: AppColors.gold, width: 1.5),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Sign in to your restaurant dashboard',
-                          style: AppTextStyles.bodyMedium.copyWith(color: Colors.white70),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 32),
-                        CustomTextField(
-                          label: 'Email Address',
-                          hint: 'owner@restaurant.com',
-                          prefixIcon: Icons.email_outlined,
-                          controller: _emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) return 'Please enter your email';
-                            if (!value.contains('@')) return 'Please enter a valid email';
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 24),
-                        CustomTextField(
-                          label: 'Password',
-                          hint: '••••••••',
-                          prefixIcon: Icons.lock_outline,
-                          obscureText: _obscurePassword,
-                          controller: _passwordController,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) return 'Please enter your email';
+                          if (!value.contains('@')) return 'Please enter a valid email';
+                          return null;
+                        },
+                      ),
+                      
+                      const SizedBox(height: 20),
+                      
+                      // Password Field
+                      TextFormField(
+                        controller: _passwordController,
+                        obscureText: _obscurePassword,
+                        style: const TextStyle(color: Colors.black87),
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          labelStyle: TextStyle(color: Colors.black54),
+                          prefixIcon: const Icon(Icons.lock_outline, color: AppColors.gold),
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                              color: Colors.white70,
+                              color: Colors.black45,
                             ),
-                            tooltip: _obscurePassword ? 'Show password' : 'Hide password',
                             onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) return 'Please enter your password';
-                            return null;
-                          },
+                          filled: true,
+                          fillColor: const Color(0xFFFAFAFA),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: AppColors.gold, width: 1.5),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                         ),
-                        const SizedBox(height: 16),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton(
-                            onPressed: () => context.push('/forgot-password'),
-                            child: Text(
-                              'Forgot Password?',
-                              style: AppTextStyles.labelLarge.copyWith(color: AppColors.primaryLight),
+                        validator: (value) => (value == null || value.isEmpty) ? 'Required' : null,
+                      ),
+                      
+                      const SizedBox(height: 12),
+                      
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () => context.push('/forgot-password'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.black54,
+                          ),
+                          child: const Text('Forgot Password?'),
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 32),
+                      
+                      // Login Button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: ElevatedButton(
+                          onPressed: isLoading ? null : _handleLogin,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.gold,
+                            foregroundColor: Colors.white,
+                            elevation: 2,
+                            shadowColor: AppColors.gold.withValues(alpha: 0.4),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
                             ),
                           ),
+                          child: isLoading 
+                              ? const SizedBox(
+                                  height: 24, 
+                                  width: 24, 
+                                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5)
+                                )
+                              : const Text(
+                                  'SIGN IN',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.0,
+                                  ),
+                                ),
                         ),
-                        const SizedBox(height: 24),
-                        CustomButton(
-                          text: 'Sign In',
-                          isLoading: isLoading,
-                          onPressed: _handleLogin,
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 24),
+                
+                const SizedBox(height: 40),
+                
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      "Don't have an account? ",
-                      style: AppTextStyles.bodyMedium.copyWith(color: Colors.white70),
+                    const Text(
+                      "New to Rockstar? ",
+                      style: TextStyle(color: Colors.black54),
                     ),
                     TextButton(
                       onPressed: () => context.push('/register'),
-                      child: Text(
-                        'Create Account',
-                        style: AppTextStyles.labelLarge.copyWith(color: AppColors.primaryLight),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.gold,
+                        textStyle: const TextStyle(fontWeight: FontWeight.bold),
                       ),
+                      child: const Text('Create Account'),
                     ),
                   ],
                 ),

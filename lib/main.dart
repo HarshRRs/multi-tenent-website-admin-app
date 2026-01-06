@@ -5,6 +5,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:rockster/core/router/app_router.dart';
 import 'package:rockster/core/theme/app_theme.dart';
 import 'package:rockster/core/theme/theme_provider.dart';
+import 'package:rockster/core/providers/messenger_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,6 +43,7 @@ class RocksterApp extends ConsumerWidget {
 
     return MaterialApp.router(
       title: 'Rockster',
+      scaffoldMessengerKey: ref.watch(messengerKeyProvider),
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,

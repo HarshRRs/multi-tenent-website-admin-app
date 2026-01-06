@@ -3,23 +3,29 @@ import 'package:go_router/go_router.dart';
 import 'package:rockster/core/components/custom_button.dart';
 import 'package:rockster/core/components/custom_text_field.dart';
 import 'package:rockster/core/theme/app_colors.dart';
+import 'package:rockster/features/website_customizer/data/website_service.dart';
 import 'package:rockster/features/website_customizer/domain/website_models.dart';
 import 'package:rockster/features/website_customizer/presentation/widgets/website_preview_widget.dart';
 
-class WebsiteCustomizerScreen extends StatefulWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rockster/core/providers/providers.dart';
+
+class WebsiteCustomizerScreen extends ConsumerStatefulWidget {
   const WebsiteCustomizerScreen({super.key});
 
   @override
-  State<WebsiteCustomizerScreen> createState() => _WebsiteCustomizerScreenState();
+  ConsumerState<WebsiteCustomizerScreen> createState() => _WebsiteCustomizerScreenState();
 }
 
-class _WebsiteCustomizerScreenState extends State<WebsiteCustomizerScreen> with SingleTickerProviderStateMixin {
+class _WebsiteCustomizerScreenState extends ConsumerState<WebsiteCustomizerScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late TextEditingController _headlineController;
   late TextEditingController _subheadlineController;
   late TextEditingController _btnTextController;
 
-  // Initial Config
+  // Service will be accessed via ref
+  bool _isLoading = true;
+
   late WebsiteConfig _config;
 
   final List<Color> _brandColors = [
@@ -36,6 +42,7 @@ class _WebsiteCustomizerScreenState extends State<WebsiteCustomizerScreen> with 
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     
+    // Default config
     _config = WebsiteConfig(
       headline: 'Taste the Difference',
       subheadline: 'Experience culinary excellence in every bite.',
@@ -48,10 +55,29 @@ class _WebsiteCustomizerScreenState extends State<WebsiteCustomizerScreen> with 
     _subheadlineController = TextEditingController(text: _config.subheadline);
     _btnTextController = TextEditingController(text: _config.startButtonText);
 
-    // Listeners to update preview in real-time
     _headlineController.addListener(() => _updateConfig());
     _subheadlineController.addListener(() => _updateConfig());
     _btnTextController.addListener(() => _updateConfig());
+
+    _loadConfig();
+  }
+
+  Future<void> _loadConfig() async {
+    try {
+      final config = await ref.read(websiteServiceProvider).fetchConfig();
+      if (config != null) {
+        setState(() {
+          _config = config;
+          _headlineController.text = config.headline;
+          _subheadlineController.text = config.subheadline;
+          _btnTextController.text = config.startButtonText;
+        });
+      }
+    } catch (e) {
+      // Keep defaults on error
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   void _updateConfig() {
@@ -62,6 +88,27 @@ class _WebsiteCustomizerScreenState extends State<WebsiteCustomizerScreen> with 
         startButtonText: _btnTextController.text,
       );
     });
+  }
+
+  Future<void> _saveConfig() async {
+    setState(() => _isLoading = true);
+    try {
+       await ref.read(websiteServiceProvider).updateConfig(_config);
+       if (mounted) {
+         ScaffoldMessenger.of(context).showSnackBar(
+           const SnackBar(content: Text('Website Published Successfully!')),
+         );
+         context.pop();
+       }
+    } catch (e) {
+      if (mounted) {
+         ScaffoldMessenger.of(context).showSnackBar(
+           SnackBar(content: Text('Error saving: $e')),
+         );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -75,6 +122,10 @@ class _WebsiteCustomizerScreenState extends State<WebsiteCustomizerScreen> with 
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Website Customizer'),
@@ -84,12 +135,7 @@ class _WebsiteCustomizerScreenState extends State<WebsiteCustomizerScreen> with 
         ),
         actions: [
           TextButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Website Published Successfully!')),
-              );
-              context.pop();
-            },
+            onPressed: _saveConfig,
             child: const Text('Publish', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],

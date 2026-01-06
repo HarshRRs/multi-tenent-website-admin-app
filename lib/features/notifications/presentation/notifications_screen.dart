@@ -143,9 +143,9 @@ class NotificationsScreen extends StatelessWidget {
     final diff = now.difference(time);
 
     if (diff.inMinutes < 60) {
-      return '\${diff.inMinutes}m ago';
+      return '${diff.inMinutes}m ago';
     } else if (diff.inHours < 24) {
-      return '\${diff.inHours}h ago';
+      return '${diff.inHours}h ago';
     } else {
       return DateFormat('MMM d').format(time);
     }

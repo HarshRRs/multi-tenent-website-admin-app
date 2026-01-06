@@ -15,19 +15,7 @@ class AuthService {
       data: LoginRequest(email: email, password: password).toJson(),
     );
 
-    final authResponse = AuthResponse.fromJson(response.data);
-    await _saveToken(authResponse.accessToken); // Persist token
-    return authResponse;
-  }
-
-  Future<void> _saveToken(String token) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_tokenKey, token);
-  }
-
-  Future<String?> getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_tokenKey);
+    return AuthResponse.fromJson(response.data);
   }
 
   Future<AuthResponse> register(String email, String password, String name) async {
@@ -37,6 +25,7 @@ class AuthService {
         'email': email,
         'password': password,
         'name': name,
+        'role': 'manager'
       },
     );
 
@@ -44,9 +33,7 @@ class AuthService {
   }
 
   Future<void> logout() async {
-    // await _dio.post('/auth/logout'); // Optional API call if backend invalidates tokens
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_tokenKey);
+    // No-op for service, storage cleared by repo
   }
 
   Future<User> getCurrentUser() async {

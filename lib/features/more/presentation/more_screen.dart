@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rockster/core/theme/app_colors.dart';
 import 'package:rockster/core/theme/app_text_styles.dart';
+import 'package:rockster/features/auth/presentation/auth_provider.dart';
+import 'package:rockster/core/providers/providers.dart';
 
-class MoreScreen extends StatelessWidget {
+class MoreScreen extends ConsumerWidget {
   const MoreScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authNotifierProvider);
+    final user = authState.user;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Menu'),
@@ -37,9 +43,9 @@ class MoreScreen extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('John Doe', style: AppTextStyles.headlineMedium.copyWith(color: Colors.white, fontSize: 18)),
+                    Text(user?.name ?? 'User', style: AppTextStyles.headlineMedium.copyWith(color: Colors.white, fontSize: 18)),
                     const SizedBox(height: 4),
-                    Text('Owner • Rockster App', style: AppTextStyles.bodyMedium.copyWith(color: Colors.white70)),
+                    Text('${user?.role ?? "User"} • Rockster App', style: AppTextStyles.bodyMedium.copyWith(color: Colors.white70)),
                   ],
                 ),
               ],
@@ -50,6 +56,7 @@ class MoreScreen extends StatelessWidget {
           // Menu Items
           _buildSettingsTile(
             context,
+            ref,
             icon: Icons.payment,
             title: 'Payments & Payouts',
             subtitle: 'Stripe Connect, Transaction History',
@@ -57,6 +64,7 @@ class MoreScreen extends StatelessWidget {
           ),
           _buildSettingsTile(
             context,
+            ref,
             icon: Icons.language,
             title: 'Website Customizer',
             subtitle: 'Customize your public site',
@@ -64,6 +72,7 @@ class MoreScreen extends StatelessWidget {
           ),
            _buildSettingsTile(
             context,
+            ref,
             icon: Icons.notifications,
             title: 'Notifications',
             subtitle: 'Manage alerts and push notifications',
@@ -71,6 +80,7 @@ class MoreScreen extends StatelessWidget {
           ),
           _buildSettingsTile(
             context,
+            ref,
             icon: Icons.settings,
             title: 'Settings',
             subtitle: 'App preferences, printer setup',
@@ -79,8 +89,19 @@ class MoreScreen extends StatelessWidget {
           
           const Divider(height: 32),
           
+          ListTile(
+            leading: const CircleAvatar(
+              backgroundColor: AppColors.surfaceLight,
+              child: Icon(Icons.network_check, color: AppColors.primaryLight),
+            ),
+            title: Text('Test Connection', style: AppTextStyles.labelLarge),
+            subtitle: Text('Verify server availability', style: AppTextStyles.bodyMedium),
+            onTap: () => _testConnection(context, ref),
+          ),
+
           _buildSettingsTile(
             context,
+            ref,
             icon: Icons.logout,
             title: 'Log Out',
             subtitle: 'Sign out of your account',
@@ -92,8 +113,51 @@ class MoreScreen extends StatelessWidget {
     );
   }
 
+  Future<void> _testConnection(BuildContext context, WidgetRef ref) async {
+    final dio = ref.read(apiClientProvider).dio;
+    final baseUrl = ref.read(apiClientProvider).dio.options.baseUrl;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final response = await dio.get('/');
+      if (context.mounted) {
+        Navigator.pop(context); // Close loading
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Connection Success'),
+            content: Text('Successfully connected to:\n$baseUrl\n\nStatus: ${response.data['status']}'),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK')),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.pop(context); // Close loading
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Connection Failed'),
+            content: Text('Could not reach:\n$baseUrl\n\nError: $e'),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK')),
+            ],
+          ),
+        );
+      }
+    }
+  }
+
   Widget _buildSettingsTile(
-    BuildContext context, {
+    BuildContext context,
+    WidgetRef ref, {
     required IconData icon,
     required String title,
     required String subtitle,
@@ -116,10 +180,13 @@ class MoreScreen extends StatelessWidget {
       title: Text(title, style: AppTextStyles.labelLarge.copyWith(color: isDestructive ? AppColors.error : null)),
       subtitle: Text(subtitle, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryLight)),
       trailing: const Icon(Icons.chevron_right, color: AppColors.textSecondaryLight),
-      onTap: () {
+      onTap: () async {
         if (route == '/login') {
-           // Clear state/auth logic here
-           context.go(route);
+           // Real logout logic
+           await ref.read(authNotifierProvider.notifier).logout();
+           if (context.mounted) {
+             context.go(route);
+           }
         } else {
            context.push(route);
         }

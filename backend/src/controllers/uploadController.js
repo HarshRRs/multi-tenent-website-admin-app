@@ -43,7 +43,7 @@ exports.uploadImage = (req, res) => {
     // Assumes server serves 'uploads' folder statically at /uploads
     const protocol = req.protocol;
     const host = req.get('host');
-    const fileUrl = `\${protocol}://\${host}/uploads/\${req.file.filename}`;
+    const fileUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
 
     res.json({
         message: 'File uploaded successfully',

@@ -1,10 +1,30 @@
+import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:rockster/core/exceptions/app_exception.dart';
 
 class ErrorInterceptor extends Interceptor {
+  final GlobalKey<ScaffoldMessengerState>? messengerKey;
+
+  ErrorInterceptor(this.messengerKey);
+
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     final exception = _handleError(err);
+    
+    // Show global SnackBar
+    messengerKey?.currentState?.showSnackBar(
+      SnackBar(
+        content: Text(exception.message),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+        action: SnackBarAction(
+          label: 'DISMISS',
+          textColor: Colors.white,
+          onPressed: () {},
+        ),
+      ),
+    );
+
     handler.reject(DioException(
       requestOptions: err.requestOptions,
       response: err.response,

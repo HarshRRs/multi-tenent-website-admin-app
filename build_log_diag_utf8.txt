@@ -1,0 +1,395 @@
+﻿Resolving dependencies...
+Downloading packages...
+  _flutterfire_internals 1.3.59 (1.3.65 available)
+  characters 1.4.0 (1.4.1 available)
+  firebase_auth 5.7.0 (6.1.3 available)
+  firebase_auth_platform_interface 7.7.3 (8.1.5 available)
+  firebase_auth_web 5.15.3 (6.1.1 available)
+  firebase_core 3.15.2 (4.3.0 available)
+  firebase_core_web 2.24.1 (3.3.1 available)
+  flutter_lints 5.0.0 (6.0.0 available)
+  flutter_riverpod 2.6.1 (3.1.0 available)
+  go_router 14.8.1 (17.0.1 available)
+  intl 0.19.0 (0.20.2 available)
+  lints 5.1.1 (6.0.0 available)
+  matcher 0.12.17 (0.12.18 available)
+  material_color_utilities 0.11.1 (0.13.0 available)
+  riverpod 2.6.1 (3.1.0 available)
+  test_api 0.7.7 (0.7.8 available)
+Got dependencies!
+16 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Running Gradle task 'assembleRelease'...                        
+flutter : lib/core/ne
+twork/interceptors/er
+ror_interceptor.dart:
+4:32: Error: Type 
+'Interceptor' not 
+found.
+At line:1 char:1
++ flutter build apk 
+--release > 
+build_log_diag.txt 
+2>&1
++ ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (lib/cor   
+ e/networ...tor'     
+not found.:Strin    
+g) [], RemoteExc    
+eption
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+class 
+ErrorInterceptor 
+extends Interceptor {
+                     
+          ^^^^^^^^^^^
+lib/core/network/inte
+rceptors/error_interc
+eptor.dart:10:16: 
+Error: Type 
+'DioException' not 
+found.
+  void 
+onError(DioException 
+err, ErrorInterceptor
+Handler handler) {
+               
+^^^^^^^^^^^^
+lib/core/network/inte
+rceptors/error_interc
+eptor.dart:10:34: 
+Error: Type 'ErrorInt
+erceptorHandler' not 
+found.
+  void 
+onError(DioException 
+err, ErrorInterceptor
+Handler handler) {
+                     
+            ^^^^^^^^^
+^^^^^^^^^^^^^^
+lib/core/network/inte
+rceptors/error_interc
+eptor.dart:35:29: 
+Error: Type 
+'DioException' not 
+found.
+  AppException _handl
+eError(DioException 
+error) {
+                     
+       ^^^^^^^^^^^^
+lib/core/network/inte
+rceptors/error_interc
+eptor.dart:56:37: 
+Error: Type 
+'Response' not found.
+  AppException _handl
+eResponseError(Respon
+se? response) {
+                     
+               
+^^^^^^^^
+lib/features/auth/pre
+sentation/auth_provid
+er.dart:11:34: 
+Error: Undefined 
+name 'messengerKeyPro
+vider'.
+  final messengerKey 
+= ref.watch(messenger
+KeyProvider);
+                     
+            
+^^^^^^^^^^^^^^^^^^^^
+lib/core/providers/pr
+oviders.dart:15:56: 
+Error: Couldn't find 
+constructor 
+'ApiClient'.
+final 
+apiClientProvider = P
+rovider<ApiClient>((r
+ef) => ApiClient());
+                     
+                     
+             
+^^^^^^^^^
+lib/features/website_
+customizer/data/websi
+te_service.dart:5:29:
+ Error: Couldn't 
+find constructor 
+'ApiClient'.
+  final ApiClient 
+_client = 
+ApiClient();
+                     
+       ^^^^^^^^^
+lib/core/network/api_
+client.dart:68:27: 
+Error: The argument 
+type 
+'ErrorInterceptor' 
+can't be assigned to 
+the parameter type 
+'Interceptor'.
+ - 
+'ErrorInterceptor' 
+is from 'package:rock
+ster/core/network/int
+erceptors/error_inter
+ceptor.dart' ('lib/co
+re/network/intercepto
+rs/error_interceptor.
+dart').
+ - 'Interceptor' is 
+from 'package:dio/src
+/dio_mixin.dart' ('..
+/../../../../../AppDa
+ta/Local/Pub/Cache/ho
+sted/pub.dev/dio-5.9.
+0/lib/src/dio_mixin.d
+art').
+    _dio.interceptors
+.add(ErrorInterceptor
+(messengerKey));
+                     
+     ^
+lib/core/network/inte
+rceptors/error_interc
+eptor.dart:10:16: 
+Error: 
+'DioException' isn't 
+a type.
+  void 
+onError(DioException 
+err, ErrorInterceptor
+Handler handler) {
+               
+^^^^^^^^^^^^
+lib/core/network/inte
+rceptors/error_interc
+eptor.dart:10:34: 
+Error: 'ErrorIntercep
+torHandler' isn't a 
+type.
+  void 
+onError(DioException 
+err, ErrorInterceptor
+Handler handler) {
+                     
+            ^^^^^^^^^
+^^^^^^^^^^^^^^
+lib/core/network/inte
+rceptors/error_interc
+eptor.dart:27:20: 
+Error: The method 
+'DioException' isn't 
+defined for the type 
+'ErrorInterceptor'.
+ - 
+'ErrorInterceptor' 
+is from 'package:rock
+ster/core/network/int
+erceptors/error_inter
+ceptor.dart' ('lib/co
+re/network/intercepto
+rs/error_interceptor.
+dart').
+Try correcting the 
+name to the name of 
+an existing method, 
+or defining a method 
+named 'DioException'.
+    handler.reject(Di
+oException(
+                   
+^^^^^^^^^^^^
+lib/core/network/inte
+rceptors/error_interc
+eptor.dart:35:29: 
+Error: 
+'DioException' isn't 
+a type.
+  AppException _handl
+eError(DioException 
+error) {
+                     
+       ^^^^^^^^^^^^
+lib/core/network/inte
+rceptors/error_interc
+eptor.dart:37:12: 
+Error: Not a 
+constant expression.
+      case DioExcepti
+onType.connectionTime
+out:
+           
+^^^^^^^^^^^^^^^^
+lib/core/network/inte
+rceptors/error_interc
+eptor.dart:38:12: 
+Error: Not a 
+constant expression.
+      case DioExcepti
+onType.sendTimeout:
+           
+^^^^^^^^^^^^^^^^
+lib/core/network/inte
+rceptors/error_interc
+eptor.dart:39:12: 
+Error: Not a 
+constant expression.
+      case DioExcepti
+onType.receiveTimeout
+:
+           
+^^^^^^^^^^^^^^^^
+lib/core/network/inte
+rceptors/error_interc
+eptor.dart:42:12: 
+Error: Not a 
+constant expression.
+      case DioExcepti
+onType.connectionErro
+r:
+           
+^^^^^^^^^^^^^^^^
+lib/core/network/inte
+rceptors/error_interc
+eptor.dart:45:12: 
+Error: Not a 
+constant expression.
+      case DioExcepti
+onType.badResponse:
+           
+^^^^^^^^^^^^^^^^
+lib/core/network/inte
+rceptors/error_interc
+eptor.dart:48:12: 
+Error: Not a 
+constant expression.
+      case DioExcepti
+onType.cancel:
+           
+^^^^^^^^^^^^^^^^
+lib/core/network/inte
+rceptors/error_interc
+eptor.dart:56:37: 
+Error: 'Response' 
+isn't a type.
+  AppException _handl
+eResponseError(Respon
+se? response) {
+                     
+               
+^^^^^^^^
+lib/features/more/pre
+sentation/more_screen
+.dart:96:26: Error: 
+Constant evaluation 
+error:
+            title: 
+const Text('Test 
+Connection', style: A
+ppTextStyles.labelLar
+ge),
+                     
+    ^
+lib/features/more/pre
+sentation/more_screen
+.dart:96:71: 
+Context: The 
+invocation of 
+'labelLarge' is not 
+allowed in a 
+constant expression.
+            title: 
+const Text('Test 
+Connection', style: A
+ppTextStyles.labelLar
+ge),
+                     
+                     
+                     
+       ^
+lib/features/more/pre
+sentation/more_screen
+.dart:97:29: Error: 
+Constant evaluation 
+error:
+            
+subtitle: const 
+Text('Verify server 
+availability', 
+style: AppTextStyles.
+bodyMedium),
+                     
+       ^
+lib/features/more/pre
+sentation/more_screen
+.dart:97:85: 
+Context: The 
+invocation of 
+'bodyMedium' is not 
+allowed in a 
+constant expression.
+            
+subtitle: const 
+Text('Verify server 
+availability', 
+style: AppTextStyles.
+bodyMedium),
+                     
+                     
+                     
+                     
+^
+Target kernel_snapsho
+t_program failed: 
+Exception
+
+
+FAILURE: Build 
+failed with an 
+exception.
+
+* What went wrong:
+Execution failed for 
+task ':app:compileFlu
+tterBuildRelease'.
+> Process 'command 'C
+:\dev\flutter\bin\flu
+tter.bat'' finished 
+with non-zero exit 
+value 1
+
+* Try:
+> Run with 
+--stacktrace option 
+to get the stack 
+trace.
+> Run with --info or 
+--debug option to 
+get more log output.
+> Run with --scan to 
+get full insights.
+> Get more help at ht
+tps://help.gradle.org
+.
+
+BUILD FAILED in 13s
+Running Gradle task 'assembleRelease'...                           13.3s
+Gradle task 
+assembleRelease 
+failed with exit 
+code 1
+

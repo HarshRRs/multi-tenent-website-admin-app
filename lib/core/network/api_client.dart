@@ -4,29 +4,37 @@ import 'package:rockster/core/network/interceptors/auth_interceptor.dart';
 import 'package:rockster/core/network/interceptors/error_interceptor.dart';
 import 'package:rockster/core/network/interceptors/logging_interceptor.dart';
 
+import 'package:flutter/material.dart';
+
 class ApiClient {
-  static final ApiClient _instance = ApiClient._internal();
-  factory ApiClient() => _instance;
+  static ApiClient? _instance;
+  static ApiClient getInstance(GlobalKey<ScaffoldMessengerState>? messengerKey) {
+    _instance ??= ApiClient._internal(messengerKey);
+    return _instance!;
+  }
 
   late final Dio _dio;
+  final GlobalKey<ScaffoldMessengerState>? messengerKey;
+  
   Dio get dio => _dio;
 
-  ApiClient._internal() {
+  ApiClient._internal(this.messengerKey) {
     _dio = Dio(_baseOptions);
     _setupInterceptors();
   }
 
-  // Use 10.0.2.2 for Android Emulator, localhost for iOS/Web
+  // Change this to your laptop's IP (e.g., 192.168.1.5) to test on a physical Android phone
+  static const String localIp = '10.0.2.2'; // 10.0.2.2 is for Emulator only
+
   static String get baseUrl {
     if (kReleaseMode) {
       return 'https://rockster-production.up.railway.app';
     }
     if (kIsWeb) {
-      // Use local backend for development verification
       return 'http://localhost:3000';
     }
     if (defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://10.0.2.2:3000';
+      return 'http://$localIp:3000';
     }
     return 'http://localhost:3000';
   }
@@ -44,7 +52,7 @@ class ApiClient {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        validateStatus: (status) => status != null && status < 500,
+        validateStatus: (status) => status != null && status >= 200 && status < 300,
       );
 
   void _setupInterceptors() {
@@ -57,7 +65,7 @@ class ApiClient {
       _dio.interceptors.add(LoggingInterceptor());
     }
     
-    _dio.interceptors.add(ErrorInterceptor());
+    _dio.interceptors.add(ErrorInterceptor(messengerKey));
   }
 
   // Retry configuration

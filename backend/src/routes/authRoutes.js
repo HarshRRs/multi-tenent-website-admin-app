@@ -12,4 +12,14 @@ router.post('/register', authController.register);
 // @access  Public
 router.post('/login', authController.login);
 
+// @route   POST /auth/refresh
+// @desc    Refresh access token
+// @access  Public
+router.post('/refresh', authController.refresh);
+
+// @route   GET /auth/me
+// @desc    Get current user
+// @access  Private
+router.get('/me', auth, authController.getCurrentUser);
+
 module.exports = router;

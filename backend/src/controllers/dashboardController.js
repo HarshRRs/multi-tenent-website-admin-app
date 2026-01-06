@@ -85,7 +85,7 @@ exports.getRecentOrders = async (req, res) => {
             timestamp: order.createdAt
         }));
 
-        res.json(formatted);
+        res.json({ orders: formatted });
 
     } catch (error) {
         res.status(500).json({ message: 'Error fetching recent orders', error: error.message });

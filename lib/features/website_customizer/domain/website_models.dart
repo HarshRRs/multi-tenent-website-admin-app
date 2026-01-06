@@ -30,4 +30,36 @@ class WebsiteConfig {
       startButtonText: startButtonText ?? this.startButtonText,
     );
   }
+
+  factory WebsiteConfig.fromJson(Map<String, dynamic> json) {
+    return WebsiteConfig(
+      headline: json['headline'] ?? '',
+      subheadline: json['subheadline'] ?? '',
+      primaryColor: _colorFromHex(json['primaryColor']) ?? const Color(0xFFD97706),
+      heroImageUrl: json['heroImageUrl'] ?? '',
+      startButtonText: json['startButtonText'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'headline': headline,
+      'subheadline': subheadline,
+      'primaryColor': '#${primaryColor.value.toRadixString(16).padLeft(8, '0').substring(2)}',
+      'heroImageUrl': heroImageUrl,
+      'startButtonText': startButtonText,
+    };
+  }
+
+  static Color? _colorFromHex(String? hexString) {
+    if (hexString == null || hexString.isEmpty) return null;
+    final buffer = StringBuffer();
+    if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
+    buffer.write(hexString.replaceFirst('#', ''));
+    try {
+      return Color(int.parse(buffer.toString(), radix: 16));
+    } catch (e) {
+      return null;
+    }
+  }
 }

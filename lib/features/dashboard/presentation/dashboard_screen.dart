@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rockster/core/theme/app_colors.dart';
 import 'package:rockster/core/theme/app_text_styles.dart';
+import 'package:rockster/features/auth/presentation/auth_provider.dart';
 import 'package:rockster/features/dashboard/presentation/dashboard_provider.dart';
 import 'package:rockster/features/dashboard/presentation/widgets/hero_stat_card.dart';
 import 'package:rockster/features/dashboard/presentation/widgets/quick_stat_card.dart';
@@ -49,10 +50,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               surfaceTintColor: Colors.transparent,
               flexibleSpace: FlexibleSpaceBar(
                 titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
-                title: Text(
-                  'Good Morning, John', // Ideally fetch user name from AuthProvider
-                  style: AppTextStyles.headlineMedium.copyWith(color: Theme.of(context).colorScheme.onSurface),
-                ),
+                  title: Text(
+                    'Hello, ${ref.watch(authNotifierProvider).user?.name ?? "User"}',
+                    style: AppTextStyles.headlineMedium.copyWith(color: Theme.of(context).colorScheme.onSurface),
+                  ),
               ),
               actions: [
                 if (dashboardState.status == DataStatus.loading)
@@ -88,6 +89,27 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             if (isLoading)
               const SliverFillRemaining(
                 child: Center(child: CircularProgressIndicator()),
+              )
+            else if (dashboardState.status == DataStatus.error)
+              SliverFillRemaining(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.error_outline, size: 64, color: AppColors.error),
+                      const SizedBox(height: 16),
+                      Text('Failed to load dashboard', style: AppTextStyles.headlineMedium),
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(dashboardState.error ?? 'Unknown error', textAlign: TextAlign.center),
+                      ),
+                      FilledButton(
+                        onPressed: _onRefresh,
+                        child: const Text('Try Again'),
+                      ),
+                    ],
+                  ),
+                ),
               )
             else
               SliverPadding(
@@ -127,20 +149,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                               icon: Icons.calendar_today,
                               baseColor: Colors.purple,
                               delay: 200,
-                            ),
-                            QuickStatCard(
-                              title: 'Menu Active',
-                              value: (stats?.menuItemsActive ?? 0).toString(),
-                              icon: Icons.restaurant_menu,
-                              baseColor: Colors.orange,
-                              delay: 300,
-                            ),
-                            QuickStatCard(
-                              title: 'Rating',
-                              value: (stats?.rating ?? 0.0).toStringAsFixed(1),
-                              icon: Icons.star,
-                              baseColor: AppColors.warning,
-                              delay: 400,
                             ),
                           ],
                         );

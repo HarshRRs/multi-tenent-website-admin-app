@@ -15,7 +15,10 @@ exports.getOrders = async (req, res) => {
             include: { items: true },
             orderBy: { createdAt: 'desc' }
         });
-        res.json(orders);
+        res.json({
+            orders: orders,
+            total: orders.length
+        });
     } catch (error) {
         res.status(500).json({ message: 'Error fetching orders', error: error.message });
     }

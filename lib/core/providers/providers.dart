@@ -10,9 +10,15 @@ import 'package:rockster/features/menu/data/menu_service.dart';
 import 'package:rockster/features/orders/data/order_service.dart';
 import 'package:rockster/features/payments/data/payment_service.dart';
 import 'package:rockster/features/reservations/data/reservation_service.dart';
+import 'package:rockster/features/website_customizer/data/website_service.dart';
+
+import 'package:rockster/core/providers/messenger_provider.dart';
 
 // Core Providers
-final apiClientProvider = Provider<ApiClient>((ref) => ApiClient());
+final apiClientProvider = Provider<ApiClient>((ref) {
+  final messengerKey = ref.watch(messengerKeyProvider);
+  return ApiClient.getInstance(messengerKey);
+});
 
 final secureStorageProvider = Provider<SecureStorage>((ref) => SecureStorage());
 
@@ -58,4 +64,10 @@ final reservationServiceProvider = Provider<ReservationService>((ref) {
 final paymentServiceProvider = Provider<PaymentService>((ref) {
   final apiClient = ref.watch(apiClientProvider);
   return PaymentService(apiClient.dio);
+});
+
+// Website Providers
+final websiteServiceProvider = Provider<WebsiteService>((ref) {
+  final apiClient = ref.watch(apiClientProvider);
+  return WebsiteService(apiClient.dio);
 });
