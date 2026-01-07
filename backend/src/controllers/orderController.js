@@ -53,9 +53,16 @@ exports.createOrder = async (req, res) => {
             return res.status(400).json({ message: 'Order must contain items' });
         }
 
+        // Validate customer name (don't silently default to "Guest")
+        if (!customerName || customerName.trim() === '') {
+            return res.status(400).json({
+                message: 'Customer name is required. Use "Guest" explicitly for walk-in customers.'
+            });
+        }
+
         const order = await prisma.order.create({
             data: {
-                customerName: customerName || 'Guest',
+                customerName: customerName.trim(),
                 totalAmount: parseFloat(totalAmount) || 0,
                 status: 'pending',
                 userId: req.user.id, // Assign to current user
@@ -69,6 +76,20 @@ exports.createOrder = async (req, res) => {
             },
             include: { items: true }
         });
+
+        // Create notification for new order
+        try {
+            const notificationController = require('./notificationController');
+            await notificationController.createNotification(
+                req.user.id,
+                `New Order #${order.id.substring(0, 8)}`,
+                `New order from ${customerName} for $${totalAmount.toFixed(2)}`,
+                'order'
+            );
+        } catch (notifError) {
+            console.error('Failed to create notification:', notifError);
+            // Don't fail the order if notification fails
+        }
 
         res.status(201).json(order);
     } catch (error) {

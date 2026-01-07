@@ -8,27 +8,25 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  name      String
-  role      String   @default("manager")
+  id              String         @id @default(uuid())
+  email           String         @unique
+  password        String
+  name            String
+  role            String         @default("manager")
+  createdAt       DateTime       @default(now())
   stripeAccountId String?
-  createdAt DateTime @default(now())
-  
-  // Relations
-  products      Product[]
-  categories    Category[]
-  tables        Table[]
-  orders        Order[]
-  reservations  Reservation[]
-  websiteConfig WebsiteConfig?
+  categories      Category[]
+  orders          Order[]
+  products        Product[]
+  reservations    Reservation[]
+  tables          Table[]
+  websiteConfig   WebsiteConfig?
+  notifications   Notification[]
 }
 
 model WebsiteConfig {
   id              String   @id @default(uuid())
   userId          String   @unique
-  user            User     @relation(fields: [userId], references: [id])
   headline        String?
   subheadline     String?
   primaryColor    String?  @default("#D97706")
@@ -36,14 +34,15 @@ model WebsiteConfig {
   startButtonText String?  @default("Order Now")
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id])
 }
 
 model Category {
-  id        String    @id @default(uuid())
-  name      String
-  userId    String
-  user      User      @relation(fields: [userId], references: [id])
-  products  Product[]
+  id       String    @id @default(uuid())
+  name     String
+  userId   String
+  user     User      @relation(fields: [userId], references: [id])
+  products Product[]
 }
 
 model Product {
@@ -54,10 +53,10 @@ model Product {
   imageUrl    String?
   isAvailable Boolean  @default(true)
   categoryId  String
-  category    Category @relation(fields: [categoryId], references: [id])
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
   createdAt   DateTime @default(now())
+  userId      String
+  category    Category @relation(fields: [categoryId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
 }
 
 model Table {
@@ -68,8 +67,8 @@ model Table {
   y            Float
   status       String        @default("available")
   userId       String
-  user         User          @relation(fields: [userId], references: [id])
   reservations Reservation[]
+  user         User          @relation(fields: [userId], references: [id])
 }
 
 model Reservation {
@@ -78,10 +77,10 @@ model Reservation {
   partySize    Int
   time         DateTime
   tableId      String?
-  table        Table?   @relation(fields: [tableId], references: [id])
-  userId       String
-  user         User     @relation(fields: [userId], references: [id])
   createdAt    DateTime @default(now())
+  userId       String
+  table        Table?   @relation(fields: [tableId], references: [id])
+  user         User     @relation(fields: [userId], references: [id])
 }
 
 model Order {
@@ -89,17 +88,28 @@ model Order {
   customerName String
   totalAmount  Float
   status       String      @default("pending")
+  createdAt    DateTime    @default(now())
   userId       String
   user         User        @relation(fields: [userId], references: [id])
   items        OrderItem[]
-  createdAt    DateTime    @default(now())
 }
 
 model OrderItem {
   id       String @id @default(uuid())
   orderId  String
-  order    Order  @relation(fields: [orderId], references: [id])
   name     String
   quantity Int
   price    Float
+  order    Order  @relation(fields: [orderId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  body      String
+  type      String   @default("system") // "order", "system", "promotion"
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
 }

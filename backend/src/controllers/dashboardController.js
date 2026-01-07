@@ -43,12 +43,52 @@ exports.getStats = async (req, res) => {
             }
         });
 
-        // 5. Rating (Static)
-        const rating = 4.8;
+        // 5. Revenue Trend (Calculate week-over-week change)
+        const now = new Date();
+        const lastWeekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const twoWeeksAgoStart = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
 
-        // 6. Revenue Trend (Static)
-        const revenueTrend = '+12%';
-        const isRevenueTrendPositive = true;
+        const lastWeekRevenue = await prisma.order.aggregate({
+            _sum: { totalAmount: true },
+            where: {
+                userId,
+                status: 'completed',
+                createdAt: {
+                    gte: lastWeekStart,
+                    lte: now
+                }
+            }
+        });
+
+        const twoWeeksAgoRevenue = await prisma.order.aggregate({
+            _sum: { totalAmount: true },
+            where: {
+                userId,
+                status: 'completed',
+                createdAt: {
+                    gte: twoWeeksAgoStart,
+                    lte: lastWeekStart
+                }
+            }
+        });
+
+        const lastWeekTotal = lastWeekRevenue._sum.totalAmount || 0;
+        const twoWeeksTotal = twoWeeksAgoRevenue._sum.totalAmount || 0;
+
+        let revenueTrend = '0%';
+        let isRevenueTrendPositive = true;
+
+        if (twoWeeksTotal > 0) {
+            const percentChange = ((lastWeekTotal - twoWeeksTotal) / twoWeeksTotal) * 100;
+            isRevenueTrendPositive = percentChange >= 0;
+            revenueTrend = `${isRevenueTrendPositive ? '+' : ''}${percentChange.toFixed(1)}%`;
+        } else if (lastWeekTotal > 0) {
+            revenueTrend = '+100%'; // If no previous week revenue but current week has revenue
+        }
+
+        // 6. Rating - Remove or set to null if no review system exists
+        // For now, returning null to indicate "no rating system"
+        const rating = null;
 
         res.json({
             totalRevenue,

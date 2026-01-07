@@ -1,4 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
+﻿const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 // --- Categories ---
@@ -112,7 +112,7 @@ exports.updateAvailability = async (req, res) => {
     }
 };
 
-exports.deleteProduct = async (req, res) => {
+exports.deleteProduct = async(req, res) =\u003e {
     try {
         const { id } = req.params;
 
@@ -134,7 +134,7 @@ exports.deleteProduct = async (req, res) => {
     }
 };
 
-exports.deleteCategory = async (req, res) => {
+exports.deleteCategory = async(req, res) =\u003e {
     try {
         const { id } = req.params;
 
@@ -143,7 +143,7 @@ exports.deleteCategory = async (req, res) => {
             where: { categoryId: id, userId: req.user.id }
         });
 
-        if (productsCount > 0) {
+        if (productsCount \u003e 0) {
             return res.status(400).json({
                 message: 'Cannot delete category with existing products',
                 productCount: productsCount

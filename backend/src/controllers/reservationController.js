@@ -24,6 +24,36 @@ exports.createReservation = async (req, res) => {
             return res.status(400).json({ message: 'Customer name, party size, and time are required' });
         }
 
+        // Check for overbooking if tableId is provided
+        if (tableId) {
+            const reservationTime = new Date(time);
+            // Check for reservations within 2 hours before and after (typical dining duration)
+            const bufferHours = 2;
+            const startWindow = new Date(reservationTime.getTime() - bufferHours * 60 * 60 * 1000);
+            const endWindow = new Date(reservationTime.getTime() + bufferHours * 60 * 60 * 1000);
+
+            const conflictingReservation = await prisma.reservation.findFirst({
+                where: {
+                    tableId: tableId,
+                    userId: req.user.id,
+                    time: {
+                        gte: startWindow,
+                        lte: endWindow
+                    }
+                }
+            });
+
+            if (conflictingReservation) {
+                return res.status(409).json({
+                    message: 'Table is already reserved for this time slot',
+                    conflict: {
+                        customerName: conflictingReservation.customerName,
+                        time: conflictingReservation.time
+                    }
+                });
+            }
+        }
+
         const reservation = await prisma.reservation.create({
             data: {
                 customerName,

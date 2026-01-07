@@ -31,6 +31,7 @@ app.use('/payments', require('./src/routes/paymentRoutes'));
 app.use('/orders', require('./src/routes/orderRoutes'));
 app.use('/dashboard', require('./src/routes/dashboardRoutes'));
 app.use('/reservations', require('./src/routes/reservationRoutes'));
+app.use('/notifications', require('./src/routes/notificationRoutes'));
 app.use('/website', require('./src/routes/websiteRoutes')); // Multi-Tenant Config
 app.use('/public', require('./src/routes/publicRoutes')); // Consumer Website API
 
