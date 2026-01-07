@@ -1,50 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rockster/core/theme/app_colors.dart';
 import 'package:rockster/core/theme/app_text_styles.dart';
 import 'package:rockster/features/notifications/domain/notification_model.dart';
+import 'package:rockster/features/notifications/presentation/notifications_provider.dart';
 import 'package:intl/intl.dart';
 
-class NotificationsScreen extends StatelessWidget {
+class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Mock Data
-    final List<AppNotification> notifications = [
-      AppNotification(
-        id: '1',
-        title: 'New Order #1024',
-        body: 'You have a new order from Alice Johnson for €25.50.',
-        timestamp: DateTime.now().subtract(const Duration(minutes: 5)),
-        isRead: false,
-        type: NotificationType.order,
-      ),
-      AppNotification(
-        id: '2',
-        title: 'Payout Processed',
-        body: 'Your weekly payout of €1,248.50 has been sent to your bank.',
-        timestamp: DateTime.now().subtract(const Duration(hours: 4)),
-        isRead: true,
-        type: NotificationType.system,
-      ),
-      AppNotification(
-        id: '3',
-        title: 'Table Reserved',
-        body: 'Table 5 has been reserved for 6 guests at 7:00 PM.',
-        timestamp: DateTime.now().subtract(const Duration(hours: 6)),
-        isRead: true,
-        type: NotificationType.order, // treating reservation as order type for icon
-      ),
-      AppNotification(
-        id: '4',
-        title: 'System Update',
-        body: 'Rockster App has been updated to version 2.0. Check out the new Website Customizer!',
-        timestamp: DateTime.now().subtract(const Duration(days: 1)),
-        isRead: true,
-        type: NotificationType.promotion,
-      ),
-    ];
+  Widget build(BuildContext context, WidgetRef ref) {
+    final notificationsState = ref.watch(notificationsProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -54,65 +22,103 @@ class NotificationsScreen extends StatelessWidget {
           onPressed: () => context.pop(),
         ),
         actions: [
-          TextButton(
-            onPressed: () {},
-            child: const Text('Mark all read'),
-          ),
+          if (notificationsState.unreadCount > 0)
+            TextButton(
+              onPressed: () {
+                ref.read(notificationsProvider.notifier).markAllAsRead();
+              },
+              child: const Text('Mark all read'),
+            ),
         ],
       ),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: notifications.length,
-        separatorBuilder: (context, index) => const Divider(height: 1),
-        itemBuilder: (context, index) {
-          final notification = notifications[index];
-          return Container(
-            color: notification.isRead ? Colors.transparent : AppColors.primaryLight.withValues(alpha: 0.05),
-            child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              leading: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: _getTypeColor(notification.type).withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  _getTypeIcon(notification.type),
-                  color: _getTypeColor(notification.type),
-                  size: 20,
-                ),
-              ),
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    notification.title,
-                    style: AppTextStyles.labelLarge.copyWith(
-                      fontWeight: notification.isRead ? FontWeight.normal : FontWeight.bold,
+      body: notificationsState.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : notificationsState.error != null
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Error: ${notificationsState.error}'),
+                      ElevatedButton(
+                        onPressed: () {
+                          ref.read(notificationsProvider.notifier).loadNotifications();
+                        },
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                )
+              : notificationsState.notifications.isEmpty
+                  ? const Center(child: Text('No notifications yet'))
+                  : RefreshIndicator(
+                      onRefresh: () => ref.read(notificationsProvider.notifier).loadNotifications(),
+                      child: ListView.separated(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: notificationsState.notifications.length,
+                        separatorBuilder: (context, index) => const Divider(height: 1),
+                        itemBuilder: (context, index) {
+                          final notification = notificationsState.notifications[index];
+                          return Container(
+                            color: notification.isRead
+                                ? Colors.transparent
+                                : AppColors.primaryLight.withValues(alpha: 0.05),
+                            child: ListTile(
+                              contentPadding:
+                                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              leading: Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: _getTypeColor(notification.type).withValues(alpha: 0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  _getTypeIcon(notification.type),
+                                  color: _getTypeColor(notification.type),
+                                  size: 20,
+                                ),
+                              ),
+                              title: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      notification.title,
+                                      style: AppTextStyles.labelLarge.copyWith(
+                                        fontWeight: notification.isRead
+                                            ? FontWeight.normal
+                                            : FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    _formatTime(notification.timestamp),
+                                    style: AppTextStyles.labelSmall
+                                        .copyWith(color: AppColors.textSecondaryLight),
+                                  ),
+                                ],
+                              ),
+                              subtitle: Padding(
+                                padding: const EdgeInsets.only(top: 4),
+                                child: Text(
+                                  notification.body,
+                                  style: AppTextStyles.bodyMedium
+                                      .copyWith(color: AppColors.textSecondaryLight),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              onTap: () {
+                                if (!notification.isRead) {
+                                  ref
+                                      .read(notificationsProvider.notifier)
+                                      .markAsRead(notification.id);
+                                }
+                              },
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                  Text(
-                    _formatTime(notification.timestamp),
-                    style: AppTextStyles.labelSmall.copyWith(color: AppColors.textSecondaryLight),
-                  ),
-                ],
-              ),
-              subtitle: Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(
-                  notification.body,
-                  style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryLight),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              onTap: () {
-                // Navigate or mark as read logic
-              },
-            ),
-          );
-        },
-      ),
     );
   }
 

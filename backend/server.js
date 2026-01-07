@@ -22,6 +22,29 @@ app.use(cors({
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Rate Limiting
+const rateLimit = require('express-rate-limit');
+
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 10, // Limit each IP to 10 requests per windowMs
+    message: 'Too many login attempts. Please try again later.',
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+const generalLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // 1 minute
+    max: 100, // Limit each IP to 100 requests per minute
+    message: 'Too many requests. Please try again later.',
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+app.use('/auth/login', authLimiter);
+app.use('/auth/register', authLimiter);
+app.use(generalLimiter); // Apply to all other routes
+
 // Routes
 app.use('/auth', require('./src/routes/authRoutes'));
 app.use('/menu', require('./src/routes/menuRoutes'));
