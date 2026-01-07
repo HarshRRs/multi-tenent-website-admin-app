@@ -123,17 +123,42 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
   }
   
   Future<void> _handleDelete() async {
-      if (widget.productId == null) return;
-      setState(() => _isLoading = true);
-      try {
-          await ref.read(menuProvider.notifier).deleteProduct(widget.productId!);
-          if (mounted) context.pop();
-      } catch (e) {
-          if (mounted) {
-            setState(() => _isLoading = false);
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Delete failed: $e')));
-          }
+    if (widget.productId == null) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Product?'),
+        content: const Text(
+            'This action cannot be undone. Are you sure you want to delete this product?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+    if (!mounted) return;
+
+    setState(() => _isLoading = true);
+    try {
+      await ref.read(menuProvider.notifier).deleteProduct(widget.productId!);
+      if (mounted) context.pop();
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Delete failed: $e')));
       }
+    }
   }
 
   @override
