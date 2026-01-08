@@ -4,8 +4,8 @@ import 'package:rockster/features/notifications/data/notification_service.dart';
 import 'package:rockster/features/notifications/domain/notification_model.dart';
 
 final notificationServiceProvider = Provider<NotificationService>((ref) {
-  final dio = ref.watch(apiClientProvider);
-  return NotificationService(dio);
+  final apiClient = ref.watch(apiClientProvider);
+  return NotificationService(apiClient.dio);
 });
 
 final notificationsProvider = StateNotifierProvider<NotificationsNotifier, NotificationsState>((ref) {
