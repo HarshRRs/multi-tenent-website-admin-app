@@ -142,15 +142,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       TextFormField(
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
+                        textInputAction: TextInputAction.next,
+                        autofillHints: const [AutofillHints.email],
                         style: const TextStyle(color: Colors.black87),
                         decoration: InputDecoration(
                           labelText: 'Email Address',
                           hintText: 'owner@restaurant.com',
-                          labelStyle: TextStyle(color: Colors.black54),
-                          hintStyle: TextStyle(color: Colors.black38),
+                          labelStyle: const TextStyle(color: Colors.black54),
+                          hintStyle: const TextStyle(color: Colors.black38),
                           prefixIcon: const Icon(Icons.email_outlined, color: AppColors.gold),
                           filled: true,
-                          fillColor: const Color(0xFFFAFAFA),
+                          fillColor: AppColors.backgroundLight,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
@@ -167,27 +169,31 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           return null;
                         },
                       ),
-                      
+
                       const SizedBox(height: 20),
-                      
+
                       // Password Field
                       TextFormField(
                         controller: _passwordController,
                         obscureText: _obscurePassword,
+                        autofillHints: const [AutofillHints.password],
+                        textInputAction: TextInputAction.done,
+                        onFieldSubmitted: (_) => _handleLogin(),
                         style: const TextStyle(color: Colors.black87),
                         decoration: InputDecoration(
                           labelText: 'Password',
-                          labelStyle: TextStyle(color: Colors.black54),
+                          labelStyle: const TextStyle(color: Colors.black54),
                           prefixIcon: const Icon(Icons.lock_outline, color: AppColors.gold),
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
                               color: Colors.black45,
                             ),
+                            tooltip: _obscurePassword ? 'Show password' : 'Hide password',
                             onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                           ),
                           filled: true,
-                          fillColor: const Color(0xFFFAFAFA),
+                          fillColor: AppColors.backgroundLight,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
