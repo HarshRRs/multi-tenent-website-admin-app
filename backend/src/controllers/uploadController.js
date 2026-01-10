@@ -1,24 +1,8 @@
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const { uploadToS3 } = require('../services/s3Service');
 
-// Ensure upload directory exists
-const uploadDir = path.join(__dirname, '../../uploads');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-// Config Multer Storage
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, uploadDir);
-    },
-    filename: function (req, file, cb) {
-        // Generate unique filename: timestamp-random.ext
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
-    }
-});
+// Use memory storage instead of disk storage
+const storage = multer.memoryStorage();
 
 const upload = multer({
     storage: storage,
@@ -34,19 +18,28 @@ const upload = multer({
 
 exports.uploadMiddleware = upload.single('image');
 
-exports.uploadImage = (req, res) => {
-    if (!req.file) {
-        return res.status(400).json({ message: 'No file uploaded' });
+exports.uploadImage = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
+
+        // Upload to S3
+        const fileUrl = await uploadToS3(
+            req.file.buffer,
+            req.file.originalname,
+            req.file.mimetype
+        );
+
+        res.json({
+            message: 'File uploaded successfully to S3',
+            url: fileUrl
+        });
+    } catch (error) {
+        console.error('Upload Error:', error);
+        res.status(500).json({
+            message: 'Failed to upload file',
+            error: error.message
+        });
     }
-
-    // Return the URL to access the file
-    // Assumes server serves 'uploads' folder statically at /uploads
-    const protocol = req.protocol;
-    const host = req.get('host');
-    const fileUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
-
-    res.json({
-        message: 'File uploaded successfully',
-        url: fileUrl
-    });
 };
