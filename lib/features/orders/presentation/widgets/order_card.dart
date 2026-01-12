@@ -14,9 +14,7 @@ class OrderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget cardContent = Container(
       width: 280, // Fixed width for columns
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -25,97 +23,109 @@ class OrderCard extends StatelessWidget {
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border(
-          left: BorderSide(
-            color: _getStatusColor(order.status),
-            width: 4,
-          ),
-        ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '#\${order.id}',
-                style: AppTextStyles.labelLarge.copyWith(color: AppColors.textSecondaryLight),
+      child: Material(
+        color: AppColors.surfaceLight,
+        borderRadius: BorderRadius.circular(16),
+        clipBehavior: Clip.hardEdge,
+        child: InkWell(
+          onTap: () => context.push('/order/${order.id}'),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              border: Border(
+                left: BorderSide(
+                  color: _getStatusColor(order.status),
+                  width: 4,
+                ),
               ),
-              Text(
-                DateFormat('hh:mm a').format(order.createdAt),
-                style: AppTextStyles.labelMedium.copyWith(color: AppColors.textSecondaryLight),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            order.customerName,
-            style: AppTextStyles.headlineMedium.copyWith(fontSize: 18),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 12),
-          const Divider(height: 1),
-          const SizedBox(height: 12),
-          ...order.items.map((item) => Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Row(
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: AppColors.backgroundLight,
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
-                      ),
-                      child: Text('\${item.quantity}x', style: AppTextStyles.labelSmall),
+                    Text(
+                      '#${order.id}',
+                      style: AppTextStyles.labelLarge.copyWith(color: AppColors.textSecondaryLight),
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(child: Text(item.name, style: AppTextStyles.bodyMedium, overflow: TextOverflow.ellipsis, maxLines: 1)),
+                    Text(
+                      DateFormat('hh:mm a').format(order.createdAt),
+                      style: AppTextStyles.labelMedium.copyWith(color: AppColors.textSecondaryLight),
+                    ),
                   ],
                 ),
-              )),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.backgroundLight,
-                  shape: BoxShape.circle,
+                const SizedBox(height: 8),
+                Text(
+                  order.customerName,
+                  style: AppTextStyles.headlineMedium.copyWith(fontSize: 18),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                child: const Icon(Icons.delivery_dining, size: 16, color: AppColors.textSecondaryLight),
-              ),
-              Text(
-                '€\${order.totalAmount.toStringAsFixed(2)}',
-                style: AppTextStyles.headlineMedium.copyWith(color: AppColors.primaryLight),
-              ),
-            ],
+                const SizedBox(height: 12),
+                const Divider(height: 1),
+                const SizedBox(height: 12),
+                ...order.items.map((item) => Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppColors.backgroundLight,
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+                            ),
+                            child: Text('${item.quantity}x', style: AppTextStyles.labelSmall),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(child: Text(item.name, style: AppTextStyles.bodyMedium, overflow: TextOverflow.ellipsis, maxLines: 1)),
+                        ],
+                      ),
+                    )),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppColors.backgroundLight,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.delivery_dining,
+                        size: 16,
+                        color: AppColors.textSecondaryLight,
+                        semanticLabel: 'Delivery order',
+                      ),
+                    ),
+                    Text(
+                      '€${order.totalAmount.toStringAsFixed(2)}',
+                      style: AppTextStyles.headlineMedium.copyWith(color: AppColors.primaryLight),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ],
+        ),
       ),
     );
 
-    return GestureDetector(
-      onTap: () => context.push('/order/\${order.id}'),
-      child: Draggable<Order>(
+    return Draggable<Order>(
       data: order,
       feedback: Transform.scale(
         scale: 1.05,
-        child: Material(
-          color: Colors.transparent,
-          child: cardContent,
-        ),
+        child: cardContent,
       ),
       childWhenDragging: Opacity(
         opacity: 0.5,
         child: cardContent,
       ),
       child: cardContent,
-    ),
     );
   }
 
