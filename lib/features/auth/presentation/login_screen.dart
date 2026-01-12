@@ -180,6 +180,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           labelStyle: TextStyle(color: Colors.black54),
                           prefixIcon: const Icon(Icons.lock_outline, color: AppColors.gold),
                           suffixIcon: IconButton(
+                            tooltip: _obscurePassword ? 'Show password' : 'Hide password',
                             icon: Icon(
                               _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
                               color: Colors.black45,
