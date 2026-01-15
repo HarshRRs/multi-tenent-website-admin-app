@@ -7,16 +7,16 @@ class NotificationService {
   NotificationService(this._dio);
 
   Future<List<AppNotification>> getNotifications() async {
-    final response = await _dio.get('/notifications');
+    final response = await _dio.get('notifications');
     final List notifications = response.data as List;
     return notifications.map((json) => AppNotification.fromJson(json)).toList();
   }
 
   Future<void> markAsRead(String id) async {
-    await _dio.patch('/notifications/$id/read');
+    await _dio.patch('notifications/$id/read');
   }
 
   Future<void> markAllAsRead() async {
-    await _dio.post('/notifications/mark-all-read');
+    await _dio.post('notifications/mark-all-read');
   }
 }

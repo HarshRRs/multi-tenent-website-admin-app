@@ -28,6 +28,18 @@ class DashboardStats {
       rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'totalRevenue': totalRevenue,
+      'revenueTrend': revenueTrend,
+      'isRevenueTrendPositive': isRevenueTrendPositive,
+      'activeOrders': activeOrders,
+      'reservations': reservations,
+      'menuItemsActive': menuItemsActive,
+      'rating': rating,
+    };
+  }
 }
 
 class RecentOrder {
@@ -50,5 +62,14 @@ class RecentOrder {
       amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
       status: json['status'] ?? 'pending',
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'customerName': customerName,
+      'amount': amount,
+      'status': status,
+    };
   }
 }

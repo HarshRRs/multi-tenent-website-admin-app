@@ -4,13 +4,29 @@ const prisma = new PrismaClient();
 exports.getStats = async (req, res) => {
     try {
         const userId = req.user.id; // Tenant isolation
+        const { date } = req.query;
 
-        // 1. Total Revenue (Sum of all completed orders for THIS user)
+        let dateFilter = {};
+        if (date) {
+            const startDate = new Date(date);
+            const endDate = new Date(date);
+            endDate.setDate(endDate.getDate() + 1);
+
+            dateFilter = {
+                createdAt: {
+                    gte: startDate,
+                    lt: endDate
+                }
+            };
+        }
+
+        // 1. Total Revenue (Sum of all completed orders for THIS user, optionally filtered by date)
         const revenueAgg = await prisma.order.aggregate({
             _sum: { totalAmount: true },
             where: {
                 userId,
-                status: 'completed'
+                status: 'completed',
+                ...dateFilter
             }
         });
         const totalRevenue = revenueAgg._sum.totalAmount || 0;

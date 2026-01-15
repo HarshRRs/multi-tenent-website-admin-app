@@ -11,21 +11,27 @@ class AuthService {
 
   Future<AuthResponse> login(String email, String password) async {
     final response = await _dio.post(
-      '/auth/login',
+      'auth/login',
       data: LoginRequest(email: email, password: password).toJson(),
     );
 
     return AuthResponse.fromJson(response.data);
   }
 
-  Future<AuthResponse> register(String email, String password, String name) async {
+  Future<AuthResponse> register({
+    required String email,
+    required String password,
+    required String name,
+    String businessType = 'restaurant',
+  }) async {
     final response = await _dio.post(
-      '/auth/register',
+      'auth/register',
       data: {
         'email': email,
         'password': password,
         'name': name,
-        'role': 'manager'
+        'role': 'manager',
+        'businessType': businessType,
       },
     );
 
@@ -37,7 +43,37 @@ class AuthService {
   }
 
   Future<User> getCurrentUser() async {
-    final response = await _dio.get('/auth/me');
+    final response = await _dio.get('auth/me');
     return User.fromJson(response.data);
+  }
+  Future<User> updateProfile(String name, String address) async {
+    final response = await _dio.put(
+      'auth/profile',
+      data: {'name': name, 'address': address},
+    );
+    return User.fromJson(response.data);
+  }
+
+  Future<Map<String, dynamic>> forgotPassword(String email) async {
+    final response = await _dio.post(
+      'auth/forgot-password',
+      data: {'email': email},
+    );
+    return response.data;
+  }
+
+  Future<void> resetPassword({
+    required String email,
+    required String code,
+    required String newPassword,
+  }) async {
+    await _dio.post(
+      'auth/reset-password',
+      data: {
+        'email': email,
+        'code': code,
+        'newPassword': newPassword,
+      },
+    );
   }
 }

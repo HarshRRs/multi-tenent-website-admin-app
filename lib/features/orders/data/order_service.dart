@@ -13,19 +13,19 @@ class OrderService {
       queryParams['status'] = status.name;
     }
 
-    final response = await _dio.get('/orders', queryParameters: queryParams);
+    final response = await _dio.get('orders', queryParameters: queryParams);
     final ordersResponse = OrdersResponse.fromJson(response.data);
     return ordersResponse.orders;
   }
 
   Future<Order> getOrderById(String id) async {
-    final response = await _dio.get('/orders/$id');
+    final response = await _dio.get('orders/$id');
     return orderFromJson(response.data);
   }
 
   Future<Order> createOrder(Order order) async {
     final response = await _dio.post(
-      '/orders',
+      'orders',
       data: orderToJson(order),
     );
     return orderFromJson(response.data);
@@ -33,13 +33,13 @@ class OrderService {
 
   Future<Order> updateOrderStatus(String id, OrderStatus status) async {
     final response = await _dio.patch(
-      '/orders/$id/status',
+      'orders/$id/status',
       data: {'status': status.name},
     );
     return orderFromJson(response.data);
   }
 
   Future<void> deleteOrder(String id) async {
-    await _dio.delete('/orders/$id');
+    await _dio.delete('orders/$id');
   }
 }

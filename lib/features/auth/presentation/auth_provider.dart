@@ -77,11 +77,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  Future<void> register(String email, String password, String name) async {
+  Future<void> register(String email, String password, String name, {String businessType = 'restaurant'}) async {
     state = AuthState(status: AuthStatus.loading);
     
     try {
-      final response = await _authRepository.register(email, password, name);
+      final response = await _authRepository.register(email, password, name, businessType: businessType);
       state = AuthState(
         status: AuthStatus.authenticated,
         user: response.user,
@@ -97,6 +97,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> logout() async {
     await _authRepository.logout();
     state = AuthState(status: AuthStatus.unauthenticated);
+  }
+
+  Future<void> updateProfile(String name, String address) async {
+    // Keep current status but maybe show loading overlay if needed locally
+    // For now, just optimistic update or wait
+    try {
+      final updatedUser = await _authRepository.updateProfile(name, address);
+      state = state.copyWith(user: updatedUser);
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+      rethrow;
+    }
   }
 }
 

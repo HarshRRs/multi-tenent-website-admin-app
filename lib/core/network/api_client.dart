@@ -28,15 +28,15 @@ class ApiClient {
 
   static String get baseUrl {
     if (kReleaseMode) {
-      return 'https://rockster-production.up.railway.app';
+      return 'https://rockster-production.up.railway.app/';
     }
     if (kIsWeb) {
-      return 'http://localhost:3000';
+      return 'http://localhost:3000/';
     }
     if (defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://$localIp:3000';
+      return 'http://$localIp:3000/';
     }
-    return 'http://localhost:3000';
+    return 'http://localhost:3000/';
   }
   
   static const Duration connectTimeout = Duration(seconds: 60);

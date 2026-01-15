@@ -56,17 +56,17 @@ exports.createConnectedAccount = async (req, res) => {
 
         // Find user to check if they already have a connected account
         const user = await prisma.user.findUnique({
-             where: { id: userId }
+            where: { id: userId }
         });
 
         if (!user) {
-             return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ message: 'User not found' });
         }
 
         let accountId = user.stripeAccountId;
 
         if (!accountId) {
-             const account = await stripe.accounts.create({
+            const account = await stripe.accounts.create({
                 type: 'express',
                 country: country || 'US',
                 email: email || user.email,
@@ -100,5 +100,77 @@ exports.createConnectedAccount = async (req, res) => {
     } catch (error) {
         console.error('Stripe Connect Error:', error);
         res.status(500).json({ message: 'Failed to create connected account', error: error.message });
+    }
+};
+
+exports.getStripeAccount = async (req, res) => {
+    if (!stripe) return res.status(503).json({ message: 'Stripe disabled' });
+
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id: req.user.id }
+        });
+
+        if (!user || !user.stripeAccountId) {
+            return res.json({
+                isConnected: false,
+                accountId: '',
+                availableBalance: 0,
+                pendingBalance: 0
+            });
+        }
+
+        const account = await stripe.accounts.retrieve(user.stripeAccountId);
+        const balance = await stripe.balance.retrieve({
+            stripeAccount: user.stripeAccountId
+        });
+
+        res.json({
+            isConnected: account.details_submitted,
+            accountId: user.stripeAccountId,
+            availableBalance: balance.available[0]?.amount / 100 || 0,
+            pendingBalance: balance.pending[0]?.amount / 100 || 0,
+            currency: balance.available[0]?.currency || 'eur'
+        });
+
+    } catch (error) {
+        console.error('Stripe Account Error:', error);
+        res.status(500).json({ message: 'Failed to fetch account', error: error.message });
+    }
+};
+
+exports.getTransactions = async (req, res) => {
+    if (!stripe) return res.json([]);
+
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id: req.user.id }
+        });
+
+        if (!user || !user.stripeAccountId) {
+            return res.json([]);
+        }
+
+        const charges = await stripe.charges.list({
+            limit: 20,
+        }, {
+            stripeAccount: user.stripeAccountId
+        });
+
+        const transactions = charges.data.map(charge => ({
+            id: charge.id,
+            amount: charge.amount / 100,
+            currency: charge.currency,
+            status: charge.refunded ? 'refunded' : (charge.status === 'succeeded' ? 'completed' : 'failed'),
+            date: new Date(charge.created * 1000).toISOString(),
+            customerName: charge.billing_details?.name || 'Unknown Customer',
+            paymentMethod: charge.payment_method_details?.card?.brand || 'card',
+        }));
+
+        res.json(transactions);
+
+    } catch (error) {
+        console.error('Stripe Transactions Error:', error);
+        res.status(500).json({ message: 'Failed to fetch transactions', error: error.message });
     }
 };

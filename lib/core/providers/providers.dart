@@ -11,6 +11,7 @@ import 'package:rockster/features/orders/data/order_service.dart';
 import 'package:rockster/features/payments/data/payment_service.dart';
 import 'package:rockster/features/reservations/data/reservation_service.dart';
 import 'package:rockster/features/website_customizer/data/website_service.dart';
+import 'package:rockster/core/network/websocket_service.dart';
 
 import 'package:rockster/core/providers/messenger_provider.dart';
 
@@ -71,3 +72,5 @@ final websiteServiceProvider = Provider<WebsiteService>((ref) {
   final apiClient = ref.watch(apiClientProvider);
   return WebsiteService(apiClient.dio);
 });
+// WebSocket Provider
+final webSocketServiceProvider = Provider<WebSocketService>((ref) => WebSocketService());

@@ -1,0 +1,48 @@
+{
+    "project_info": {
+        "project_number": "481409148827",
+        "project_id": "ordernest-mobile",
+        "storage_bucket": "ordernest-mobile.firebasestorage.app"
+    },
+    "client": [
+        {
+            "client_info": {
+                "mobilesdk_app_id": "1:481409148827:android:0542e327cf2ff1daa7233e",
+                "android_client_info": {
+                    "package_name": "com.ordernest.mobile"
+                }
+            },
+            "oauth_client": [],
+            "api_key": [
+                {
+                    "current_key": "AIzaSyCduE-nVB_UhULIcwEZsa2a-KdOITqnMYY"
+                }
+            ],
+            "services": {
+                "appinvite_service": {
+                    "other_platform_oauth_client": []
+                }
+            }
+        },
+        {
+            "client_info": {
+                "mobilesdk_app_id": "1:481409148827:android:5a12ea567376f85ca7233e",
+                "android_client_info": {
+                    "package_name": "com.rockstart.restaurant_admin"
+                }
+            },
+            "oauth_client": [],
+            "api_key": [
+                {
+                    "current_key": "AIzaSyCduE-nVB_UhULIcwEZsa2a-KdOITqnMYY"
+                }
+            ],
+            "services": {
+                "appinvite_service": {
+                    "other_platform_oauth_client": []
+                }
+            }
+        }
+    ],
+    "configuration_version": "1"
+}

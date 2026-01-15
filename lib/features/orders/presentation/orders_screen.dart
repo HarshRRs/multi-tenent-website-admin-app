@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rockster/core/providers/providers.dart';
 import 'package:rockster/core/theme/app_colors.dart';
 import 'package:rockster/core/theme/app_text_styles.dart';
+import 'package:rockster/core/components/glossy_metric_card.dart';
 import 'package:rockster/features/orders/domain/order_model.dart';
 import 'package:rockster/features/orders/presentation/orders_provider.dart';
 import 'package:rockster/features/orders/presentation/widgets/kanban_column.dart';
@@ -36,27 +37,32 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
     super.dispose();
   }
 
-  void _onOrderDropped(Order order, OrderStatus newStatus) {
+  Future<void> _onOrderDropped(Order order, OrderStatus newStatus) async {
     if (order.status == newStatus) return;
     
     // Call provider to update status
-    ref.read(ordersProvider.notifier).updateOrderStatus(order.id, newStatus).then((_) {
-       ScaffoldMessenger.of(context).showSnackBar(
+    try {
+      await ref.read(ordersProvider.notifier).updateOrderStatus(order.id, newStatus);
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Order #\${order.id} moved to \${_getStatusName(newStatus)}'),
+          content: Text('Order #${order.id} moved to ${_getStatusName(newStatus)}'),
           duration: const Duration(seconds: 1),
           behavior: SnackBarBehavior.floating,
           backgroundColor: AppColors.success,
         ),
       );
-    }).catchError((e) {
+    } catch (e) {
+      if (!mounted) return;
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to update order: \$e'),
+          content: Text('Failed to update order: $e'),
           backgroundColor: AppColors.error,
         ),
       );
-    });
+    }
   }
 
   String _getStatusName(OrderStatus status) {
@@ -155,50 +161,64 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
         );
     }
 
-    return Scrollbar(
-              thumbVisibility: true,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    KanbanColumn(
-                      title: 'New',
-                      status: OrderStatus.newOrder,
-                      orders: allOrders.where((o) => o.status == OrderStatus.newOrder).toList(),
-                      onOrderDropped: _onOrderDropped,
-                      headerColor: AppColors.info,
-                      icon: Icons.notifications_active,
-                    ),
-                    KanbanColumn(
-                      title: 'Preparing',
-                      status: OrderStatus.preparing,
-                      orders: allOrders.where((o) => o.status == OrderStatus.preparing).toList(),
-                      onOrderDropped: _onOrderDropped,
-                      headerColor: AppColors.warning,
-                      icon: Icons.kitchen,
-                    ),
-                    KanbanColumn(
-                      title: 'Ready',
-                      status: OrderStatus.ready,
-                      orders: allOrders.where((o) => o.status == OrderStatus.ready).toList(),
-                      onOrderDropped: _onOrderDropped,
-                      headerColor: AppColors.success,
-                      icon: Icons.check_circle,
-                    ),
-                    KanbanColumn(
-                      title: 'Out for Delivery',
-                      status: OrderStatus.outForDelivery,
-                      orders: allOrders.where((o) => o.status == OrderStatus.outForDelivery).toList(),
-                      onOrderDropped: _onOrderDropped,
-                      headerColor: AppColors.tertiaryLight,
-                      icon: Icons.delivery_dining,
-                    ),
-                  ],
-                ),
+    final activeCount = allOrders.where((o) => o.status != OrderStatus.completed).length;
+
+    return Column(
+      children: [
+        GlossyMetricCard(
+          title: 'Active Orders',
+          value: activeCount.toString(),
+          icon: Icons.shopping_bag_outlined,
+          color: AppColors.burntTerracotta,
+        ),
+        Expanded(
+          child: Scrollbar(
+            thumbVisibility: true,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  KanbanColumn(
+                    title: 'New',
+                    status: OrderStatus.newOrder,
+                    orders: allOrders.where((o) => o.status == OrderStatus.newOrder).toList(),
+                    onOrderDropped: _onOrderDropped,
+                    headerColor: AppColors.info,
+                    icon: Icons.notifications_active,
+                  ),
+                  KanbanColumn(
+                    title: 'Preparing',
+                    status: OrderStatus.preparing,
+                    orders: allOrders.where((o) => o.status == OrderStatus.preparing).toList(),
+                    onOrderDropped: _onOrderDropped,
+                    headerColor: AppColors.burntTerracotta,
+                    icon: Icons.kitchen,
+                  ),
+                  KanbanColumn(
+                    title: 'Ready',
+                    status: OrderStatus.ready,
+                    orders: allOrders.where((o) => o.status == OrderStatus.ready).toList(),
+                    onOrderDropped: _onOrderDropped,
+                    headerColor: AppColors.success,
+                    icon: Icons.check_circle,
+                  ),
+                  KanbanColumn(
+                    title: 'Out for Delivery',
+                    status: OrderStatus.outForDelivery,
+                    orders: allOrders.where((o) => o.status == OrderStatus.outForDelivery).toList(),
+                    onOrderDropped: _onOrderDropped,
+                    headerColor: AppColors.info,
+                    icon: Icons.delivery_dining,
+                  ),
+                ],
               ),
-            );
+            ),
+          ),
+        ),
+      ],
+    );
 
   }
 }

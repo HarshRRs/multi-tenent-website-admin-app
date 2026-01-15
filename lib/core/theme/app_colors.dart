@@ -1,35 +1,69 @@
 import 'package:flutter/material.dart';
 
+/// 2026 Design System - Color Palette
+/// Following the 60-30-10 rule for a premium, warm business app
 class AppColors {
-  // Primary (Amber/Gold)
-  static const Color primaryLight = Color(0xFFD97706);
-
-  static const Color primaryDark = Color(0xFFF59E0B);
-  static const Color gold = Color(0xFFD4AF37); // Metallic Gold
-
-  // Secondary (Cream/Dark Brown)
-  static const Color secondaryLight = Color(0xFFFEF3C7);
-  static const Color secondaryDark = Color(0xFF451A03);
-
-  // Tertiary (Sky Blue)
-  static const Color tertiaryLight = Color(0xFF0EA5E9);
-  static const Color tertiaryDark = Color(0xFF38BDF8);
-
-  // Backgrounds
-  static const Color backgroundLight = Color(0xFFF9FAFB); // Cool gray 50
-  static const Color backgroundDark = Color(0xFF111827); // Cool gray 900
+  // ==================== 2026 COLOR PALETTE ====================
+  
+  /// Base (60%) - Cloud Dancer: Warm, airy white for all backgrounds
+  /// Reduces eye strain and creates a premium feel
+  static const Color cloudDancer = Color(0xFFF0EEE9);
+  
+  /// Primary (30%) - Burnt Terracotta: Main action color
+  /// Used for buttons, active tabs, progress bars
+  static const Color burntTerracotta = Color(0xFFE67E22);
+  
+  /// Accent (10%) - Wild Rose: Special highlights
+  /// Used for notification dots, special tags, small accents
+  static const Color wildRose = Color(0xFFD63384);
+  
+  /// Text - Deep Ink: Maximum legibility
+  /// Used for all headlines and body text
+  static const Color deepInk = Color(0xFF101417);
+  
+  /// Borders & Dividers - Soft Border
+  /// Light gray for subtle separation
+  static const Color softBorder = Color(0xFFE0E0E0);
+  
+  // ==================== LEGACY SUPPORT ====================
+  
+  /// Legacy gold color (now mapped to Burnt Terracotta for compatibility)
+  static const Color gold = burntTerracotta;
+  
+  // ==================== SEMANTIC COLORS ====================
+  
+  /// Success - Green for positive actions
+  static const Color success = Color(0xFF10B981);
+  
+  /// Error - Red for errors and warnings
+  static const Color error = Color(0xFFEF4444);
+  
+  /// Info - Blue for informational messages
+  static const Color info = Color(0xFF3B82F6);
+  
+  // ==================== LIGHT THEME ====================
+  
+  static const Color primaryLight = burntTerracotta;
+  static const Color secondaryLight = wildRose;
+  static const Color backgroundLight = cloudDancer;
   static const Color surfaceLight = Colors.white;
-  static const Color surfaceDark = Color(0xFF1F2937); // Cool gray 800
-
-  // Semantic Colors
-  static const Color success = Color(0xFF10B981); // Emerald 500
-  static const Color warning = Color(0xFFF59E0B); // Amber 500
-  static const Color error = Color(0xFFEF4444); // Red 500
-  static const Color info = Color(0xFF3B82F6); // Blue 500
-
-  // Text
-  static const Color textLight = Color(0xFF1F2937); // Gray 800
-  static const Color textDark = Color(0xFFF9FAFB); // Gray 50
-  static const Color textSecondaryLight = Color(0xFF6B7280); // Gray 500
-  static const Color textSecondaryDark = Color(0xFF9CA3AF); // Gray 400
+  static const Color textPrimaryLight = deepInk;
+  static const Color textSecondaryLight = Color(0xFF6B7280);
+  
+  // ==================== DARK THEME ====================
+  
+  static const Color primaryDark = burntTerracotta;
+  static const Color secondaryDark = wildRose;
+  static const Color backgroundDark = Color(0xFF0F172A);
+  static const Color surfaceDark = Color(0xFF1E293B);
+  static const Color textPrimaryDark = Color(0xFFF1F5F9);
+  static const Color textSecondaryDark = Color(0xFF94A3B8);
+  
+  // ==================== SHADOW COLORS ====================
+  
+  /// Soft shadow for cards (4dp elevation)
+  static final Color cardShadow = Colors.black.withOpacity(0.08);
+  
+  /// Button shadow (Burnt Terra cotta with opacity)
+  static final Color buttonShadow = burntTerracotta.withOpacity(0.3);
 }

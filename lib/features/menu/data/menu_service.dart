@@ -9,13 +9,13 @@ class MenuService {
 
   // Categories
   Future<List<MenuCategory>> getCategories() async {
-    final response = await _dio.get('/menu/categories');
+    final response = await _dio.get('menu/categories');
     return categoriesFromJson(response.data);
   }
 
   Future<MenuCategory> createCategory(String name) async {
     final response = await _dio.post(
-      '/menu/categories',
+      'menu/categories',
       data: {'name': name},
     );
     // Determine response type: list or single object
@@ -31,18 +31,18 @@ class MenuService {
       queryParams['categoryId'] = categoryId;
     }
 
-    final response = await _dio.get('/menu/products', queryParameters: queryParams);
+    final response = await _dio.get('menu/products', queryParameters: queryParams);
     return menuItemsFromJson(response.data);
   }
 
   Future<MenuItem> getProductById(String id) async {
-    final response = await _dio.get('/menu/products/$id');
+    final response = await _dio.get('menu/products/$id');
     return menuItemFromJson(response.data);
   }
 
   Future<MenuItem> createProduct(MenuItem product) async {
     final response = await _dio.post(
-      '/menu/products',
+      'menu/products',
       data: menuItemToJson(product),
     );
     return menuItemFromJson(response.data);
@@ -50,7 +50,7 @@ class MenuService {
 
   Future<MenuItem> updateProduct(MenuItem product) async {
     final response = await _dio.put(
-      '/menu/products/${product.id}',
+      'menu/products/${product.id}',
       data: menuItemToJson(product),
     );
     return menuItemFromJson(response.data);
@@ -59,14 +59,18 @@ class MenuService {
   // Availability toggle specific endpoint if exists, else use update
   Future<MenuItem> updateProductAvailability(String id, bool isAvailable) async {
     final response = await _dio.patch(
-      '/menu/products/$id/availability',
+      'menu/products/$id/availability',
       data: {'isAvailable': isAvailable},
     );
     return menuItemFromJson(response.data);
   }
 
   Future<void> deleteProduct(String id) async {
-    await _dio.delete('/menu/products/$id');
+    await _dio.delete('menu/products/$id');
+  }
+
+  Future<void> deleteCategory(String id) async {
+    await _dio.delete('menu/categories/$id');
   }
 
   Future<String> uploadImage(dynamic file) async {
@@ -85,7 +89,7 @@ class MenuService {
       'image': MultipartFile.fromBytes(bytes, filename: fileName),
     });
 
-    final response = await _dio.post('/upload', data: formData);
+    final response = await _dio.post('upload', data: formData);
     return response.data['url'];
   }
 }

@@ -138,7 +138,7 @@ class ProductCard extends StatelessWidget {
                     Switch.adaptive(
                       value: product.isAvailable,
                       onChanged: onAvailabilityChanged,
-                      activeColor: AppColors.primaryLight,
+                      activeTrackColor: AppColors.primaryLight,
                     ),
                   ],
                 ),

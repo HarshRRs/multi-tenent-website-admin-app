@@ -23,4 +23,19 @@ router.post('/refresh', authController.refresh);
 // @access  Private
 router.get('/me', auth, authController.getCurrentUser);
 
+// @route   PUT /auth/profile
+// @desc    Update user profile
+// @access  Private
+router.put('/profile', auth, authController.updateProfile);
+
+// @route   POST /auth/forgot-password
+// @desc    Request password reset (sends reset code)
+// @access  Public
+router.post('/forgot-password', authController.forgotPassword);
+
+// @route   POST /auth/reset-password
+// @desc    Reset password with code
+// @access  Public
+router.post('/reset-password', authController.resetPassword);
+
 module.exports = router;

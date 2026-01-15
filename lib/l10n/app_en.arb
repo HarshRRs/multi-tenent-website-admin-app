@@ -1,0 +1,16 @@
+{
+    "@@locale": "en",
+    "settingsTitle": "Settings",
+    "settingsProfile": "Edit Profile",
+    "settingsLanguage": "Language",
+    "settingsPrinter": "Printer Setup",
+    "settingsNotifications": "Notifications",
+    "settingsSignOut": "Sign Out",
+    "printConnect": "Connect Printer",
+    "printDisconnect": "Disconnect",
+    "printTest": "Test Print",
+    "printScanning": "Scanning...",
+    "printNoDevice": "No devices found",
+    "printConnected": "Connected",
+    "printDisconnected": "Disconnected"
+}

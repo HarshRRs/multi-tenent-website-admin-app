@@ -22,8 +22,13 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<AuthResponse> register(String email, String password, String name) async {
-    final response = await _authService.register(email, password, name);
+  Future<AuthResponse> register(String email, String password, String name, {String businessType = 'restaurant'}) async {
+    final response = await _authService.register(
+      email: email, 
+      password: password, 
+      name: name,
+      businessType: businessType
+    );
     
     // Store tokens
     await _secureStorage.setAccessToken(response.accessToken);
@@ -50,6 +55,11 @@ class AuthRepositoryImpl implements AuthRepository {
     } catch (e) {
       return null;
     }
+  }
+
+  @override
+  Future<User> updateProfile(String name, String address) async {
+    return await _authService.updateProfile(name, address);
   }
 
   @override

@@ -54,7 +54,7 @@ class WebsitePreviewWidget extends StatelessWidget {
                     ),
                     child: Center(
                       child: Text(
-                        'rockstar-restaurant.com',
+                        'cosmos-admin.app',
                         style: GoogleFonts.inter(fontSize: 10, color: Colors.grey),
                       ),
                     ),

@@ -128,6 +128,16 @@ class MenuNotifier extends StateNotifier<MenuState> {
       rethrow;
     }
   }
+
+  Future<void> deleteCategory(String id) async {
+    try {
+      await _menuService.deleteCategory(id);
+      await loadMenu();
+    } catch (e) {
+      state = state.copyWith(error: "Failed to delete category: $e");
+      rethrow;
+    }
+  }
 }
 
 final menuProvider = StateNotifierProvider<MenuNotifier, MenuState>((ref) {

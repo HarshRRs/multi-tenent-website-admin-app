@@ -7,4 +7,7 @@ router.get('/config', paymentController.getStripeConfig);
 router.post('/create-payment-intent', auth, paymentController.createPaymentIntent);
 router.post('/create-connected-account', auth, paymentController.createConnectedAccount);
 
+router.get('/account', auth, paymentController.getStripeAccount);
+router.get('/transactions', auth, paymentController.getTransactions);
+
 module.exports = router;

@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:rockster/core/theme/app_colors.dart';
-import 'package:rockster/core/theme/app_text_styles.dart';
+import 'package:rockster/core/components/modern_button.dart';
+import 'package:rockster/core/components/modern_card.dart';
+import 'package:rockster/core/components/glossy_metric_card.dart';
 import 'package:rockster/features/menu/presentation/menu_provider.dart';
+import 'package:rockster/features/menu/domain/menu_models.dart';
 import 'package:rockster/features/menu/presentation/widgets/product_card.dart';
 
 class MenuScreen extends ConsumerStatefulWidget {
@@ -15,9 +19,9 @@ class MenuScreen extends ConsumerStatefulWidget {
 
 class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStateMixin {
   TabController? _tabController;
-  bool _isSearching = false;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  bool _isSearching = false;
 
   @override
   void initState() {
@@ -36,7 +40,6 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
     super.dispose();
   }
 
-  // Helper to init controller when data is ready
   void _initTabController(int length) {
     if (_tabController?.length != length) {
       _tabController?.dispose();
@@ -49,32 +52,88 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('New Category', style: AppTextStyles.headlineMedium),
+        backgroundColor: Colors.white,
+        title: Text('New Category', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             labelText: 'Category Name',
-            hintText: 'e.g. Sushi, Italian, Desserts',
+            labelStyle: GoogleFonts.inter(),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           ),
           autofocus: true,
         ),
         actions: [
-           TextButton(
+          TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text('Cancel', style: GoogleFonts.inter(color: AppColors.textSecondaryLight)),
           ),
           FilledButton(
             onPressed: () {
-               if (controller.text.isNotEmpty) {
-                 ref.read(menuProvider.notifier).addCategory(controller.text.trim());
-                 Navigator.pop(context);
-               }
+              if (controller.text.isNotEmpty) {
+                ref.read(menuProvider.notifier).addCategory(controller.text.trim());
+                Navigator.pop(context);
+              }
             },
-            child: const Text('Add'),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.burntTerracotta,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: Text('Add', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _confirmDeleteCategory(BuildContext context, MenuCategory category) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Delete Category', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+        content: Text('Are you sure you want to delete "${category.name}"? This cannot be undone.', style: GoogleFonts.inter()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text('Cancel', style: GoogleFonts.inter(color: AppColors.textSecondaryLight)),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            child: Text('Delete', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await ref.read(menuProvider.notifier).deleteCategory(category.id);
+    }
+  }
+
+  Future<void> _confirmDeleteProduct(BuildContext context, MenuItem product) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Delete Product', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+        content: Text('Are you sure you want to delete "${product.name}"?', style: GoogleFonts.inter()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text('Cancel', style: GoogleFonts.inter(color: AppColors.textSecondaryLight)),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            child: Text('Delete', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await ref.read(menuProvider.notifier).deleteProduct(product.id);
+    }
   }
 
   @override
@@ -84,186 +143,222 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
     final products = menuState.products;
     final isLoading = menuState.status == DataStatus.loading && categories.isEmpty;
 
-    if (isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    // Error and Empty checks omitted for brevity (keep existing)
-    if (menuState.status == DataStatus.error) {
-       return Scaffold(
-        appBar: AppBar(title: const Text('Menu Management')),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, size: 60, color: AppColors.error),
-              const SizedBox(height: 16),
-              Text(
-                'Failed to load menu',
-                style: AppTextStyles.headlineMedium,
-              ),
-               Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  menuState.error ?? 'Unknown error',
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryLight),
-                ),
-              ),
-              const SizedBox(height: 24),
-              FilledButton.icon(
-                onPressed: () => ref.read(menuProvider.notifier).refresh(),
-                icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
-              )
-            ],
-          ),
-        ),
-      );
-    }
-
-    if (categories.isEmpty && (menuState.status == DataStatus.success || menuState.status == DataStatus.initial)) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Menu Management')),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text('No categories found'),
-              const SizedBox(height: 16),
-              FilledButton.icon(
-                onPressed: () => _showAddCategoryDialog(context),
-                icon: const Icon(Icons.add),
-                label: const Text('Create First Category'),
-              ),
-              TextButton(
-                onPressed: () => ref.read(menuProvider.notifier).refresh(),
-                child: const Text('Retry'),
-              )
-            ],
-          ),
-        ),
-      );
-    }
-
-
-     // Initialize controller now that we have categories
     if (categories.isNotEmpty) {
       _initTabController(categories.length);
     }
-    
-    // Safety check if controller failed to init
-    if (_tabController == null) {
-       return const SizedBox.shrink(); 
-    }
 
     return Scaffold(
-      appBar: AppBar(
-        title: _isSearching 
-          ? TextField(
-              controller: _searchController,
-              autofocus: true,
-              style: AppTextStyles.bodyLarge,
-              decoration: const InputDecoration(
-                hintText: 'Search items...',
-                border: InputBorder.none,
-                hintStyle: TextStyle(color: Colors.grey),
+      backgroundColor: AppColors.cloudDancer,
+      body: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxIsScrolled) => [
+          SliverAppBar(
+            backgroundColor: AppColors.cloudDancer,
+            surfaceTintColor: Colors.transparent,
+            pinned: true,
+            floating: true,
+            title: _isSearching
+                ? TextField(
+                    controller: _searchController,
+                    autofocus: true,
+                    style: GoogleFonts.inter(color: AppColors.deepInk),
+                    decoration: InputDecoration(
+                      hintText: 'Search items...',
+                      border: InputBorder.none,
+                      hintStyle: GoogleFonts.inter(color: AppColors.textSecondaryLight),
+                    ),
+                  )
+                : Text(
+                    'Menu Management',
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.deepInk,
+                    ),
+                  ),
+            actions: [
+              IconButton(
+                icon: Icon(_isSearching ? Icons.close : Icons.search, color: AppColors.deepInk),
+                onPressed: () {
+                  setState(() {
+                    if (_isSearching) {
+                      _isSearching = false;
+                      _searchController.clear();
+                      _searchQuery = '';
+                    } else {
+                      _isSearching = true;
+                    }
+                  });
+                },
               ),
-            )
-          : const Text('Menu Management'),
-        actions: [
-          IconButton(
-            icon: Icon(_isSearching ? Icons.close : Icons.search),
-            tooltip: 'Search Items',
-            onPressed: () {
-              setState(() {
-                if (_isSearching) {
-                  _isSearching = false;
-                  _searchController.clear();
-                  _searchQuery = '';
-                } else {
-                  _isSearching = true;
-                }
-              });
-            },
+              if (!_isSearching) ...[
+                if (categories.isNotEmpty && _tabController != null)
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, color: AppColors.burntTerracotta),
+                    onPressed: () => _confirmDeleteCategory(context, categories[_tabController!.index]),
+                  ),
+                IconButton(
+                  icon: const Icon(Icons.playlist_add, color: AppColors.burntTerracotta),
+                  onPressed: () => _showAddCategoryDialog(context),
+                ),
+              ],
+            ],
+            bottom: categories.isEmpty
+                ? null
+                : TabBar(
+                    controller: _tabController,
+                    isScrollable: true,
+                    labelColor: AppColors.burntTerracotta,
+                    unselectedLabelColor: AppColors.textSecondaryLight,
+                    indicatorColor: AppColors.burntTerracotta,
+                    labelStyle: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                    tabs: categories.map((c) => Tab(text: c.name)).toList(),
+                  ),
           ),
-          if (!_isSearching)
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              tooltip: 'Refresh Menu',
-              onPressed: () => ref.read(menuProvider.notifier).refresh(),
-            ),
-           IconButton(
-              icon: const Icon(Icons.playlist_add),
-              tooltip: 'Add Category',
-              onPressed: () => _showAddCategoryDialog(context),
-            ),
         ],
-        bottom: TabBar(
-          controller: _tabController,
-          isScrollable: true,
-          labelColor: AppColors.primaryLight,
-          unselectedLabelColor: AppColors.textSecondaryLight,
-          indicatorColor: AppColors.primaryLight,
-          tabs: categories.map((c) => Tab(text: c.name)).toList(),
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: categories.map((category) {
-          final categoryProducts = products.where((p) => 
-            p.categoryId == category.id && 
-            (_searchQuery.isEmpty || p.name.toLowerCase().contains(_searchQuery))
-          ).toList();
+        body: isLoading
+            ? const Center(child: CircularProgressIndicator(color: AppColors.burntTerracotta))
+            : categories.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.restaurant_menu, size: 64, color: AppColors.softBorder),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Start by adding a category',
+                          style: GoogleFonts.inter(color: AppColors.textSecondaryLight),
+                        ),
+                        const SizedBox(height: 16),
+                        ModernButton(
+                          text: 'Add Category',
+                          icon: Icons.add,
+                          onPressed: () => _showAddCategoryDialog(context),
+                        ).paddingSymmetric(horizontal: 48),
+                      ],
+                    ),
+                  )
+                : TabBarView(
+                    controller: _tabController,
+                    children: categories.map((category) {
+                      final categoryProducts = menuState.products.where((p) =>
+                          p.categoryId == category.id &&
+                          (_searchQuery.isEmpty || p.name.toLowerCase().contains(_searchQuery))).toList();
 
-          if (categoryProducts.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.restaurant_menu, size: 64, color: Colors.grey[300]),
-                  const SizedBox(height: 16),
-                  Text('No items in this category', style: AppTextStyles.bodyMedium),
-                ],
-              ),
-            );
-          }
+                      if (categoryProducts.isEmpty) {
+                        return Center(
+                          child: Text(
+                            'No items in this category',
+                            style: GoogleFonts.inter(color: AppColors.textSecondaryLight),
+                          ),
+                        );
+                      }
 
-          return RefreshIndicator(
-            onRefresh: () async => ref.read(menuProvider.notifier).refresh(),
-            child: GridView.builder(
-              padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.75,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-              ),
-              itemCount: categoryProducts.length,
-              itemBuilder: (context, index) {
-                final product = categoryProducts[index];
-                return ProductCard(
-                  product: product,
-                  onEdit: () => context.go('/menu/edit/\${product.id}' // Pass product as extra if possible or fetch by ID in edit
-                  , extra: product),
-                  onAvailabilityChanged: (val) {
-                    ref.read(menuProvider.notifier).toggleAvailability(product.id, val);
-                  },
-                );
-              },
-            ),
-          );
-        }).toList(),
+                      return GridView.builder(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.8,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                        ),
+                        itemCount: categoryProducts.length,
+                        itemBuilder: (context, index) {
+                          final product = categoryProducts[index];
+                          return ModernCard(
+                            padding: EdgeInsets.zero,
+                            onTap: () => context.go('/menu/edit/\${product.id}', extra: product),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Expanded(
+                                  child: ClipRRect(
+                                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                                    child: Stack(
+                                      fit: StackFit.expand,
+                                      children: [
+                                        product.imageUrl != null
+                                          ? Image.network(product.imageUrl!, fit: BoxFit.cover)
+                                          : Container(
+                                              color: AppColors.cloudDancer,
+                                              child: const Icon(Icons.fastfood, color: AppColors.burntTerracotta),
+                                            ),
+                                        Positioned(
+                                          top: 8,
+                                          right: 8,
+                                          child: Switch(
+                                            value: product.isAvailable,
+                                            onChanged: (val) {
+                                              ref.read(menuProvider.notifier).toggleAvailability(product.id, val);
+                                            },
+                                            activeTrackColor: AppColors.burntTerracotta,
+                                          ),
+                                        ),
+                                        Positioned(
+                                          top: 8,
+                                          left: 8,
+                                          child: GestureDetector(
+                                            onTap: () => _confirmDeleteProduct(context, product),
+                                            child: Container(
+                                              padding: const EdgeInsets.all(6),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white.withValues(alpha: 0.9),
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(12),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        product.name,
+                                        style: GoogleFonts.inter(
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.deepInk,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        '€\${product.price.toStringAsFixed(2)}',
+                                        style: GoogleFonts.inter(
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.burntTerracotta,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    }).toList(),
+                  ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.go('/menu/add'),
-        backgroundColor: AppColors.primaryLight,
+        backgroundColor: AppColors.burntTerracotta,
         icon: const Icon(Icons.add, color: Colors.white),
-        label: Text('Add Item', style: AppTextStyles.labelLarge.copyWith(color: Colors.white)),
+        label: Text('Add Item', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.white)),
       ),
     );
   }
 }
 
+extension PaddingExtension on Widget {
+  Widget paddingSymmetric({double horizontal = 0, double vertical = 0}) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: horizontal, vertical: vertical),
+      child: this,
+    );
+  }
+}

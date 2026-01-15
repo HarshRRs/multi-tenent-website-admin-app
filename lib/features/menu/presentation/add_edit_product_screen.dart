@@ -65,6 +65,7 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
         });
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error picking image: $e')));
     }
   }
@@ -213,7 +214,7 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
                       hint: '0.00',
                       controller: _priceController,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      prefixIcon: Icons.attach_money,
+                      prefixIcon: Icons.euro,
                       validator: (val) {
                         if (val == null || val.isEmpty) return 'Required';
                         if (double.tryParse(val) == null) return 'Invalid';
@@ -226,7 +227,7 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Category', style: AppTextStyles.labelMedium.copyWith(color: AppColors.textLight)),
+                        Text('Category', style: AppTextStyles.labelMedium.copyWith(color: AppColors.deepInk)),
                         const SizedBox(height: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12),

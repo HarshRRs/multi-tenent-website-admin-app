@@ -12,7 +12,9 @@ model User {
   email           String         @unique
   password        String
   name            String
+  address         String?
   role            String         @default("manager")
+  businessType    String         @default("restaurant")
   createdAt       DateTime       @default(now())
   stripeAccountId String?
   categories      Category[]
@@ -72,15 +74,16 @@ model Table {
 }
 
 model Reservation {
-  id           String   @id @default(uuid())
-  customerName String
-  partySize    Int
-  time         DateTime
-  tableId      String?
-  createdAt    DateTime @default(now())
-  userId       String
-  table        Table?   @relation(fields: [tableId], references: [id])
-  user         User     @relation(fields: [userId], references: [id])
+  id            String   @id @default(uuid())
+  customerName  String
+  customerPhone String?
+  partySize     Int
+  time          DateTime
+  tableId       String?
+  createdAt     DateTime @default(now())
+  userId        String
+  table         Table?   @relation(fields: [tableId], references: [id])
+  user          User     @relation(fields: [userId], references: [id])
 }
 
 model Order {

@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 exports.register = async (req, res) => {
     try {
-        const { name, email, password, role } = req.body;
+        const { name, email, password, role, businessType } = req.body;
 
         if (!email || !password || !name) {
             return res.status(400).json({ message: 'Please provide name, email and password' });
@@ -24,7 +24,8 @@ exports.register = async (req, res) => {
                 name,
                 email,
                 password: hashedPassword,
-                role: role || 'manager'
+                role: role || 'manager',
+                businessType: businessType || 'restaurant'
             }
         });
 
@@ -48,7 +49,9 @@ exports.register = async (req, res) => {
                 id: user.id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                address: user.address,
+                businessType: user.businessType
             }
         });
     } catch (error) {
@@ -97,7 +100,8 @@ exports.login = async (req, res) => {
                 id: user.id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                businessType: user.businessType
             }
         });
     } catch (error) {
@@ -134,11 +138,121 @@ exports.getCurrentUser = async (req, res) => {
     try {
         const user = await prisma.user.findUnique({
             where: { id: req.user.id },
-            select: { id: true, name: true, email: true, role: true }
+            select: { id: true, name: true, email: true, role: true, address: true, businessType: true }
         });
         if (!user) return res.status(404).json({ message: 'User not found' });
         res.json(user);
     } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+exports.updateProfile = async (req, res) => {
+    try {
+        const { name, address } = req.body;
+
+        // Basic validation
+        if (!name) {
+            return res.status(400).json({ message: 'Name is required' });
+        }
+
+        const user = await prisma.user.update({
+            where: { id: req.user.id },
+            data: { name, address },
+            select: { id: true, name: true, email: true, role: true, address: true, businessType: true }
+        });
+
+        res.json(user);
+    } catch (error) {
+        console.error('Update Profile Error:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+// In-memory store for reset codes (in production, use Redis or database)
+const resetCodes = new Map();
+
+exports.forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ message: 'Email is required' });
+        }
+
+        const user = await prisma.user.findUnique({ where: { email } });
+
+        // Always return success to prevent email enumeration attacks
+        if (!user) {
+            return res.json({ message: 'If an account exists with this email, you will receive a reset code.' });
+        }
+
+        // Generate 6-digit code
+        const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+        // Store code with 15-minute expiry
+        resetCodes.set(email, {
+            code: resetCode,
+            expires: Date.now() + 15 * 60 * 1000
+        });
+
+        // In production, send email here
+        // For development, log the code
+        console.log(`[DEV] Password reset code for ${email}: ${resetCode}`);
+
+        res.json({
+            message: 'If an account exists with this email, you will receive a reset code.',
+            // Only include code in development for testing
+            ...(process.env.NODE_ENV !== 'production' && { dev_code: resetCode })
+        });
+    } catch (error) {
+        console.error('Forgot Password Error:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+exports.resetPassword = async (req, res) => {
+    try {
+        const { email, code, newPassword } = req.body;
+
+        if (!email || !code || !newPassword) {
+            return res.status(400).json({ message: 'Email, code, and new password are required' });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({ message: 'Password must be at least 6 characters' });
+        }
+
+        const storedReset = resetCodes.get(email);
+
+        if (!storedReset) {
+            return res.status(400).json({ message: 'Invalid or expired reset code' });
+        }
+
+        if (Date.now() > storedReset.expires) {
+            resetCodes.delete(email);
+            return res.status(400).json({ message: 'Reset code has expired' });
+        }
+
+        if (storedReset.code !== code) {
+            return res.status(400).json({ message: 'Invalid reset code' });
+        }
+
+        // Hash new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // Update user password
+        await prisma.user.update({
+            where: { email },
+            data: { password: hashedPassword }
+        });
+
+        // Clear reset code
+        resetCodes.delete(email);
+
+        res.json({ message: 'Password reset successfully. You can now login with your new password.' });
+    } catch (error) {
+        console.error('Reset Password Error:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };

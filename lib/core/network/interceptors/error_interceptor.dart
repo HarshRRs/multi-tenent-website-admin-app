@@ -11,12 +11,17 @@ class ErrorInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) {
     final exception = _handleError(err);
     
-    // Show global SnackBar
+    // Show global SnackBar with more details for debugging
+    final String errorDetails = err.response != null 
+        ? '[${err.response?.statusCode}] ${err.requestOptions.path}' 
+        : err.type.toString();
+    
     messengerKey?.currentState?.showSnackBar(
       SnackBar(
-        content: Text(exception.message),
+        content: Text('${exception.message}\n$errorDetails'),
         backgroundColor: Colors.red,
         behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 5),
         action: SnackBarAction(
           label: 'DISMISS',
           textColor: Colors.white,

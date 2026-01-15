@@ -12,12 +12,14 @@ class PaymentsState {
   final StripeStatus? stripeStatus;
   final List<Transaction> transactions;
   final String? error;
+  final String? stripePublishableKey;
 
   PaymentsState({
     required this.status,
     this.stripeStatus,
     this.transactions = const [],
     this.error,
+    this.stripePublishableKey,
   });
 
   PaymentsState copyWith({
@@ -25,12 +27,14 @@ class PaymentsState {
     StripeStatus? stripeStatus,
     List<Transaction>? transactions,
     String? error,
+    String? stripePublishableKey,
   }) {
     return PaymentsState(
       status: status ?? this.status,
       stripeStatus: stripeStatus ?? this.stripeStatus,
       transactions: transactions ?? this.transactions,
       error: error ?? this.error,
+      stripePublishableKey: stripePublishableKey ?? this.stripePublishableKey,
     );
   }
 }
@@ -68,13 +72,34 @@ class PaymentsNotifier extends StateNotifier<PaymentsState> {
   }
 
   Future<void> connectStripe() async {
-    // Stripe Connect flow requires native SDK - placeholder for now
-    state = state.copyWith(error: "Stripe Connect requires flutter_stripe SDK (temporarily disabled).");
+    state = state.copyWith(status: DataStatus.loading);
+    try {
+      final url = await _service.connectStripe();
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        state = state.copyWith(
+          status: DataStatus.error,
+          error: "Could not open Stripe onboarding URL",
+        );
+      }
+      state = state.copyWith(status: DataStatus.success);
+    } catch (e) {
+      state = state.copyWith(
+        status: DataStatus.error,
+        error: "Failed to connect Stripe: ${e.toString()}",
+      );
+    }
   }
 
   Future<void> initStripe() async {
-    // Stripe initialization disabled - flutter_stripe removed due to build issues
-    print("Stripe SDK is currently disabled.");
+    try {
+      final key = await _service.getStripePublishableKey();
+      state = state.copyWith(stripePublishableKey: key);
+    } catch (e) {
+      // Stripe config not available - not critical
+    }
   }
 
   Future<void> processPayment(double amount, String currency) async {
