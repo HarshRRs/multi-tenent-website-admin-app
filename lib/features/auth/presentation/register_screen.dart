@@ -130,6 +130,9 @@ Cancel anytime. Data export available for 30 days after cancellation.''';
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    AutofillGroup(
+                      child: Column(
+                        children: [
                     // Glowing COSMOS title (no hero image)
                     const GlowingText(
                       text: 'COSMOS',
@@ -189,6 +192,8 @@ Cancel anytime. Data export available for 30 days after cancellation.''';
                       hint: 'John Doe',
                       icon: Icons.person_outline,
                       controller: _nameController,
+                      autofillHints: const [AutofillHints.name],
+                      textInputAction: TextInputAction.next,
                       validator: (v) => v?.isEmpty == true ? 'Required' : null,
                     ).animate().fadeIn(duration: 500.ms, delay: 500.ms).slideX(begin: -0.2, end: 0),
                     
@@ -231,6 +236,8 @@ Cancel anytime. Data export available for 30 days after cancellation.''';
                       hint: 'My Awesome Store',
                       icon: Icons.store_outlined,
                       controller: _businessNameController,
+                      autofillHints: const [AutofillHints.organizationName],
+                      textInputAction: TextInputAction.next,
                     ).animate().fadeIn(duration: 500.ms, delay: 700.ms).slideX(begin: -0.2, end: 0),
                     
                     const SizedBox(height: 16),
@@ -242,6 +249,8 @@ Cancel anytime. Data export available for 30 days after cancellation.''';
                       icon: Icons.email_outlined,
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
+                      autofillHints: const [AutofillHints.email],
+                      textInputAction: TextInputAction.next,
                       validator: (v) => (v != null && v.contains('@')) ? null : 'Invalid email',
                     ).animate().fadeIn(duration: 500.ms, delay: 800.ms).slideX(begin: -0.2, end: 0),
                     
@@ -254,11 +263,14 @@ Cancel anytime. Data export available for 30 days after cancellation.''';
                       icon: Icons.lock_outline,
                       controller: _passwordController,
                       obscureText: _obscurePassword,
+                      autofillHints: const [AutofillHints.newPassword],
+                      textInputAction: TextInputAction.done,
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
                           color: Colors.white60,
                         ),
+                        tooltip: _obscurePassword ? 'Show password' : 'Hide password',
                         onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                       ),
                       validator: (v) => (v != null && v.length >= 6) ? null : 'Min 6 chars',
@@ -337,6 +349,9 @@ Cancel anytime. Data export available for 30 days after cancellation.''';
                         ],
                       ),
                     ).animate().fadeIn(duration: 600.ms, delay: 1200.ms),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
