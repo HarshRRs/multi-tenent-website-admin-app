@@ -279,13 +279,34 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
                       ),
                     ),
                     if (reservation.customerPhone != null && reservation.customerPhone!.isNotEmpty)
-                      Text(
-                        reservation.customerPhone!, 
-                        style: GoogleFonts.inter(
-                          color: AppColors.textSecondaryLight, 
-                          fontSize: 12,
-                        ),
+                      Row(
+                        children: [
+                          const Icon(Icons.phone_outlined, size: 14, color: AppColors.textSecondaryLight),
+                          const SizedBox(width: 4),
+                          Text(
+                            reservation.customerPhone!, 
+                            style: GoogleFonts.inter(
+                              color: AppColors.textSecondaryLight, 
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
                       ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const Icon(Icons.access_time, size: 14, color: AppColors.burntTerracotta),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Arrives at ${DateFormat('hh:mm a').format(reservation.time)}',
+                          style: GoogleFonts.inter(
+                            color: AppColors.burntTerracotta,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 4),
                     Row(
                       children: [
