@@ -149,7 +149,20 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
 
     return Scaffold(
       backgroundColor: AppColors.cloudDancer,
-      body: NestedScrollView(
+      body: Stack(
+        children: [
+          // Premium Floral Background
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.05,
+              child: Image.asset(
+                'assets/images/flower_background.jpg',
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => const SizedBox(),
+              ),
+            ),
+          ),
+          NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           SliverAppBar(
             backgroundColor: AppColors.cloudDancer,
@@ -343,6 +356,8 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
                       );
                     }).toList(),
                   ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.go('/menu/add'),

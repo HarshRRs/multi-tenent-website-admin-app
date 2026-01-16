@@ -87,8 +87,11 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
     final isLoading = ordersState.status == DataStatus.loading && allOrders.isEmpty;
 
     return Scaffold(
+      backgroundColor: AppColors.cloudDancer,
       appBar: AppBar(
         title: const Text('Live Orders'),
+        backgroundColor: AppColors.cloudDancer,
+        surfaceTintColor: Colors.transparent,
         actions: [
           if (ordersState.status == DataStatus.loading)
              const Padding(
@@ -101,7 +104,22 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
           ),
         ],
       ),
-      body: _buildBody(ordersState, allOrders, isLoading),
+      body: Stack(
+        children: [
+          // Premium Floral Background
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.05,
+              child: Image.asset(
+                'assets/images/flower_background.jpg',
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => const SizedBox(),
+              ),
+            ),
+          ),
+          _buildBody(ordersState, allOrders, isLoading),
+        ],
+      ),
     );
   }
 
