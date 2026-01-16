@@ -28,88 +28,133 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
   Future<void> _showAddReservationDialog() async {
     final nameController = TextEditingController();
     final sizeController = TextEditingController();
-    final phoneController = TextEditingController(); // Added controller
-    final formKey = GlobalKey<FormState>(); // Added form key for validation
+    final phoneController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    TimeOfDay selectedTime = TimeOfDay.now();
     
     await showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('New Reservation', style: AppTextStyles.headlineMedium),
-        content: Form( // Wrapped in Form
-          key: formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField( // Changed to TextFormField
-                controller: nameController,
-                decoration: InputDecoration(
-                  labelText: 'Customer Name',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text('New Reservation', style: AppTextStyles.headlineMedium),
+          content: Form(
+            key: formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      labelText: 'Customer Name',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      prefixIcon: const Icon(Icons.person),
+                    ),
+                    validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: phoneController,
+                    decoration: InputDecoration(
+                      labelText: 'Customer Phone',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      prefixIcon: const Icon(Icons.phone),
+                    ),
+                    keyboardType: TextInputType.phone,
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: sizeController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: 'Party Size',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      prefixIcon: const Icon(Icons.people),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) return 'Required';
+                      if (int.tryParse(value) == null) return 'Must be a number';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  // TIME PICKER
+                  InkWell(
+                    onTap: () async {
+                      final picked = await showTimePicker(
+                        context: context,
+                        initialTime: selectedTime,
+                      );
+                      if (picked != null) {
+                        setDialogState(() => selectedTime = picked);
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.access_time, color: Colors.grey),
+                          const SizedBox(width: 12),
+                          Text(
+                            'Arrival Time: ${selectedTime.format(context)}',
+                            style: GoogleFonts.inter(fontSize: 16),
+                          ),
+                          const Spacer(),
+                          const Icon(Icons.arrow_drop_down, color: Colors.grey),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: phoneController, // Phone field
-                decoration: InputDecoration(
-                  labelText: 'Customer Contact Number',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  prefixIcon: const Icon(Icons.phone),
-                ),
-                keyboardType: TextInputType.phone,
-              ),
-              const SizedBox(height: 16),
-               TextFormField(
-                controller: sizeController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: 'Party Size',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) return 'Required';
-                  if (int.tryParse(value) == null) return 'Must be a number';
-                  return null;
-                },
-              ),
-            ],
+            ),
           ),
-        ),
-        actions: [
-          TextButton(onPressed: () => context.pop(), child: const Text('Cancel')),
-          FilledButton(
-            onPressed: () async {
-              if (formKey.currentState!.validate()) {
-                try {
-                  await ref.read(reservationsProvider.notifier).addReservation(
-                    nameController.text,
-                    phoneController.text.isNotEmpty ? phoneController.text : null,
-                    int.parse(sizeController.text),
-                  );
-                  if (context.mounted) {
-                    context.pop();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Reservation added for ${nameController.text}'),
-                        backgroundColor: AppColors.success,
-                      ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+            FilledButton(
+              onPressed: () async {
+                if (formKey.currentState!.validate()) {
+                  try {
+                    final now = DateTime.now();
+                    final arrivalTime = DateTime(
+                      now.year, now.month, now.day,
+                      selectedTime.hour, selectedTime.minute,
                     );
-                  }
-                } catch (e) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Error: $e'),
-                        backgroundColor: AppColors.error,
-                      ),
+                    await ref.read(reservationsProvider.notifier).addReservation(
+                      nameController.text,
+                      phoneController.text.isNotEmpty ? phoneController.text : null,
+                      int.parse(sizeController.text),
+                      arrivalTime,
                     );
+                    if (context.mounted) {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Reservation added for ${nameController.text}'),
+                          backgroundColor: AppColors.success,
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Error: $e'),
+                          backgroundColor: AppColors.error,
+                        ),
+                      );
+                    }
                   }
                 }
-              }
-            },
-            child: const Text('Add'),
-          ),
-        ],
+              },
+              child: const Text('Add'),
+            ),
+          ],
+        ),
       ),
     );
   }
