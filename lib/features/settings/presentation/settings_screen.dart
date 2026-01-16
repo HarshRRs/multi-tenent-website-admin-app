@@ -253,6 +253,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ? const Locale('fr') 
                         : const Locale('en');
                      ref.read(localeProvider.notifier).setLocale(newLocale);
+                     ScaffoldMessenger.of(context).showSnackBar(
+                       SnackBar(
+                         content: Text(newLocale.languageCode == 'fr' 
+                           ? 'Langue changée en Français' 
+                           : 'Language changed to English'),
+                         backgroundColor: AppColors.success,
+                       ),
+                     );
                   },
                 ),
                 

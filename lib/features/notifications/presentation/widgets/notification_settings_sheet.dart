@@ -107,6 +107,28 @@ class _NotificationSettingsSheetState extends State<NotificationSettingsSheet> {
               ),
             ),
           ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Notification sound settings saved!'),
+                    backgroundColor: AppColors.success,
+                  ),
+                );
+              },
+              icon: const Icon(Icons.check),
+              label: const Text('Save & Close'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.success,
+                side: const BorderSide(color: AppColors.success),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+            ),
+          ),
         ],
       ),
     );
