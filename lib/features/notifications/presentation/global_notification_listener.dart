@@ -4,7 +4,8 @@ import 'package:rockster/core/network/websocket_service.dart';
 import 'package:rockster/core/services/sound_service.dart';
 import 'package:rockster/features/notifications/presentation/notifications_provider.dart';
 import 'package:rockster/features/orders/presentation/orders_provider.dart';
-import 'package:rockster/core/providers/providers.dart'; // For API client if needed directly or other providers
+import 'package:rockster/core/providers/providers.dart';
+import 'package:rockster/core/providers/sound_provider.dart';
 
 class GlobalNotificationListener extends ConsumerStatefulWidget {
   final Widget child;
@@ -67,15 +68,4 @@ class _GlobalNotificationListenerState extends ConsumerState<GlobalNotificationL
   }
 }
 
-// Define Providers if they don't exist globally yet
-final webSocketServiceProvider = Provider<WebSocketService>((ref) {
-  final service = WebSocketService();
-  service.connect(); // Auto connect
-  ref.onDispose(() => service.dispose());
-  return service;
-});
-
-final webSocketStreamProvider = StreamProvider<Map<String, dynamic>>((ref) {
-  final service = ref.watch(webSocketServiceProvider);
-  return service.eventStream;
-});
+// Duplicate providers removed

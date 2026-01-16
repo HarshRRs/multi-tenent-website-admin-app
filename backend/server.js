@@ -58,16 +58,20 @@ app.use('/notifications', require('./src/routes/notificationRoutes'));
 app.use('/website', require('./src/routes/websiteRoutes')); // Multi-Tenant Config
 app.use('/public', require('./src/routes/publicRoutes')); // Consumer Website API
 
+const websocketService = require('./src/services/websocketService');
+
 // Health Check
 app.get('/', (req, res) => {
     res.json({
         status: 'ok',
-        service: 'Rockster Backend (Multi-Tenant)',
+        service: 'Cosmos Admin Backend (Multi-Tenant)',
         version: '2.0.0',
         timestamp: new Date().toISOString()
     });
 });
 
-app.listen(port, () => {
-    console.log(`Rockster Backend listening on port ${port}`);
+const server = app.listen(port, () => {
+    console.log(`Cosmos Admin Backend listening on port ${port}`);
 });
+
+websocketService.init(server);

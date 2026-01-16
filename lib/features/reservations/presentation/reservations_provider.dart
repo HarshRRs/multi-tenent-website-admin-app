@@ -91,6 +91,16 @@ class ReservationsNotifier extends StateNotifier<ReservationsState> {
       rethrow;
     }
   }
+
+  Future<void> deleteReservation(String id) async {
+    try {
+      await _service.deleteReservation(id);
+      await loadData();
+    } catch (e) {
+      state = state.copyWith(error: "Failed to delete reservation: $e");
+      rethrow;
+    }
+  }
 }
 
 final reservationsProvider = StateNotifierProvider<ReservationsNotifier, ReservationsState>((ref) {

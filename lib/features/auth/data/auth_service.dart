@@ -47,7 +47,7 @@ class AuthService {
     return User.fromJson(response.data);
   }
   Future<User> updateProfile(String name, String address, {bool? isStoreOpen}) async {
-    final data = {
+    final Map<String, dynamic> data = {
       'name': name,
       'address': address,
     };

@@ -6,6 +6,8 @@ import 'package:rockster/core/theme/app_text_styles.dart';
 import 'package:rockster/features/reservations/domain/reservation_models.dart';
 import 'package:rockster/features/reservations/presentation/reservations_provider.dart';
 import 'package:intl/intl.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:rockster/core/components/modern_card.dart';
 
 class ReservationsScreen extends ConsumerStatefulWidget {
   const ReservationsScreen({super.key});
@@ -88,7 +90,7 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
                     context.pop();
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Reservation added for \${nameController.text}'),
+                        content: Text('Reservation added for ${nameController.text}'),
                         backgroundColor: AppColors.success,
                       ),
                     );

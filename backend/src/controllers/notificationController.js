@@ -57,13 +57,20 @@ exports.markAllAsRead = async (req, res) => {
 // Helper function to create notifications
 exports.createNotification = async (userId, title, body, type = 'system') => {
     try {
-        await prisma.notification.create({
+        const notification = await prisma.notification.create({
             data: {
                 userId,
                 title,
                 body,
                 type
             }
+        });
+
+        // Emit WebSocket event
+        const websocketService = require('../services/websocketService');
+        websocketService.sendToUser(userId, {
+            type: 'new_notification',
+            notification
         });
     } catch (error) {
         console.error('Error creating notification:', error);

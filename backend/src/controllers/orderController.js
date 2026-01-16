@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const websocketService = require('../services/websocketService');
 
 exports.getOrders = async (req, res) => {
     try {
@@ -91,6 +92,14 @@ exports.createOrder = async (req, res) => {
             // Don't fail the order if notification fails
         }
 
+        // Emit WebSocket event for new order
+        websocketService.sendToUser(req.user.id, {
+            type: 'new_order',
+            orderId: order.id,
+            totalAmount: order.totalAmount,
+            customerName: order.customerName
+        });
+
         res.status(201).json(order);
     } catch (error) {
         console.error('Create Order Error:', error);
@@ -124,6 +133,14 @@ exports.updateOrderStatus = async (req, res) => {
         const updatedOrder = await prisma.order.findFirst({
             where: { id },
             include: { items: true }
+        });
+
+        // Emit WebSocket event for order update
+        websocketService.sendToUser(req.user.id, {
+            type: 'order_update',
+            orderId: id,
+            status: status,
+            order: updatedOrder
         });
 
         res.json(updatedOrder);

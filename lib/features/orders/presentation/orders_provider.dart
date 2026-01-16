@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rockster/core/providers/providers.dart';
+import 'package:rockster/core/services/sound_service.dart';
+import 'package:rockster/core/providers/sound_provider.dart';
 import 'package:rockster/core/utils/cache_service.dart';
 import 'package:rockster/features/orders/data/order_dto.dart';
 import 'package:rockster/features/orders/data/order_service.dart';
