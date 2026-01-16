@@ -5,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:rockster/core/theme/app_colors.dart';
 import 'package:rockster/core/components/modern_card.dart';
 import 'package:rockster/features/auth/presentation/auth_provider.dart';
+import 'package:rockster/l10n/app_localizations.dart';
+import 'package:rockster/features/notifications/presentation/widgets/notification_settings_sheet.dart';
 
 class MoreScreen extends ConsumerWidget {
   const MoreScreen({super.key});
@@ -103,7 +105,7 @@ class MoreScreen extends ConsumerWidget {
                 
                 const SizedBox(height: 24),
                 
-                _buildSectionHeader('Business'),
+                _buildSectionHeader(AppLocalizations.of(context)!.settingsBusiness.toUpperCase()),
                 _buildMenuTile(
                   context,
                   icon: Icons.credit_card_outlined,
@@ -120,18 +122,25 @@ class MoreScreen extends ConsumerWidget {
                 ),
                 
                 const SizedBox(height: 16),
-                _buildSectionHeader('General'),
+                _buildSectionHeader(AppLocalizations.of(context)!.settingsGeneral.toUpperCase()),
                 _buildMenuTile(
                   context,
                   icon: Icons.notifications_none_outlined,
-                  title: 'Notifications',
-                  subtitle: 'Manage alerts and push notifications',
-                  onTap: () => context.push('/notifications'),
+                  title: AppLocalizations.of(context)!.settingsNotifications,
+                  subtitle: 'Manage alerts and sounds',
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (context) => const NotificationSettingsSheet(),
+                    );
+                  },
                 ),
                 _buildMenuTile(
                   context,
                   icon: Icons.settings_outlined,
-                  title: 'Settings',
+                  title: AppLocalizations.of(context)!.settingsTitle,
                   subtitle: 'App preferences, printer setup',
                   onTap: () => context.push('/settings'),
                 ),
@@ -141,7 +150,7 @@ class MoreScreen extends ConsumerWidget {
                 _buildMenuTile(
                   context,
                   icon: Icons.logout_outlined,
-                  title: 'Log Out',
+                  title: AppLocalizations.of(context)!.settingsSignOut,
                   subtitle: 'Sign out of your account',
                   isDestructive: true,
                   onTap: () async {

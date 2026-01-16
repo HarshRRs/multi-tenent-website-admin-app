@@ -148,3 +148,43 @@ exports.updateOrderStatus = async (req, res) => {
         res.status(500).json({ message: 'Error updating order status', error: error.message });
     }
 };
+
+exports.createPublicOrder = async (req, res) => {
+    try {
+        const { restaurantId, customerName, items, totalAmount } = req.body;
+
+        if (!restaurantId || !items || !Array.isArray(items) || items.length === 0) {
+            return res.status(400).json({ message: 'Restaurant ID and items are required' });
+        }
+
+        const order = await prisma.order.create({
+            data: {
+                customerName: customerName || 'Web Guest',
+                totalAmount: parseFloat(totalAmount) || 0,
+                status: 'pending',
+                userId: restaurantId, // Scoped to the restaurant (userId in our system)
+                items: {
+                    create: items.map(item => ({
+                        name: item.name,
+                        quantity: parseInt(item.quantity),
+                        price: parseFloat(item.price)
+                    }))
+                }
+            },
+            include: { items: true }
+        });
+
+        // Emit WebSocket event for new order
+        websocketService.sendToUser(restaurantId, {
+            type: 'new_order',
+            orderId: order.id,
+            totalAmount: order.totalAmount,
+            customerName: order.customerName
+        });
+
+        res.status(201).json(order);
+    } catch (error) {
+        console.error('Create Public Order Error:', error);
+        res.status(500).json({ message: 'Error creating order', error: error.message });
+    }
+};

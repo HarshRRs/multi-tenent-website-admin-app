@@ -46,4 +46,19 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get printDisconnected => 'Déconnecté';
+
+  @override
+  String get settingsBusiness => 'Entreprise';
+
+  @override
+  String get settingsGeneral => 'Général';
+
+  @override
+  String get settingsPreferences => 'Préférences';
+
+  @override
+  String get settingsHardware => 'Matériel';
+
+  @override
+  String get settingsAccount => 'Compte';
 }

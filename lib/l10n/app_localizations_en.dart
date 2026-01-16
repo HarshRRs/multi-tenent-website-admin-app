@@ -46,4 +46,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get printDisconnected => 'Disconnected';
+
+  @override
+  String get settingsBusiness => 'Business';
+
+  @override
+  String get settingsGeneral => 'General';
+
+  @override
+  String get settingsPreferences => 'Preferences';
+
+  @override
+  String get settingsHardware => 'Hardware';
+
+  @override
+  String get settingsAccount => 'Account';
 }

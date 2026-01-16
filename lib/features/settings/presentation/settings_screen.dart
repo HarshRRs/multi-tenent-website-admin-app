@@ -7,6 +7,8 @@ import 'package:rockster/core/components/modern_card.dart';
 import 'package:rockster/features/auth/presentation/auth_provider.dart';
 import 'package:rockster/core/providers/locale_provider.dart';
 import 'package:rockster/features/settings/presentation/printer_settings_screen.dart';
+import 'package:rockster/features/notifications/presentation/widgets/notification_settings_sheet.dart';
+import 'package:rockster/l10n/app_localizations.dart';
 
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -105,7 +107,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             surfaceTintColor: Colors.transparent,
             pinned: true,
             title: Text(
-              'Settings',
+              AppLocalizations.of(context)!.settingsTitle,
               style: GoogleFonts.inter(
                 fontWeight: FontWeight.bold,
                 color: AppColors.deepInk,
@@ -157,18 +159,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                   color: AppColors.deepInk,
                                 ),
                               ),
-                              Text(
-                                address,
-                                style: GoogleFonts.inter(
-                                  fontSize: 14,
-                                  color: AppColors.textSecondaryLight,
+                                Text(
+                                  address,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 14,
+                                    color: AppColors.textSecondaryLight,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                              ),
                             ],
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.edit_outlined, color: AppColors.burntTerracotta),
+                          icon: const Icon(Icons.edit_outlined, color: AppColors.burntTerracotta, size: 20),
                           onPressed: _showEditProfileDialog,
                         ),
                       ],
@@ -178,15 +182,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 
                 const SizedBox(height: 24),
                 
-                _buildSectionHeader('PREFERENCES'),
+                _buildSectionHeader(AppLocalizations.of(context)!.settingsPreferences.toUpperCase()),
                 _buildSettingTile(
                   icon: Icons.notifications_outlined,
-                  title: 'Notifications',
+                  title: AppLocalizations.of(context)!.settingsNotifications,
                   subtitle: 'Manage alerts and sounds',
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (context) => const NotificationSettingsSheet(),
+                    );
+                  },
                 ),
                 _buildSettingTile(
                   icon: Icons.language,
-                  title: 'Language',
+                  title: AppLocalizations.of(context)!.settingsLanguage,
                   subtitle: currentLocale.languageCode == 'en' ? 'English (US)' : 'Français',
                   onTap: () {
                      // Toggle Language
@@ -199,10 +211,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 
                 const SizedBox(height: 24),
                 
-                _buildSectionHeader('HARDWARE'),
+                _buildSectionHeader(AppLocalizations.of(context)!.settingsHardware.toUpperCase()),
                 _buildSettingTile(
                   icon: Icons.print_outlined,
-                  title: 'Printer Setup',
+                  title: AppLocalizations.of(context)!.settingsPrinter,
                   subtitle: 'Epson TM Series / ESC/POS',
                   onTap: () {
                     Navigator.of(context).push(
@@ -213,10 +225,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 
                 const SizedBox(height: 24),
                 
-                _buildSectionHeader('ACCOUNT'),
+                _buildSectionHeader(AppLocalizations.of(context)!.settingsAccount.toUpperCase()),
                  _buildSettingTile(
                   icon: Icons.logout,
-                   title: 'Sign Out',
+                   title: AppLocalizations.of(context)!.settingsSignOut,
                    subtitle: 'Log out of your account',
                    onTap: () {
                      ref.read(authNotifierProvider.notifier).logout();

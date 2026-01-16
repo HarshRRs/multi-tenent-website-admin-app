@@ -175,6 +175,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Disconnected'**
   String get printDisconnected;
+
+  /// No description provided for @settingsBusiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Business'**
+  String get settingsBusiness;
+
+  /// No description provided for @settingsGeneral.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get settingsGeneral;
+
+  /// No description provided for @settingsPreferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences'**
+  String get settingsPreferences;
+
+  /// No description provided for @settingsHardware.
+  ///
+  /// In en, this message translates to:
+  /// **'Hardware'**
+  String get settingsHardware;
+
+  /// No description provided for @settingsAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get settingsAccount;
 }
 
 class _AppLocalizationsDelegate

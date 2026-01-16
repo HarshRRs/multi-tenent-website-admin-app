@@ -84,3 +84,34 @@ exports.deleteReservation = async (req, res) => {
         res.status(500).json({ message: 'Error deleting reservation', error: error.message });
     }
 };
+
+exports.createPublicReservation = async (req, res) => {
+    try {
+        const { restaurantId, customerName, partySize, time, phone } = req.body;
+
+        if (!restaurantId || !customerName || !partySize || !time) {
+            return res.status(400).json({ message: 'Missing required reservation fields' });
+        }
+
+        const reservation = await prisma.reservation.create({
+            data: {
+                customerName,
+                customerPhone: phone,
+                partySize: parseInt(partySize),
+                time: new Date(time),
+                userId: restaurantId
+            }
+        });
+
+        // Notify admin via WebSocket (just to refresh list)
+        const websocketService = require('../services/websocketService');
+        websocketService.sendToUser(restaurantId, {
+            type: 'order_update', // Re-use for refreshing
+            message: 'New reservation received'
+        });
+
+        res.status(201).json(reservation);
+    } catch (error) {
+        res.status(500).json({ message: 'Error creating reservation', error: error.message });
+    }
+};

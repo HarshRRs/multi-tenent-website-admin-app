@@ -12,5 +12,10 @@
     "printScanning": "Scanning...",
     "printNoDevice": "No devices found",
     "printConnected": "Connected",
-    "printDisconnected": "Disconnected"
+    "printDisconnected": "Disconnected",
+    "settingsBusiness": "Business",
+    "settingsGeneral": "General",
+    "settingsPreferences": "Preferences",
+    "settingsHardware": "Hardware",
+    "settingsAccount": "Account"
 }
