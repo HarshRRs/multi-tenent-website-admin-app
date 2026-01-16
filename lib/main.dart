@@ -11,6 +11,7 @@ import 'package:rockster/core/providers/messenger_provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:rockster/core/providers/locale_provider.dart';
 import 'package:rockster/features/notifications/presentation/global_notification_listener.dart';
+import 'package:rockster/l10n/app_localizations.dart';
 
 // Background message handler - must be top-level function
 @pragma('vm:entry-point')
@@ -129,6 +130,7 @@ class RocksterApp extends ConsumerWidget {
       routerConfig: router,
       locale: ref.watch(localeProvider),
       localizationsDelegates: const [
+        AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,

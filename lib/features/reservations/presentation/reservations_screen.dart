@@ -272,6 +272,8 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
               ),
               PopupMenuButton<String>(
                 icon: const Icon(Icons.more_vert, color: AppColors.textSecondaryLight),
+                color: Colors.white,
+                surfaceTintColor: Colors.transparent,
                 onSelected: (value) async {
                   if (value == 'delete') {
                     final confirm = await showDialog<bool>(
@@ -294,7 +296,7 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
                   }
                 },
                 itemBuilder: (context) => [
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'delete',
                     child: Row(
                       children: [
