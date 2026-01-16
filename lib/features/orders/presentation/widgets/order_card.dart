@@ -99,9 +99,7 @@ class OrderCard extends StatelessWidget {
       ),
     );
 
-    return GestureDetector(
-      onTap: () => context.push('/order/\${order.id}'),
-      child: Draggable<Order>(
+    return Draggable<Order>(
       data: order,
       feedback: Transform.scale(
         scale: 1.05,
@@ -114,8 +112,25 @@ class OrderCard extends StatelessWidget {
         opacity: 0.5,
         child: cardContent,
       ),
-      child: cardContent,
-    ),
+      child: Stack(
+        children: [
+          cardContent,
+          Positioned.fill(
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => context.push('/order/${order.id}'),
+                borderRadius: BorderRadius.circular(16),
+                child: Semantics(
+                  label: 'View order #${order.id} details',
+                  button: true,
+                  child: const SizedBox.shrink(),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
