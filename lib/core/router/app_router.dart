@@ -31,9 +31,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isAuth = authState.status == AuthStatus.authenticated;
       final isLoggingIn = state.uri.toString() == '/login';
       final isRegistering = state.uri.toString() == '/register';
+      final isForgotPassword = state.uri.toString() == '/forgot-password';
 
       if (!isAuth) {
-         if (isLoggingIn || isRegistering) return null;
+         if (isLoggingIn || isRegistering || isForgotPassword) return null;
          return '/login';
       }
 
