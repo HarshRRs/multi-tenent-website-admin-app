@@ -48,6 +48,7 @@ Reservation reservationFromJson(Map<String, dynamic> json) {
   return Reservation(
     id: json['id'] ?? '',
     customerName: json['customerName'] ?? '',
+    customerPhone: json['customerPhone'],
     partySize: json['partySize'] ?? 2,
     time: json['time'] != null ? DateTime.parse(json['time']) : DateTime.now(),
     tableId: json['tableId'] ?? '',
@@ -58,6 +59,7 @@ Map<String, dynamic> reservationToJson(Reservation reservation) {
   return {
     'id': reservation.id,
     'customerName': reservation.customerName,
+    'customerPhone': reservation.customerPhone,
     'partySize': reservation.partySize,
     'time': reservation.time.toIso8601String(),
     'tableId': reservation.tableId,

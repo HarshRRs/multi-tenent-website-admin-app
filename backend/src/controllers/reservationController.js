@@ -18,7 +18,7 @@ exports.getReservations = async (req, res) => {
 
 exports.createReservation = async (req, res) => {
     try {
-        const { customerName, partySize, time, tableId } = req.body;
+        const { customerName, customerPhone, partySize, time, tableId } = req.body;
 
         if (!customerName || !partySize || !time) {
             return res.status(400).json({ message: 'Customer name, party size, and time are required' });
@@ -57,6 +57,7 @@ exports.createReservation = async (req, res) => {
         const reservation = await prisma.reservation.create({
             data: {
                 customerName,
+                customerPhone: customerPhone || null,
                 partySize: parseInt(partySize),
                 time: new Date(time),
                 tableId: tableId || null,
