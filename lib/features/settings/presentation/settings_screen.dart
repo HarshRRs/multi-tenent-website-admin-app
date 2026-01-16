@@ -132,48 +132,95 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         opacity: 0.15, // Subtle floral effect
                       ),
                     ),
-                    child: Row(
+                    child: Column(
                       children: [
-                        CircleAvatar(
-                          radius: 30,
-                          backgroundColor: AppColors.burntTerracotta,
-                          child: Text(
-                            restaurantName.isNotEmpty ? restaurantName[0].toUpperCase() : 'C',
-                            style: GoogleFonts.inter(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                restaurantName,
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 30,
+                              backgroundColor: AppColors.burntTerracotta,
+                              child: Text(
+                                restaurantName.isNotEmpty ? restaurantName[0].toUpperCase() : 'C',
                                 style: GoogleFonts.inter(
-                                  fontSize: 18,
+                                  color: Colors.white,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.deepInk,
+                                  fontSize: 20,
                                 ),
                               ),
-                                Text(
-                                  address,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 14,
-                                    color: AppColors.textSecondaryLight,
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    restaurantName,
+                                    style: GoogleFonts.inter(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.deepInk,
+                                    ),
                                   ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                                    Text(
+                                      address,
+                                      style: GoogleFonts.inter(
+                                        fontSize: 14,
+                                        color: AppColors.textSecondaryLight,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.edit_outlined, color: AppColors.burntTerracotta, size: 20),
+                              onPressed: _showEditProfileDialog,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        // Store Status Toggle
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: user?.isStoreOpen == true 
+                                ? AppColors.success.withValues(alpha: 0.1) 
+                                : AppColors.error.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    user?.isStoreOpen == true ? Icons.store : Icons.store_mall_directory_outlined,
+                                    color: user?.isStoreOpen == true ? AppColors.success : AppColors.error,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    user?.isStoreOpen == true ? 'Store is Open' : 'Store is Closed',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: user?.isStoreOpen == true ? AppColors.success : AppColors.error,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Switch(
+                                value: user?.isStoreOpen ?? false,
+                                activeColor: AppColors.success,
+                                activeTrackColor: AppColors.success.withValues(alpha: 0.3),
+                                inactiveThumbColor: AppColors.error,
+                                inactiveTrackColor: AppColors.error.withValues(alpha: 0.3),
+                                onChanged: (value) async {
+                                  await ref.read(authNotifierProvider.notifier).toggleStoreStatus();
+                                },
+                              ),
                             ],
                           ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.edit_outlined, color: AppColors.burntTerracotta, size: 20),
-                          onPressed: _showEditProfileDialog,
                         ),
                       ],
                     ),

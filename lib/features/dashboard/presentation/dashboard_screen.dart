@@ -150,48 +150,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     ),
                   ),
                   actions: [
-                    // Store Status Toggle
-                    Consumer(
-                      builder: (context, ref, child) {
-                        final user = ref.watch(authNotifierProvider).user;
-                        if (user == null) return const SizedBox.shrink();
-                        
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                user.isStoreOpen ? 'Open' : 'Closed',
-                                style: GoogleFonts.inter(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                  color: user.isStoreOpen ? AppColors.success : AppColors.error,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              SizedBox(
-                                height: 32,
-                                child: FittedBox(
-                                  fit: BoxFit.contain,
-                                  child: Switch(
-                                    value: user.isStoreOpen,
-                                    activeColor: AppColors.success,
-                                    activeTrackColor: AppColors.success.withValues(alpha: 0.3),
-                                    inactiveThumbColor: AppColors.error,
-                                    inactiveTrackColor: AppColors.error.withValues(alpha: 0.3),
-                                    onChanged: (value) async {
-                                      await ref.read(authNotifierProvider.notifier).toggleStoreStatus();
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
                     IconButton(
                       icon: const Icon(Icons.calendar_month_outlined, color: AppColors.deepInk),
                       tooltip: 'Select Date',
