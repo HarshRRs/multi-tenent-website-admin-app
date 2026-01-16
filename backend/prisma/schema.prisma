@@ -15,6 +15,7 @@ model User {
   address         String?
   role            String         @default("manager")
   businessType    String         @default("restaurant")
+  isStoreOpen    Boolean        @default(true)
   createdAt       DateTime       @default(now())
   stripeAccountId String?
   categories      Category[]

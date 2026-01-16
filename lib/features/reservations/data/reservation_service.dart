@@ -48,4 +48,7 @@ class ReservationService {
     );
     return reservationFromJson(response.data);
   }
+  Future<void> deleteReservation(String id) async {
+    await _dio.delete('reservations/$id');
+  }
 }

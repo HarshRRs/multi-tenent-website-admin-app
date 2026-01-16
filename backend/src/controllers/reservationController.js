@@ -70,3 +70,17 @@ exports.createReservation = async (req, res) => {
         res.status(500).json({ message: 'Error creating reservation', error: error.message });
     }
 };
+exports.deleteReservation = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await prisma.reservation.delete({
+            where: {
+                id,
+                userId: req.user.id
+            }
+        });
+        res.json({ message: 'Reservation deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error deleting reservation', error: error.message });
+    }
+};

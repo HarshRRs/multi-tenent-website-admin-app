@@ -51,8 +51,12 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           _email = email;
           _isLoading = false;
         });
+
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Reset code sent! Check your email (or console in dev mode).')),
+          const SnackBar(
+            content: Text('Reset code sent! Please check your email inbox.'),
+            backgroundColor: AppColors.success,
+          ),
         );
       }
     } catch (e) {

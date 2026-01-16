@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const mailService = require('../services/mailService');
 
 exports.register = async (req, res) => {
     try {
@@ -51,7 +52,8 @@ exports.register = async (req, res) => {
                 email: user.email,
                 role: user.role,
                 address: user.address,
-                businessType: user.businessType
+                businessType: user.businessType,
+                isStoreOpen: user.isStoreOpen
             }
         });
     } catch (error) {
@@ -101,7 +103,8 @@ exports.login = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
-                businessType: user.businessType
+                businessType: user.businessType,
+                isStoreOpen: user.isStoreOpen
             }
         });
     } catch (error) {
@@ -138,7 +141,7 @@ exports.getCurrentUser = async (req, res) => {
     try {
         const user = await prisma.user.findUnique({
             where: { id: req.user.id },
-            select: { id: true, name: true, email: true, role: true, address: true, businessType: true }
+            select: { id: true, name: true, email: true, role: true, address: true, businessType: true, isStoreOpen: true }
         });
         if (!user) return res.status(404).json({ message: 'User not found' });
         res.json(user);
@@ -149,7 +152,7 @@ exports.getCurrentUser = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
     try {
-        const { name, address } = req.body;
+        const { name, address, isStoreOpen } = req.body;
 
         // Basic validation
         if (!name) {
@@ -158,8 +161,8 @@ exports.updateProfile = async (req, res) => {
 
         const user = await prisma.user.update({
             where: { id: req.user.id },
-            data: { name, address },
-            select: { id: true, name: true, email: true, role: true, address: true, businessType: true }
+            data: { name, address, isStoreOpen },
+            select: { id: true, name: true, email: true, role: true, address: true, businessType: true, isStoreOpen: true }
         });
 
         res.json(user);
@@ -196,14 +199,11 @@ exports.forgotPassword = async (req, res) => {
             expires: Date.now() + 15 * 60 * 1000
         });
 
-        // In production, send email here
-        // For development, log the code
-        console.log(`[DEV] Password reset code for ${email}: ${resetCode}`);
+        // Send email
+        await mailService.sendResetCode(email, resetCode);
 
         res.json({
-            message: 'If an account exists with this email, you will receive a reset code.',
-            // Only include code in development for testing
-            ...(process.env.NODE_ENV !== 'production' && { dev_code: resetCode })
+            message: 'If an account exists with this email, you will receive a reset code.'
         });
     } catch (error) {
         console.error('Forgot Password Error:', error);

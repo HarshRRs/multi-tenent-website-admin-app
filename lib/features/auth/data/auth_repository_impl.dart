@@ -58,8 +58,8 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<User> updateProfile(String name, String address) async {
-    return await _authService.updateProfile(name, address);
+  Future<User> updateProfile(String name, String address, {bool? isStoreOpen}) async {
+    return await _authService.updateProfile(name, address, isStoreOpen: isStoreOpen);
   }
 
   @override

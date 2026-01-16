@@ -4,15 +4,17 @@ class User {
   final String name;
   final String role;
   final String businessType;
-  final String address; // Added address
+  final String address; 
+  final bool isStoreOpen;
 
   User({
     required this.id,
     required this.email,
     required this.name,
     required this.role,
-    this.address = '', // Default empty
+    this.address = '',
     this.businessType = 'restaurant',
+    this.isStoreOpen = true,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -21,8 +23,9 @@ class User {
       email: json['email'] ?? '',
       name: json['name'] ?? '',
       role: json['role'] ?? 'manager',
-      address: json['address'] ?? '', // Map address
+      address: json['address'] ?? '',
       businessType: json['businessType'] ?? 'restaurant',
+      isStoreOpen: json['isStoreOpen'] ?? true,
     );
   }
 
@@ -32,9 +35,30 @@ class User {
       'email': email,
       'name': name,
       'role': role,
-      'address': address, // Serialize address
+      'address': address,
       'businessType': businessType,
+      'isStoreOpen': isStoreOpen,
     };
+  }
+
+  User copyWith({
+    String? id,
+    String? email,
+    String? name,
+    String? role,
+    String? address,
+    String? businessType,
+    bool? isStoreOpen,
+  }) {
+    return User(
+      id: id ?? this.id,
+      email: email ?? this.email,
+      name: name ?? this.name,
+      role: role ?? this.role,
+      address: address ?? this.address,
+      businessType: businessType ?? this.businessType,
+      isStoreOpen: isStoreOpen ?? this.isStoreOpen,
+    );
   }
 }
 

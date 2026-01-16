@@ -16,30 +16,53 @@ class SoundService {
   static const String _prefKeyPath = 'notification_sound_path';
   
   final AudioPlayer _audioPlayer = AudioPlayer();
+  bool _isLooping = false;
   
-  Future<void> playOrderSound() async {
+  Future<void> playOrderSound({bool loop = false}) async {
+    _isLooping = loop;
     final prefs = await SharedPreferences.getInstance();
     final sourceIndex = prefs.getInt(_prefKeySource) ?? SoundSource.system.index;
     final source = SoundSource.values[sourceIndex];
     
     switch (source) {
       case SoundSource.system:
-        FlutterRingtonePlayer().playNotification();
+        if (loop) {
+          FlutterRingtonePlayer().play(
+            android: AndroidSounds.ringtone,
+            ios: IosSounds.glass,
+            looping: true,
+            volume: 1.0,
+          );
+        } else {
+          FlutterRingtonePlayer().playNotification();
+        }
         break;
       case SoundSource.custom:
         final path = prefs.getString(_prefKeyPath);
         if (path != null && File(path).existsSync()) {
-          // Play custom sound
+          await _audioPlayer.setReleaseMode(loop ? ReleaseMode.loop : ReleaseMode.release);
           await _audioPlayer.play(DeviceFileSource(path));
         } else {
-          // Fallback to system
-          FlutterRingtonePlayer().playNotification();
+          if (loop) {
+            FlutterRingtonePlayer().play(
+              android: AndroidSounds.ringtone,
+              ios: IosSounds.glass,
+              looping: true,
+            );
+          } else {
+            FlutterRingtonePlayer().playNotification();
+          }
         }
         break;
       case SoundSource.off:
-        // Do nothing
         break;
     }
+  }
+
+  Future<void> stopOrderSound() async {
+    _isLooping = false;
+    await _audioPlayer.stop();
+    FlutterRingtonePlayer().stop();
   }
 
   Future<SoundSource> getSoundSource() async {

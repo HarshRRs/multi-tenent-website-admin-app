@@ -120,7 +120,7 @@ class RocksterApp extends ConsumerWidget {
     final router = ref.watch(routerProvider);
 
     return MaterialApp.router(
-      title: 'Cosmos',
+      title: 'Cosmos Admin',
       scaffoldMessengerKey: ref.watch(messengerKeyProvider),
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,

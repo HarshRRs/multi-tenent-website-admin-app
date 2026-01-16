@@ -6,5 +6,6 @@ const auth = require('../middleware/authMiddleware');
 // Protected Routes
 router.get('/', auth, reservationController.getReservations);
 router.post('/', auth, reservationController.createReservation);
+router.delete('/:id', auth, reservationController.deleteReservation);
 
 module.exports = router;

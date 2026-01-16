@@ -87,7 +87,7 @@ class MoreScreen extends ConsumerWidget {
                                 ),
                               ),
                               Text(
-                                '$userRole • Cosmos',
+                                '$userRole • Cosmos Admin',
                                 style: GoogleFonts.inter(
                                   fontSize: 14,
                                   color: AppColors.textSecondaryLight,

@@ -40,8 +40,9 @@ class OrdersState {
 class OrdersNotifier extends StateNotifier<OrdersState> {
   final OrderService _orderService;
   final CacheService _cacheService;
+  final SoundService _soundService;
 
-  OrdersNotifier(this._orderService, this._cacheService)
+  OrdersNotifier(this._orderService, this._cacheService, this._soundService)
       : super(OrdersState(status: DataStatus.initial)) {
     _loadOrders();
   }
@@ -103,6 +104,9 @@ class OrdersNotifier extends StateNotifier<OrdersState> {
     try {
       await _orderService.updateOrderStatus(orderId, newStatus);
       
+      // Stop sound when order is updated (accepted/declined)
+      await _soundService.stopOrderSound();
+      
       // Invalidate cache
       await _cacheService.invalidate('active_orders');
       await _cacheService.invalidate('dashboard_stats');
@@ -135,5 +139,6 @@ class OrdersNotifier extends StateNotifier<OrdersState> {
 final ordersProvider = StateNotifierProvider<OrdersNotifier, OrdersState>((ref) {
   final orderService = ref.watch(orderServiceProvider);
   final cacheService = ref.watch(cacheServiceProvider);
-  return OrdersNotifier(orderService, cacheService);
+  final soundService = ref.watch(soundServiceProvider);
+  return OrdersNotifier(orderService, cacheService, soundService);
 });

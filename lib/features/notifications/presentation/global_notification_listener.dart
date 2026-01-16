@@ -16,41 +16,29 @@ class GlobalNotificationListener extends ConsumerStatefulWidget {
 }
 
 class _GlobalNotificationListenerState extends ConsumerState<GlobalNotificationListener> {
-  final SoundService _soundService = SoundService();
   bool _isListening = false;
   WebSocketService? _wsService;
 
   @override
   void initState() {
     super.initState();
-    // Initialize WebSocket connection or ensuring it's connected happens in main typically, 
-    // but here we listen to the stream.
   }
   
   void _setupListener() {
     if (_isListening) return;
-    
-    // In a real app we might get the singleton WS service from a provider
-    // Im assuming we have one instance or need to get it from somewhere.
-    // Based on codebase search, WebSocketService is a class, but not clearly a singleton provider yet?
-    // Looking at `websocket_service.dart`, it's a class. 
-    // We should probably have a provider for it.
-    
-    // For now, I'll assume we can use a provider for it, or creating one.
-    // However, the existing code didn't show a provider for WebSocketService.
-    // I will Create a provider for it in this file or use one if it exists.
   }
 
   @override
   Widget build(BuildContext context) {
     // Watch a websocket provider if it exists
     final wsService = ref.watch(webSocketServiceProvider);
+    final soundService = ref.watch(soundServiceProvider);
     
     // Listen to the stream
     ref.listen(webSocketStreamProvider, (previous, next) {
       next.whenData((data) {
         if (data is Map<String, dynamic>) {
-           _handleEvent(data);
+           _handleEvent(data, soundService);
         }
       });
     });
@@ -58,12 +46,19 @@ class _GlobalNotificationListenerState extends ConsumerState<GlobalNotificationL
     return widget.child;
   }
 
-  void _handleEvent(Map<String, dynamic> data) {
+  void _handleEvent(Map<String, dynamic> data, SoundService soundService) {
     final type = data['type'];
     
-    if (type == 'new_order' || type == 'order_update') {
-      // Play sound
-      _soundService.playOrderSound();
+    if (type == 'new_order') {
+      // Play loop sound
+      soundService.playOrderSound(loop: true);
+      
+      // Refresh providers
+      ref.read(ordersProvider.notifier).refresh();
+      ref.read(notificationsProvider.notifier).loadNotifications();
+    } else if (type == 'order_update') {
+      // Stop sound on any order update (likely accepted/declined elsewhere)
+      soundService.stopOrderSound();
       
       // Refresh providers
       ref.read(ordersProvider.notifier).refresh();

@@ -70,19 +70,49 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
 
 
 
+            // Stripe Unconfigured Warning
+            if (stripeStatus != null && !stripeStatus.stripeEnabled)
+              Container(
+                margin: const EdgeInsets.only(bottom: 24),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.burntTerracotta.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.burntTerracotta.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.info_outline, color: AppColors.burntTerracotta),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Stripe is not configured. Please add your Stripe keys to the server environment to enable payments.',
+                        style: GoogleFonts.inter(
+                          color: AppColors.burntTerracotta,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
             // Stripe Connect Card - Keeping Purple as it's Stripe's Brand, but modernizing shape
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF635BFF), Color(0xFF5650D8)],
+                gradient: LinearGradient(
+                  colors: (stripeStatus != null && !stripeStatus.stripeEnabled)
+                      ? [Colors.grey[400]!, Colors.grey[500]!]
+                      : [const Color(0xFF635BFF), const Color(0xFF5650D8)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(24), // Modern rounded
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF635BFF).withValues(alpha: 0.3),
+                    color: ((stripeStatus != null && !stripeStatus.stripeEnabled) ? Colors.grey : const Color(0xFF635BFF)).withValues(alpha: 0.3),
                     blurRadius: 16,
                     offset: const Offset(0, 8),
                   ),
@@ -107,9 +137,11 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    isConnected
-                        ? 'Your account is connected and ready to receive payouts.'
-                        : 'Connect your Stripe account to start accepting payments securely.',
+                    (stripeStatus != null && !stripeStatus.stripeEnabled)
+                        ? 'Payment service is currently disabled on the server.'
+                        : (isConnected
+                            ? 'Your account is connected and ready to receive payouts.'
+                            : 'Connect your Stripe account to start accepting payments securely.'),
                     style: GoogleFonts.inter(color: Colors.white.withValues(alpha: 0.9)),
                     textAlign: TextAlign.center,
                   ),
@@ -138,7 +170,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: state.status == DataStatus.loading ? null : _handleConnectStripe,
+                        onPressed: (state.status == DataStatus.loading || (stripeStatus != null && !stripeStatus.stripeEnabled)) ? null : _handleConnectStripe,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
                           foregroundColor: const Color(0xFF635BFF),
@@ -152,7 +184,10 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                                 height: 20,
                                 child: CircularProgressIndicator(strokeWidth: 2),
                               )
-                            : Text('Connect with Stripe', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+                            : Text(
+                                (stripeStatus != null && !stripeStatus.stripeEnabled) ? 'Service Unavailable' : 'Connect with Stripe', 
+                                style: GoogleFonts.inter(fontWeight: FontWeight.bold)
+                              ),
                       ),
                     ),
                 ],

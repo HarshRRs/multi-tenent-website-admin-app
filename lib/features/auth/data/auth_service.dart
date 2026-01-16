@@ -46,10 +46,18 @@ class AuthService {
     final response = await _dio.get('auth/me');
     return User.fromJson(response.data);
   }
-  Future<User> updateProfile(String name, String address) async {
+  Future<User> updateProfile(String name, String address, {bool? isStoreOpen}) async {
+    final data = {
+      'name': name,
+      'address': address,
+    };
+    if (isStoreOpen != null) {
+      data['isStoreOpen'] = isStoreOpen;
+    }
+    
     final response = await _dio.put(
       'auth/profile',
-      data: {'name': name, 'address': address},
+      data: data,
     );
     return User.fromJson(response.data);
   }

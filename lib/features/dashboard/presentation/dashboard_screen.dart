@@ -27,9 +27,26 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       ref.read(dashboardProvider.notifier).refresh();
     });
 
-    // Auto-refresh every 24 hours
-    _timer = Timer.periodic(const Duration(hours: 24), (timer) {
-      _onRefresh();
+    _scheduleMidnightRefresh();
+  }
+
+  void _scheduleMidnightRefresh() {
+    _timer?.cancel();
+    
+    final now = DateTime.now();
+    final tomorrow = DateTime(now.year, now.month, now.day + 1);
+    final timeUntilMidnight = tomorrow.difference(now);
+
+    // Schedule a refresh at exactly midnight
+    _timer = Timer(timeUntilMidnight, () {
+      if (mounted) {
+        setState(() {
+          _selectedDate = DateTime.now();
+        });
+        _onRefresh();
+        // Reschedule for the next midnight
+        _scheduleMidnightRefresh();
+      }
     });
   }
 
@@ -133,13 +150,49 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     ),
                   ),
                   actions: [
+                    // Store Status Toggle
+                    Consumer(
+                      builder: (context, ref, child) {
+                        final user = ref.watch(authNotifierProvider).user;
+                        if (user == null) return const SizedBox();
+                        
+                        return Row(
+                          children: [
+                            Text(
+                              user.isStoreOpen ? 'Open' : 'Closed',
+                              style: GoogleFonts.inter(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: user.isStoreOpen ? AppColors.success : AppColors.error,
+                              ),
+                            ),
+                            Transform.scale(
+                              scale: 0.8,
+                              child: Switch(
+                                value: user.isStoreOpen,
+                                activeColor: AppColors.success,
+                                activeTrackColor: AppColors.success.withValues(alpha: 0.2),
+                                inactiveThumbColor: AppColors.error,
+                                inactiveTrackColor: AppColors.error.withValues(alpha: 0.2),
+                                onChanged: (value) {
+                                  ref.read(authNotifierProvider.notifier).toggleStoreStatus();
+                                },
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.calendar_month_outlined, color: AppColors.deepInk),
+                      tooltip: 'Select Date',
+                      onPressed: () => _selectDate(context),
+                    ),
                     Padding(
-                      padding: const EdgeInsets.only(right: 16.0),
+                      padding: const EdgeInsets.only(right: 8.0),
                       child: IconButton(
                         icon: const Icon(Icons.notifications_outlined, color: AppColors.deepInk),
                         onPressed: () {
-                          // Navigate to notifications or show snackbar
-                          // For now, let's keep the snackbar or implement navigation if needed
                            ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('No new notifications')),
                           );
@@ -148,6 +201,52 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     ),
                   ],
                 ),
+
+                // Date Filter Indicator
+                if (_selectedDate.year != DateTime.now().year || 
+                    _selectedDate.month != DateTime.now().month || 
+                    _selectedDate.day != DateTime.now().day)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: AppColors.burntTerracotta.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.history, size: 16, color: AppColors.burntTerracotta),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Showing: ${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.burntTerracotta,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _selectedDate = DateTime.now();
+                                    });
+                                    ref.read(dashboardProvider.notifier).refresh();
+                                  },
+                                  child: const Icon(Icons.close, size: 16, color: AppColors.burntTerracotta),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
 
                 if (isLoading)
                   const SliverFillRemaining(

@@ -5,6 +5,6 @@ abstract class AuthRepository {
   Future<AuthResponse> register(String email, String password, String name, {String businessType = 'restaurant'});
   Future<void> logout();
   Future<User?> getCurrentUser();
-  Future<User> updateProfile(String name, String address); // Added
+  Future<User> updateProfile(String name, String address, {bool? isStoreOpen}); // Updated
   Future<bool> isAuthenticated();
 }

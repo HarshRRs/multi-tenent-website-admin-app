@@ -1,10 +1,10 @@
 # restaurant_admin
 
-# Rockster Project
+# Cosmos Admin
 
-## Getting Started
+## Cosmos Admin Support
 
-This project is a starting point for a Flutter application.
+Cosmos Admin is a comprehensive Restaurant SaaS application built with Flutter and Node.js.
 
 A few resources to get you started if this is your first Flutter project:
 

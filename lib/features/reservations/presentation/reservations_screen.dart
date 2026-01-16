@@ -122,51 +122,66 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
     final isLoading = state.status == DataStatus.loading && tables.isEmpty;
 
     return Scaffold(
+      backgroundColor: AppColors.cloudDancer,
       appBar: AppBar(
-        title: const Text('Reservations'),
+        title: const Text('Bookings'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () => ref.read(reservationsProvider.notifier).refresh(),
           ),
           IconButton(
-            icon: const Icon(Icons.add_circle),
+            icon: const Icon(Icons.add_circle_outline),
             tooltip: 'Add Reservation',
             onPressed: _showAddReservationDialog,
           ),
         ],
       ),
-      body: _buildBody(isLoading, reservations, tables),
+      body: Stack(
+        children: [
+          // Floral Background (Faded)
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.05,
+              child: Image.asset(
+                'assets/images/flower_background.jpg',
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => const SizedBox(),
+              ),
+            ),
+          ),
+          _buildBody(isLoading, reservations, tables),
+        ],
+      ),
     );
   }
 
   Widget _buildBody(bool isLoading, List<Reservation> reservations, List<RestaurantTable> tables) {
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator(color: AppColors.burntTerracotta));
     }
 
-    return Column(
-      children: [
-        // Content
-        Expanded(
-          child: _buildReservationList(reservations, tables),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildReservationList(List<Reservation> reservations, List<RestaurantTable> tables) {
     if (reservations.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.event_busy, size: 64, color: Colors.grey[300]),
+            Icon(Icons.event_busy, size: 64, color: AppColors.textSecondaryLight.withValues(alpha: 0.3)),
             const SizedBox(height: 16),
-            Text('No reservations yet', style: AppTextStyles.bodyMedium),
+            Text(
+              'No reservations yet', 
+              style: GoogleFonts.inter(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: AppColors.deepInk,
+              ),
+            ),
             const SizedBox(height: 8),
             FilledButton.icon(
               onPressed: _showAddReservationDialog,
+              style: FilledButton.styleFrom(backgroundColor: AppColors.burntTerracotta),
               icon: const Icon(Icons.add),
               label: const Text('Add Reservation'),
             ),
@@ -175,37 +190,32 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
       );
     }
 
-    return ListView.separated(
+    return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: reservations.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final reservation = reservations[index];
         final tableName = tables.firstWhere(
           (t) => t.id == reservation.tableId,
-          orElse: () => RestaurantTable(id: '', name: '?', seats: 0, x: 0, y: 0, status: TableStatus.available),
+          orElse: () => RestaurantTable(id: '', name: 'Pending', seats: 0, x: 0, y: 0, status: TableStatus.available),
         ).name;
 
-        return Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4),
-            ],
-          ),
+        return ModernCard(
+          margin: const EdgeInsets.only(bottom: 12),
           child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryLight.withValues(alpha: 0.1),
+                  color: AppColors.burntTerracotta.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Text(
                   DateFormat('HH:mm').format(reservation.time),
-                  style: AppTextStyles.labelLarge.copyWith(color: AppColors.primaryLight),
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.burntTerracotta,
+                  ),
                 ),
               ),
               const SizedBox(width: 16),
@@ -213,25 +223,44 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(reservation.customerName, style: AppTextStyles.labelLarge),
+                    Text(
+                      reservation.customerName, 
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: AppColors.deepInk,
+                      ),
+                    ),
                     if (reservation.customerPhone != null && reservation.customerPhone!.isNotEmpty)
-                      Text(reservation.customerPhone!, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryLight, fontSize: 12)),
+                      Text(
+                        reservation.customerPhone!, 
+                        style: GoogleFonts.inter(
+                          color: AppColors.textSecondaryLight, 
+                          fontSize: 12,
+                        ),
+                      ),
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(Icons.people, size: 14, color: AppColors.textSecondaryLight),
+                        const Icon(Icons.people_outline, size: 14, color: AppColors.textSecondaryLight),
                         const SizedBox(width: 4),
                         Text(
-                          '\${reservation.partySize} Guests',
-                          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryLight),
+                          '${reservation.partySize} Guests',
+                          style: GoogleFonts.inter(
+                            color: AppColors.textSecondaryLight,
+                            fontSize: 13,
+                          ),
                         ),
                         if (reservation.tableId.isNotEmpty) ...[
                           const SizedBox(width: 8),
-                          Container(width: 4, height: 4, decoration: const BoxDecoration(color: Colors.grey, shape: BoxShape.circle)),
+                          Container(width: 3, height: 3, decoration: const BoxDecoration(color: Colors.grey, shape: BoxShape.circle)),
                           const SizedBox(width: 8),
                           Text(
-                            'Table \$tableName',
-                            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryLight),
+                            'Table $tableName',
+                            style: GoogleFonts.inter(
+                              color: AppColors.textSecondaryLight,
+                              fontSize: 13,
+                            ),
                           ),
                         ],
                       ],
@@ -239,9 +268,41 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
                   ],
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.more_vert),
-                onPressed: () {},
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert, color: AppColors.textSecondaryLight),
+                onSelected: (value) async {
+                  if (value == 'delete') {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Delete Reservation'),
+                        content: const Text('Are you sure you want to delete this reservation?'),
+                        actions: [
+                          TextButton(onPressed: () => context.pop(false), child: const Text('Cancel')),
+                          TextButton(
+                            onPressed: () => context.pop(true), 
+                            child: const Text('Delete', style: TextStyle(color: AppColors.error)),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (confirm == true) {
+                      await ref.read(reservationsProvider.notifier).deleteReservation(reservation.id);
+                    }
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete_outline, color: AppColors.error, size: 20),
+                        SizedBox(width: 8),
+                        Text('Delete', style: TextStyle(color: AppColors.error)),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

@@ -36,12 +36,14 @@ TransactionStatus _parseTransactionStatus(String? status) {
 // Stripe Connection Status
 class StripeStatus {
   final bool isConnected;
+  final bool stripeEnabled; // Added
   final String? accountId;
   final double availableBalance;
   final double pendingBalance;
 
   StripeStatus({
     required this.isConnected,
+    this.stripeEnabled = true, // Default to true for backward compatibility if field missing
     this.accountId,
     required this.availableBalance,
     required this.pendingBalance,
@@ -50,6 +52,7 @@ class StripeStatus {
   factory StripeStatus.fromJson(Map<String, dynamic> json) {
     return StripeStatus(
       isConnected: json['isConnected'] ?? false,
+      stripeEnabled: json['stripeEnabled'] ?? true,
       accountId: json['accountId'],
       availableBalance: (json['availableBalance'] as num?)?.toDouble() ?? 0.0,
       pendingBalance: (json['pendingBalance'] as num?)?.toDouble() ?? 0.0,

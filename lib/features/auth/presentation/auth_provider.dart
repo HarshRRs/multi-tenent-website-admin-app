@@ -99,14 +99,36 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = AuthState(status: AuthStatus.unauthenticated);
   }
 
-  Future<void> updateProfile(String name, String address) async {
-    // Keep current status but maybe show loading overlay if needed locally
-    // For now, just optimistic update or wait
+  Future<void> updateProfile(String name, String address, {bool? isStoreOpen}) async {
     try {
-      final updatedUser = await _authRepository.updateProfile(name, address);
+      final updatedUser = await _authRepository.updateProfile(name, address, isStoreOpen: isStoreOpen);
       state = state.copyWith(user: updatedUser);
     } catch (e) {
       state = state.copyWith(error: e.toString());
+      rethrow;
+    }
+  }
+
+  Future<void> toggleStoreStatus() async {
+    if (state.user == null) return;
+    
+    final newStatus = !state.user!.isStoreOpen;
+    
+    // Optimistic update
+    final originalUser = state.user!;
+    state = state.copyWith(
+      user: originalUser.copyWith(isStoreOpen: newStatus),
+    );
+
+    try {
+      await _authRepository.updateProfile(
+        originalUser.name, 
+        originalUser.address, 
+        isStoreOpen: newStatus,
+      );
+    } catch (e) {
+      // Revert on error
+      state = state.copyWith(user: originalUser);
       rethrow;
     }
   }

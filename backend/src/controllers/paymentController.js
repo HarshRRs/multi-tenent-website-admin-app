@@ -7,8 +7,7 @@ if (!stripe) {
 
 exports.createPaymentIntent = async (req, res) => {
     if (!stripe) {
-        console.error('Stripe Secret Key is missing');
-        return res.status(503).json({ message: 'Payment service unavailable (Configuration Error)' });
+        return res.status(400).json({ message: 'Stripe is not configured on this server.' });
     }
 
     try {
@@ -46,8 +45,7 @@ const prisma = new PrismaClient();
 
 exports.createConnectedAccount = async (req, res) => {
     if (!stripe) {
-        console.error('Stripe Secret Key is missing');
-        return res.status(503).json({ message: 'Payment service unavailable (Configuration Error)' });
+        return res.status(400).json({ message: 'Stripe is not configured on this server.' });
     }
 
     try {
@@ -104,7 +102,15 @@ exports.createConnectedAccount = async (req, res) => {
 };
 
 exports.getStripeAccount = async (req, res) => {
-    if (!stripe) return res.status(503).json({ message: 'Stripe disabled' });
+    if (!stripe) {
+        return res.json({
+            stripeEnabled: false,
+            isConnected: false,
+            accountId: '',
+            availableBalance: 0,
+            pendingBalance: 0
+        });
+    }
 
     try {
         const user = await prisma.user.findUnique({
