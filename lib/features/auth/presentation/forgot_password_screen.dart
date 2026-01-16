@@ -43,7 +43,11 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     setState(() => _isLoading = true);
     
     try {
-      await ref.read(authServiceProvider).forgotPassword(email);
+      // Add timeout to prevent infinite loading
+      await ref.read(authServiceProvider).forgotPassword(email)
+          .timeout(const Duration(seconds: 30), onTimeout: () {
+        throw Exception('Request timed out. Please try again.');
+      });
       
       if (mounted) {
         setState(() {
@@ -62,8 +66,16 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
+        String errorMessage = 'An error occurred';
+        if (e.toString().contains('timeout')) {
+          errorMessage = 'Request timed out. Please check your connection and try again.';
+        } else if (e.toString().contains('SocketException') || e.toString().contains('connection')) {
+          errorMessage = 'Could not connect to server. Please check your internet.';
+        } else {
+          errorMessage = e.toString().replaceAll('Exception:', '').trim();
+        }
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(content: Text(errorMessage), backgroundColor: AppColors.error),
         );
       }
     }
