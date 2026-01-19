@@ -26,7 +26,7 @@ class _SubdomainSettingsScreenState extends ConsumerState<SubdomainSettingsScree
   }
 
   Future<void> _loadCurrentSlug() async {
-    final user = ref.read(authProvider).user;
+    final user = ref.read(authNotifierProvider).user;
     if (user?.slug != null) {
       setState(() {
         _currentSlug = user!.slug;
@@ -56,18 +56,18 @@ class _SubdomainSettingsScreenState extends ConsumerState<SubdomainSettingsScree
       });
 
       if (!_slugAvailable && response['reason'] != null) {
-        ref.read(messengerProvider).showError(response['reason']);
+        ref.showSnackBar(response['reason'], isError: true);
       }
     } catch (e) {
       setState(() => _isChecking = false);
-      ref.read(messengerProvider).showError('Failed to check slug availability');
+      ref.showSnackBar('Failed to check slug availability', isError: true);
     }
   }
 
   Future<void> _saveSlug() async {
     if (!_formKey.currentState!.validate()) return;
     if (!_slugAvailable && _slugController.text != _currentSlug) {
-      ref.read(messengerProvider).showError('Please choose an available slug');
+      ref.showSnackBar('Please choose an available slug', isError: true);
       return;
     }
 
@@ -77,14 +77,18 @@ class _SubdomainSettingsScreenState extends ConsumerState<SubdomainSettingsScree
       final service = ref.read(websiteServiceProvider);
       await service.updateSlug(_slugController.text.trim().toLowerCase());
       
-      // Update local user data
-      final authNotifier = ref.read(authProvider.notifier);
-      await authNotifier.refreshUser();
+      // Reload user data from server
+      final authNotifier = ref.read(authNotifierProvider.notifier);
+      final authRepo = ref.read(authRepositoryProvider);
+      final updatedUser = await authRepo.getCurrentUser();
+      if (updatedUser != null) {
+        authNotifier.state = authNotifier.state.copyWith(user: updatedUser);
+      }
 
-      ref.read(messengerProvider).showSuccess('Subdomain updated successfully!');
+      ref.showSnackBar('Subdomain updated successfully!', isError: false);
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      ref.read(messengerProvider).showError('Failed to update subdomain: $e');
+      ref.showSnackBar('Failed to update subdomain: $e', isError: true);
     } finally {
       setState(() => _isLoading = false);
     }
