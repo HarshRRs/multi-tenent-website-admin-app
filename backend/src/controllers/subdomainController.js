@@ -1,4 +1,5 @@
-const prisma = require('../config/database');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
 /**
  * Resolve subdomain to restaurant ID
