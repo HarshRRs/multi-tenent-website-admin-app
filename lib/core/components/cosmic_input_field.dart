@@ -10,6 +10,9 @@ class CosmicInputField extends StatefulWidget {
   final bool obscureText;
   final Widget? suffixIcon;
   final String? Function(String?)? validator;
+  final Iterable<String>? autofillHints;
+  final TextInputAction? textInputAction;
+  final ValueChanged<String>? onFieldSubmitted;
 
   const CosmicInputField({
     super.key,
@@ -21,6 +24,9 @@ class CosmicInputField extends StatefulWidget {
     this.obscureText = false,
     this.suffixIcon,
     this.validator,
+    this.autofillHints,
+    this.textInputAction,
+    this.onFieldSubmitted,
   });
 
   @override
@@ -61,6 +67,9 @@ class _CosmicInputFieldState extends State<CosmicInputField> {
           controller: widget.controller,
           keyboardType: widget.keyboardType,
           obscureText: widget.obscureText,
+          autofillHints: widget.autofillHints,
+          textInputAction: widget.textInputAction,
+          onFieldSubmitted: widget.onFieldSubmitted,
           style: const TextStyle(color: Colors.white, fontSize: 16),
           decoration: InputDecoration(
             labelText: widget.label,
