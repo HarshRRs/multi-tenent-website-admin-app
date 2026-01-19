@@ -1,6 +1,7 @@
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const sharp = require('sharp');
 
 // Ensure upload directory exists
 const uploadDir = path.join(__dirname, '../../uploads');
@@ -8,21 +9,12 @@ if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// Config Multer Storage
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, uploadDir);
-    },
-    filename: function (req, file, cb) {
-        // Generate unique filename: timestamp-random.ext
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
-    }
-});
+// Use Memory Storage to process file before saving
+const storage = multer.memoryStorage();
 
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    limits: { fileSize: 10 * 1024 * 1024 }, // Allow 10MB upload (we will compress it)
     fileFilter: (req, file, cb) => {
         if (file.mimetype.startsWith('image/')) {
             cb(null, true);
@@ -34,19 +26,37 @@ const upload = multer({
 
 exports.uploadMiddleware = upload.single('image');
 
-exports.uploadImage = (req, res) => {
+exports.uploadImage = async (req, res) => {
     if (!req.file) {
         return res.status(400).json({ message: 'No file uploaded' });
     }
 
-    // Return the URL to access the file
-    // Assumes server serves 'uploads' folder statically at /uploads
-    const protocol = req.protocol;
-    const host = req.get('host');
-    const fileUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+    try {
+        // Generate unique filename
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const filename = uniqueSuffix + '.jpg'; // Convert everything to JPG
+        const filepath = path.join(uploadDir, filename);
 
-    res.json({
-        message: 'File uploaded successfully',
-        url: fileUrl
-    });
+        // Process image with Sharp
+        await sharp(req.file.buffer)
+            .resize(800, 800, { // Max dims 800x800
+                fit: 'inside',
+                withoutEnlargement: true
+            })
+            .jpeg({ quality: 80 }) // Compress to 80% quality JPG
+            .toFile(filepath);
+
+        // Return URL
+        const protocol = req.protocol;
+        const host = req.get('host');
+        const fileUrl = `${protocol}://${host}/uploads/${filename}`;
+
+        res.json({
+            message: 'File uploaded and optimized successfully',
+            url: fileUrl
+        });
+    } catch (error) {
+        console.error('Image Optimization Error:', error);
+        res.status(500).json({ message: 'Error processing image', error: error.message });
+    }
 };

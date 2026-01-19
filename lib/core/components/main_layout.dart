@@ -6,7 +6,7 @@ import 'package:rockster/core/components/glass_bottom_nav.dart';
 import 'package:rockster/core/components/brand_gradient_line.dart';
 import 'package:rockster/features/auth/presentation/auth_provider.dart';
 import 'package:rockster/core/providers/providers.dart';
-
+import 'package:rockster/core/providers/connectivity_provider.dart';
 
 class MainLayout extends ConsumerStatefulWidget {
   final Widget child;
@@ -88,6 +88,16 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
 
   @override
   Widget build(BuildContext context) {
+    // Listen to network changes
+    final networkStatus = ref.watch(connectivityProvider);
+    final isOffline = networkStatus == NetworkStatus.offline;
+
+    // Sync network status with WebSocket
+    ref.listen(connectivityProvider, (previous, next) {
+       final isNowOffline = next == NetworkStatus.offline;
+       ref.read(webSocketServiceProvider).updateNetworkStatus(isNowOffline);
+    });
+
     // Listen to auth changes
     ref.listen(authNotifierProvider, (previous, next) {
       if (next.status == AuthStatus.authenticated) {
@@ -109,6 +119,17 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
       body: Column(
         children: [
           const BrandGradientLine(),
+          if (isOffline)
+            Container(
+              width: double.infinity,
+              color: Colors.red,
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: const Text(
+                'No Internet Connection',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+              ),
+            ),
           Expanded(child: widget.child),
         ],
       ),

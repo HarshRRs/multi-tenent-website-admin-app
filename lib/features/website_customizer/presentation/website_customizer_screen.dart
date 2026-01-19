@@ -256,11 +256,13 @@ class _WebsiteCustomizerScreenState extends ConsumerState<WebsiteCustomizerScree
                 ),
                 
                 const SizedBox(height: 24),
+                const SizedBox(height: 24),
                 _buildSectionTitle('Content'),
                 const SizedBox(height: 12),
 
                 ModernCard(
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       CustomTextField(
                         label: 'Headline',
@@ -275,6 +277,34 @@ class _WebsiteCustomizerScreenState extends ConsumerState<WebsiteCustomizerScree
                       CustomTextField(
                         label: 'Button Text',
                         controller: _btnTextController,
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        'Delivery Radius: ${_config.deliveryRadiusKm.toStringAsFixed(1)} km',
+                        style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: AppColors.deepInk),
+                      ),
+                      const SizedBox(height: 8),
+                      SliderTheme(
+                        data: SliderTheme.of(context).copyWith(
+                          activeTrackColor: _config.primaryColor,
+                          inactiveTrackColor: AppColors.softBorder,
+                          thumbColor: _config.primaryColor,
+                          overlayColor: _config.primaryColor.withValues(alpha: 0.2),
+                          valueIndicatorColor: _config.primaryColor,
+                          valueIndicatorTextStyle: const TextStyle(color: Colors.white),
+                        ),
+                        child: Slider(
+                          value: _config.deliveryRadiusKm,
+                          min: 1.0,
+                          max: 50.0,
+                          divisions: 49,
+                          label: '${_config.deliveryRadiusKm.toStringAsFixed(1)} km',
+                          onChanged: (value) {
+                             setState(() {
+                               _config = _config.copyWith(deliveryRadiusKm: value);
+                             });
+                          },
+                        ),
                       ),
                     ],
                   ),

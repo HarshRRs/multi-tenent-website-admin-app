@@ -6,6 +6,7 @@ class WebsiteConfig {
   final Color primaryColor;
   final String heroImageUrl;
   final String startButtonText;
+  final double deliveryRadiusKm;
 
   WebsiteConfig({
     required this.headline,
@@ -13,6 +14,7 @@ class WebsiteConfig {
     required this.primaryColor,
     required this.heroImageUrl,
     required this.startButtonText,
+    this.deliveryRadiusKm = 10.0,
   });
 
   WebsiteConfig copyWith({
@@ -21,6 +23,7 @@ class WebsiteConfig {
     Color? primaryColor,
     String? heroImageUrl,
     String? startButtonText,
+    double? deliveryRadiusKm,
   }) {
     return WebsiteConfig(
       headline: headline ?? this.headline,
@@ -28,6 +31,7 @@ class WebsiteConfig {
       primaryColor: primaryColor ?? this.primaryColor,
       heroImageUrl: heroImageUrl ?? this.heroImageUrl,
       startButtonText: startButtonText ?? this.startButtonText,
+      deliveryRadiusKm: deliveryRadiusKm ?? this.deliveryRadiusKm,
     );
   }
 
@@ -38,6 +42,7 @@ class WebsiteConfig {
       primaryColor: _colorFromHex(json['primaryColor']) ?? const Color(0xFFD97706),
       heroImageUrl: json['heroImageUrl'] ?? '',
       startButtonText: json['startButtonText'] ?? '',
+      deliveryRadiusKm: (json['deliveryRadiusKm'] as num?)?.toDouble() ?? 10.0,
     );
   }
 
@@ -48,6 +53,7 @@ class WebsiteConfig {
       'primaryColor': '#${primaryColor.value.toRadixString(16).padLeft(8, '0').substring(2)}',
       'heroImageUrl': heroImageUrl,
       'startButtonText': startButtonText,
+      'deliveryRadiusKm': deliveryRadiusKm,
     };
   }
 

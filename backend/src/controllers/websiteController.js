@@ -18,7 +18,7 @@ exports.getWebsiteConfig = async (req, res) => {
 // Update config
 exports.updateWebsiteConfig = async (req, res) => {
     try {
-        const { headline, subheadline, primaryColor, heroImageUrl, startButtonText } = req.body;
+        const { headline, subheadline, primaryColor, heroImageUrl, startButtonText, deliveryRadiusKm } = req.body;
 
         // Upsert ensures creation if not exists
         const config = await prisma.websiteConfig.upsert({
@@ -28,7 +28,8 @@ exports.updateWebsiteConfig = async (req, res) => {
                 subheadline,
                 primaryColor,
                 heroImageUrl,
-                startButtonText
+                startButtonText,
+                deliveryRadiusKm: deliveryRadiusKm ? parseFloat(deliveryRadiusKm) : undefined
             },
             create: {
                 userId: req.user.id,
@@ -36,7 +37,8 @@ exports.updateWebsiteConfig = async (req, res) => {
                 subheadline,
                 primaryColor,
                 heroImageUrl,
-                startButtonText
+                startButtonText,
+                deliveryRadiusKm: deliveryRadiusKm ? parseFloat(deliveryRadiusKm) : 10.0
             }
         });
         res.json(config);

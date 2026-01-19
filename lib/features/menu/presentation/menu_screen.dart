@@ -9,6 +9,7 @@ import 'package:rockster/core/components/glossy_metric_card.dart';
 import 'package:rockster/features/menu/presentation/menu_provider.dart';
 import 'package:rockster/features/menu/domain/menu_models.dart';
 import 'package:rockster/features/menu/presentation/widgets/product_card.dart';
+import 'package:rockster/core/components/shimmer_skeleton.dart';
 
 class MenuScreen extends ConsumerStatefulWidget {
   const MenuScreen({super.key});
@@ -228,7 +229,17 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
           ),
         ],
         body: isLoading
-            ? const Center(child: CircularProgressIndicator(color: AppColors.burntTerracotta))
+            ? GridView.builder(
+                padding: const EdgeInsets.all(16),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.8,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                ),
+                itemCount: 6, // Show 6 skeleton cards
+                itemBuilder: (context, index) => const ProductCardSkeleton(),
+              )
             : categories.isEmpty
                 ? Center(
                     child: Column(

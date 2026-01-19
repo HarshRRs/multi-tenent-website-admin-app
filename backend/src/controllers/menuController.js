@@ -58,13 +58,17 @@ exports.createProduct = async (req, res) => {
             return res.status(400).json({ message: 'Name, price, and categoryId are required' });
         }
 
-        // Verify category belongs to user? 
-        // Ideally yes, but foreign key constraint checks if categoryId exists. 
-        // If user guesses another user's categoryId, the Relation logic might allow it?
-        // But Product also has userId.
-        // Prisma doesn't enforce "Product's user must match Category's user". 
-        // But for display it matters.
-        // Assuming user picks from list fetched by getCategories.
+        // Security: Verify category belongs to user
+        const category = await prisma.category.findFirst({
+            where: {
+                id: categoryId,
+                userId: req.user.id
+            }
+        });
+
+        if (!category) {
+            return res.status(403).json({ message: 'Invalid category or access denied' });
+        }
 
         const product = await prisma.product.create({
             data: {
@@ -80,6 +84,52 @@ exports.createProduct = async (req, res) => {
         res.status(201).json(product);
     } catch (error) {
         res.status(500).json({ message: 'Error creating product', error: error.message });
+    }
+};
+
+exports.updateProduct = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, description, price, categoryId, imageUrl, isAvailable } = req.body;
+
+        // Security: Ensure product belongs to user
+        // We use findFirst to check ownership before update, or updateMany
+        // But to make sure categoryId is valid (if changing category), we need checks.
+
+        // 1. Check if product exists and belongs to user
+        const existingProduct = await prisma.product.findFirst({
+            where: { id, userId: req.user.id }
+        });
+
+        if (!existingProduct) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        // 2. If changing category, verify new category ownership
+        if (categoryId && categoryId !== existingProduct.categoryId) {
+            const category = await prisma.category.findFirst({
+                where: { id: categoryId, userId: req.user.id }
+            });
+            if (!category) {
+                return res.status(403).json({ message: 'Invalid category or access denied' });
+            }
+        }
+
+        const product = await prisma.product.update({
+            where: { id },
+            data: {
+                name,
+                description,
+                price: price ? parseFloat(price) : undefined,
+                categoryId,
+                imageUrl,
+                isAvailable
+            }
+        });
+
+        res.json(product);
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating product', error: error.message });
     }
 };
 

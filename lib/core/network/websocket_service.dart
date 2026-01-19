@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:rockster/core/utils/secure_storage.dart';
+import 'package:rockster/core/network/api_client.dart';
 
 enum WebSocketStatus { disconnected, connecting, connected, error }
 
 class WebSocketService {
-  static const String wsUrl = 'wss://api.rockster.com/ws'; // Replace with actual WebSocket URL
-  
   WebSocketChannel? _channel;
   WebSocketStatus _status = WebSocketStatus.disconnected;
   final SecureStorage _secureStorage = SecureStorage();
@@ -16,6 +16,7 @@ class WebSocketService {
   Timer? _reconnectTimer;
   int _reconnectAttempts = 0;
   static const int maxReconnectAttempts = 5;
+  bool _isOffline = false;
   
   final _eventController = StreamController<Map<String, dynamic>>.broadcast();
   Stream<Map<String, dynamic>> get eventStream => _eventController.stream;
@@ -23,7 +24,22 @@ class WebSocketService {
   WebSocketStatus get status => _status;
   bool get isConnected => _status == WebSocketStatus.connected;
 
+  // Update connectivity status from provider
+  void updateNetworkStatus(bool isOffline) {
+    if (_isOffline == isOffline) return;
+    _isOffline = isOffline;
+    
+    if (isOffline) {
+      disconnect(isManual: false);
+    } else {
+      // Reconnect immediately when back online
+      _reconnectAttempts = 0;
+      connect();
+    }
+  }
+
   Future<void> connect() async {
+    if (_isOffline) return;
     if (_status == WebSocketStatus.connected || _status == WebSocketStatus.connecting) {
       return;
     }
@@ -33,12 +49,18 @@ class WebSocketService {
     try {
       final token = await _secureStorage.getAccessToken();
       if (token == null) {
-        _status = WebSocketStatus.error;
+        _status = WebSocketStatus.disconnected; // Not error, just not authed
         return;
       }
 
-      // Connect with auth token
-      final uri = Uri.parse('$wsUrl?token=$token');
+      // Dynamic URL based on ApiClient
+      final httpBase = ApiClient.baseUrl; 
+      // Convert http(s) to ws(s)
+      final wsBase = httpBase.replaceFirst('http', 'ws'); 
+      final uri = Uri.parse('$wsBase/ws?token=$token');
+      
+      debugPrint('Connecting to WebSocket: $uri');
+      
       _channel = WebSocketChannel.connect(uri);
       
       // Listen to messages
@@ -54,8 +76,10 @@ class WebSocketService {
       
       // Send initial handshake
       _sendMessage({'type': 'auth', 'token': token});
+      debugPrint('WebSocket Connected');
       
     } catch (e) {
+      debugPrint('WebSocket Connection Failed: $e');
       _status = WebSocketStatus.error;
       _scheduleReconnect();
     }
@@ -66,9 +90,7 @@ class WebSocketService {
       final data = jsonDecode(message as String) as Map<String, dynamic>;
       _eventController.add(data);
       
-      // Handle heartbeat response
       if (data['type'] == 'pong') {
-        // Heartbeat acknowledged
         return;
       }
     } catch (e) {
@@ -77,14 +99,18 @@ class WebSocketService {
   }
 
   void _onError(dynamic error) {
+    debugPrint('WebSocket Error: $error');
     _status = WebSocketStatus.error;
     _scheduleReconnect();
   }
 
   void _onDisconnected() {
-    _status = WebSocketStatus.disconnected;
-    _heartbeatTimer?.cancel();
-    _scheduleReconnect();
+    if (_status != WebSocketStatus.disconnected) {
+       debugPrint('WebSocket Disconnected unexpectedly');
+      _status = WebSocketStatus.disconnected;
+      _heartbeatTimer?.cancel();
+      _scheduleReconnect();
+    }
   }
 
   void _startHeartbeat() {
@@ -97,15 +123,17 @@ class WebSocketService {
   }
 
   void _scheduleReconnect() {
+    if (_isOffline) return; 
     if (_reconnectAttempts >= maxReconnectAttempts) {
-      return; // Give up after max attempts
+      debugPrint('WebSocket: Max reconnect attempts reached');
+      return;
     }
 
     _reconnectTimer?.cancel();
-    
-    // Exponential backoff: 2^attempt seconds
     final delay = Duration(seconds: 1 << _reconnectAttempts);
     _reconnectAttempts++;
+    
+    debugPrint('WebSocket: Retrying in ${delay.inSeconds}s (Attempt $_reconnectAttempts)');
     
     _reconnectTimer = Timer(delay, () {
       connect();
@@ -130,16 +158,25 @@ class WebSocketService {
 
   void _sendMessage(Map<String, dynamic> message) {
     if (_channel != null && isConnected) {
-      _channel!.sink.add(jsonEncode(message));
+      try {
+        _channel!.sink.add(jsonEncode(message));
+      } catch (e) {
+        debugPrint('WebSocket Send Error: $e');
+      }
     }
   }
 
-  void disconnect() {
+  void disconnect({bool isManual = true}) {
     _heartbeatTimer?.cancel();
     _reconnectTimer?.cancel();
-    _channel?.sink.close();
-    _channel = null;
+    
+    if (_channel != null) {
+      _channel!.sink.close();
+      _channel = null;
+    }
+    
     _status = WebSocketStatus.disconnected;
+    // If manual disconnect (logout), don't reconnect
   }
 
   void dispose() {

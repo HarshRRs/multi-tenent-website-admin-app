@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 
 class BluetoothDevice {
   final String name;
@@ -34,7 +35,6 @@ class PrinterService extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Request Bluetooth permissions
       if (await Permission.bluetoothScan.request().isGranted ||
           await Permission.bluetoothConnect.request().isGranted ||
           await Permission.location.request().isGranted) {
@@ -86,27 +86,20 @@ class PrinterService extends ChangeNotifier {
     if (!_isConnected) return;
 
     try {
+      final profile = await CapabilityProfile.load();
+      final generator = Generator(PaperSize.mm58, profile);
       List<int> bytes = [];
-      
-      // ESC/POS commands for test print
-      bytes += [0x1B, 0x40]; // Initialize printer
-      bytes += [0x1B, 0x61, 0x01]; // Center align
-      
-      // Print text
-      bytes += 'ROCKSTER TEST PRINT\n'.codeUnits;
-      bytes += '========================\n'.codeUnits;
-      bytes += '\n'.codeUnits;
-      bytes += 'If you can read this,\n'.codeUnits;
-      bytes += 'your printer is working!\n'.codeUnits;
-      bytes += '\n'.codeUnits;
-      bytes += '========================\n'.codeUnits;
-      bytes += '\n\n\n'.codeUnits;
-      
-      // Cut paper (if supported)
-      bytes += [0x1D, 0x56, 0x00];
-      
+
+      bytes += generator.reset();
+      bytes += generator.text('ROCKSTER TEST',
+          styles: const PosStyles(align: PosAlign.center, bold: true, height: PosTextSize.size2, width: PosTextSize.size2));
+      bytes += generator.feed(1);
+      bytes += generator.text('Printer Connected!', styles: const PosStyles(align: PosAlign.center));
+      bytes += generator.text('Ready to print orders.', styles: const PosStyles(align: PosAlign.center));
+      bytes += generator.feed(2);
+      bytes += generator.cut();
+
       await PrintBluetoothThermal.writeBytes(bytes);
-      
     } catch (e) {
       debugPrint("Error printing test ticket: $e");
     }
@@ -117,45 +110,68 @@ class PrinterService extends ChangeNotifier {
     required String customerName,
     required List<Map<String, dynamic>> items,
     required double total,
+    String? table,
+    String? notes,
   }) async {
     if (!_isConnected) return;
 
     try {
+      final profile = await CapabilityProfile.load();
+      final generator = Generator(PaperSize.mm58, profile);
       List<int> bytes = [];
-      
-      // Initialize
-      bytes += [0x1B, 0x40];
-      bytes += [0x1B, 0x61, 0x01]; // Center
-      
+
       // Header
-      bytes += 'ROCKSTER ORDER\n'.codeUnits;
-      bytes += '========================\n'.codeUnits;
-      bytes += 'Order #$orderNumber\n'.codeUnits;
-      bytes += '$customerName\n'.codeUnits;
-      bytes += '========================\n'.codeUnits;
-      bytes += '\n'.codeUnits;
+      bytes += generator.reset();
+      bytes += generator.text('KITCHEN TICKET', styles: const PosStyles(align: PosAlign.center, bold: true));
+      bytes += generator.text('Order #$orderNumber', styles: const PosStyles(align: PosAlign.center, height: PosTextSize.size2, width: PosTextSize.size2, bold: true));
+      bytes += generator.feed(1);
       
-      // Left align for items
-      bytes += [0x1B, 0x61, 0x00];
-      
+      // Info
+      bytes += generator.text('Date: ${DateTime.now().toString().substring(0, 16)}');
+      bytes += generator.text('Customer: $customerName');
+      if (table != null) bytes += generator.text('Table: $table', styles: const PosStyles(bold: true));
+      bytes += generator.hr();
+
+      // Items
+      bytes += generator.text('ITEMS', styles: const PosStyles(bold: true));
       for (var item in items) {
         final name = item['name'] ?? 'Item';
         final qty = item['quantity'] ?? 1;
         final price = item['price'] ?? 0.0;
-        bytes += '$qty x $name - €${price.toStringAsFixed(2)}\n'.codeUnits;
+        
+        bytes += generator.row([
+          PosColumn(text: '${qty}x', width: 2, styles: const PosStyles(bold: true)),
+          PosColumn(text: name, width: 7),
+          PosColumn(text: price.toStringAsFixed(2), width: 3, styles: const PosStyles(align: PosAlign.right)),
+        ]);
+        
+        // Modifiers (if any)
+        if (item['modifiers'] != null) {
+          final modifiers = item['modifiers'] as List;
+          for (var mod in modifiers) {
+             bytes += generator.text('  + $mod', styles: const PosStyles(fontType: PosFontType.fontB));
+          }
+        }
       }
-      
-      bytes += '\n'.codeUnits;
-      bytes += '------------------------\n'.codeUnits;
-      bytes += 'TOTAL: €${total.toStringAsFixed(2)}\n'.codeUnits;
-      bytes += '========================\n'.codeUnits;
-      bytes += '\n\n\n'.codeUnits;
-      
-      // Cut
-      bytes += [0x1D, 0x56, 0x00];
-      
+      bytes += generator.hr();
+
+      // Totals
+      bytes += generator.row([
+        PosColumn(text: 'TOTAL', width: 6, styles: const PosStyles(bold: true, height: PosTextSize.size2)),
+        PosColumn(text: total.toStringAsFixed(2), width: 6, styles: const PosStyles(align: PosAlign.right, bold: true, height: PosTextSize.size2)),
+      ]);
+
+      // Notes
+      if (notes != null && notes.isNotEmpty) {
+        bytes += generator.feed(1);
+        bytes += generator.text('NOTES:', styles: const PosStyles(bold: true));
+        bytes += generator.text(notes, styles: const PosStyles(reverse: true));
+      }
+
+      bytes += generator.feed(2);
+      bytes += generator.cut();
+
       await PrintBluetoothThermal.writeBytes(bytes);
-      
     } catch (e) {
       debugPrint("Error printing receipt: $e");
     }

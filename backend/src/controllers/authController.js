@@ -172,8 +172,8 @@ exports.updateProfile = async (req, res) => {
     }
 };
 
-// In-memory store for reset codes (in production, use Redis or database)
-const resetCodes = new Map();
+// Persistent store for reset codes
+// const resetCodes = new Map(); -> Replaced by Prisma PasswordReset model
 
 exports.forgotPassword = async (req, res) => {
     try {
@@ -194,9 +194,15 @@ exports.forgotPassword = async (req, res) => {
         const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
 
         // Store code with 15-minute expiry
-        resetCodes.set(email, {
-            code: resetCode,
-            expires: Date.now() + 15 * 60 * 1000
+        // Clean up old codes
+        await prisma.passwordReset.deleteMany({ where: { email } });
+
+        await prisma.passwordReset.create({
+            data: {
+                email,
+                code: resetCode,
+                expiresAt: new Date(Date.now() + 15 * 60 * 1000)
+            }
         });
 
         // Send email
@@ -223,19 +229,19 @@ exports.resetPassword = async (req, res) => {
             return res.status(400).json({ message: 'Password must be at least 6 characters' });
         }
 
-        const storedReset = resetCodes.get(email);
+        // Find valid reset code
+        const storedReset = await prisma.passwordReset.findFirst({
+            where: { email, code }
+        });
 
         if (!storedReset) {
             return res.status(400).json({ message: 'Invalid or expired reset code' });
         }
 
-        if (Date.now() > storedReset.expires) {
-            resetCodes.delete(email);
+        if (new Date() > storedReset.expiresAt) {
+            // Cleanup expired
+            await prisma.passwordReset.deleteMany({ where: { email } });
             return res.status(400).json({ message: 'Reset code has expired' });
-        }
-
-        if (storedReset.code !== code) {
-            return res.status(400).json({ message: 'Invalid reset code' });
         }
 
         // Hash new password
@@ -248,7 +254,7 @@ exports.resetPassword = async (req, res) => {
         });
 
         // Clear reset code
-        resetCodes.delete(email);
+        await prisma.passwordReset.deleteMany({ where: { email } });
 
         res.json({ message: 'Password reset successfully. You can now login with your new password.' });
     } catch (error) {
