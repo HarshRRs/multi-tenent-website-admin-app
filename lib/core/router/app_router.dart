@@ -9,6 +9,7 @@ import 'package:rockster/features/menu/presentation/add_edit_product_screen.dart
 import 'package:rockster/features/reservations/presentation/reservations_screen.dart';
 import 'package:rockster/features/payments/presentation/payments_screen.dart';
 import 'package:rockster/features/website_customizer/presentation/website_customizer_screen.dart';
+import 'package:rockster/features/website_customizer/presentation/subdomain_settings_screen.dart';
 import 'package:rockster/features/notifications/presentation/notifications_screen.dart';
 import 'package:rockster/features/settings/presentation/settings_screen.dart';
 import 'package:rockster/features/more/presentation/more_screen.dart';
@@ -104,6 +105,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/website-customizer',
             builder: (context, state) => const WebsiteCustomizerScreen(),
+          ),
+          GoRoute(
+            path: '/subdomain-settings',
+            builder: (context, state) => const SubdomainSettingsScreen(),
           ),
           GoRoute(
             path: '/notifications',

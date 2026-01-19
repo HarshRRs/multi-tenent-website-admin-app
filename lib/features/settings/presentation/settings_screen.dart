@@ -280,6 +280,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 
                 const SizedBox(height: 24),
                 
+                _buildSectionHeader('WEBSITE'),
+                _buildSettingTile(
+                  icon: Icons.language_outlined,
+                  title: 'Website Subdomain',
+                  subtitle: user?.slug != null ? '${user!.slug}.cosmosadmin.com' : 'Set your website URL',
+                  onTap: () {
+                    context.push('/subdomain-settings');
+                  },
+                ),
+                
+                const SizedBox(height: 24),
+                
                 _buildSectionHeader(AppLocalizations.of(context)!.settingsAccount.toUpperCase()),
                  _buildSettingTile(
                   icon: Icons.logout,

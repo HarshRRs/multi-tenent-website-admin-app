@@ -151,18 +151,66 @@ exports.updateOrderStatus = async (req, res) => {
 
 exports.createPublicOrder = async (req, res) => {
     try {
-        const { restaurantId, customerName, items, totalAmount } = req.body;
+        const {
+            restaurantId,
+            customerName,
+            customerEmail,
+            customerPhone,
+            deliveryAddress,
+            items,
+            totalAmount,
+            paymentMethod = 'cash' // 'card' or 'cash'
+        } = req.body;
 
+        // Validation
         if (!restaurantId || !items || !Array.isArray(items) || items.length === 0) {
             return res.status(400).json({ message: 'Restaurant ID and items are required' });
         }
 
+        if (!customerEmail && paymentMethod === 'card') {
+            return res.status(400).json({ message: 'Email is required for card payments' });
+        }
+
+        let paymentIntentData = null;
+        let paymentStatus = 'pending';
+        let stripePaymentIntentId = null;
+
+        // Handle card payment
+        if (paymentMethod === 'card') {
+            const paymentService = require('../services/paymentService');
+            try {
+                paymentIntentData = await paymentService.createPaymentIntent(
+                    totalAmount,
+                    restaurantId,
+                    { customerName, customerEmail }
+                );
+                stripePaymentIntentId = paymentIntentData.paymentIntentId;
+                paymentStatus = 'pending'; // Will be updated to 'paid' after successful payment
+            } catch (paymentError) {
+                console.error('Payment Intent Creation Failed:', paymentError);
+                return res.status(400).json({
+                    message: 'Payment processing failed',
+                    error: paymentError.message
+                });
+            }
+        } else {
+            // Cash on delivery
+            paymentStatus = 'pending';
+        }
+
+        // Create order in database
         const order = await prisma.order.create({
             data: {
                 customerName: customerName || 'Web Guest',
+                customerEmail: customerEmail || null,
+                customerPhone: customerPhone || null,
+                deliveryAddress: deliveryAddress || null,
                 totalAmount: parseFloat(totalAmount) || 0,
+                paymentMethod,
+                paymentStatus,
+                stripePaymentIntentId,
                 status: 'pending',
-                userId: restaurantId, // Scoped to the restaurant (userId in our system)
+                userId: restaurantId,
                 items: {
                     create: items.map(item => ({
                         name: item.name,
@@ -174,15 +222,40 @@ exports.createPublicOrder = async (req, res) => {
             include: { items: true }
         });
 
+        // Send email confirmation
+        if (customerEmail) {
+            const emailService = require('../services/emailService');
+            const restaurant = await prisma.user.findUnique({
+                where: { id: restaurantId },
+                select: { name: true, email: true }
+            });
+
+            emailService.sendOrderConfirmation(order, customerEmail, restaurant)
+                .catch(err => console.error('Email send error:', err));
+        }
+
         // Emit WebSocket event for new order
         websocketService.sendToUser(restaurantId, {
             type: 'new_order',
             orderId: order.id,
             totalAmount: order.totalAmount,
-            customerName: order.customerName
+            customerName: order.customerName,
+            paymentMethod: order.paymentMethod
         });
 
-        res.status(201).json(order);
+        // Return response with payment intent if card payment
+        const response = {
+            order,
+            message: 'Order created successfully'
+        };
+
+        if (paymentMethod === 'card' && paymentIntentData) {
+            response.paymentIntent = {
+                clientSecret: paymentIntentData.clientSecret
+            };
+        }
+
+        res.status(201).json(response);
     } catch (error) {
         console.error('Create Public Order Error:', error);
         res.status(500).json({ message: 'Error creating order', error: error.message });

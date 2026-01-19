@@ -6,6 +6,7 @@ class User {
   final String businessType;
   final String address; 
   final bool isStoreOpen;
+  final String? slug;
 
   User({
     required this.id,
@@ -15,6 +16,7 @@ class User {
     this.address = '',
     this.businessType = 'restaurant',
     this.isStoreOpen = true,
+    this.slug,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class User {
       address: json['address'] ?? '',
       businessType: json['businessType'] ?? 'restaurant',
       isStoreOpen: json['isStoreOpen'] ?? true,
+      slug: json['slug'],
     );
   }
 
@@ -38,6 +41,7 @@ class User {
       'address': address,
       'businessType': businessType,
       'isStoreOpen': isStoreOpen,
+      'slug': slug,
     };
   }
 
@@ -49,6 +53,7 @@ class User {
     String? address,
     String? businessType,
     bool? isStoreOpen,
+    String? slug,
   }) {
     return User(
       id: id ?? this.id,
@@ -58,6 +63,7 @@ class User {
       address: address ?? this.address,
       businessType: businessType ?? this.businessType,
       isStoreOpen: isStoreOpen ?? this.isStoreOpen,
+      slug: slug ?? this.slug,
     );
   }
 }

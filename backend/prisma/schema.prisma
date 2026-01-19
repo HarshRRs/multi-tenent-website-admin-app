@@ -18,6 +18,7 @@ model User {
   isStoreOpen    Boolean        @default(true)
   createdAt       DateTime       @default(now())
   stripeAccountId String?
+  slug            String?        @unique
   categories      Category[]
   orders          Order[]
   products        Product[]
@@ -25,6 +26,8 @@ model User {
   tables          Table[]
   websiteConfig   WebsiteConfig?
   notifications   Notification[]
+
+  @@index([slug])
 }
 
 model WebsiteConfig {
@@ -78,6 +81,7 @@ model Table {
 model Reservation {
   id            String   @id @default(uuid())
   customerName  String
+  customerEmail String?
   customerPhone String?
   partySize     Int
   time          DateTime
@@ -91,7 +95,13 @@ model Reservation {
 model Order {
   id           String      @id @default(uuid())
   customerName String
+  customerEmail String?
+  customerPhone String?
+  deliveryAddress String?
   totalAmount  Float
+  paymentMethod String     @default("cash") // "card" or "cash"
+  paymentStatus String     @default("pending") // "pending", "paid", "failed"
+  stripePaymentIntentId String?
   status       String      @default("pending")
   createdAt    DateTime    @default(now())
   userId       String

@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'dart:io';
-// import 'package:rockster/core/network/api_client.dart';
 import 'package:rockster/features/website_customizer/domain/website_models.dart';
 
 class WebsiteService {
@@ -33,5 +32,22 @@ class WebsiteService {
 
     final response = await _dio.post('upload', data: formData);
     return response.data['url'];
+  }
+
+  Future<Map<String, dynamic>> checkSlugAvailability(String slug) async {
+    try {
+      final response = await _dio.get('/public/check-slug/$slug');
+      return response.data;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> updateSlug(String slug) async {
+    try {
+      await _dio.put('/auth/update-slug', data: {'slug': slug});
+    } catch (e) {
+      rethrow;
+    }
   }
 }

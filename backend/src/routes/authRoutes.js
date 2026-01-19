@@ -38,4 +38,9 @@ router.post('/forgot-password', authController.forgotPassword);
 // @access  Public
 router.post('/reset-password', authController.resetPassword);
 
+// @route   PUT /auth/update-slug
+// @desc    Update restaurant subdomain slug
+// @access  Private
+router.put('/update-slug', auth, authController.updateSlug);
+
 module.exports = router;

@@ -88,31 +88,58 @@ exports.deleteReservation = async (req, res) => {
 
 exports.createPublicReservation = async (req, res) => {
     try {
-        const { restaurantId, customerName, partySize, time, phone } = req.body;
+        const { restaurantId, customerName, customerEmail, customerPhone, partySize, time } = req.body;
 
+        // Validation
         if (!restaurantId || !customerName || !partySize || !time) {
             return res.status(400).json({ message: 'Missing required reservation fields' });
+        }
+
+        // Validate future date
+        const reservationTime = new Date(time);
+        if (reservationTime < new Date()) {
+            return res.status(400).json({ message: 'Reservation time must be in the future' });
         }
 
         const reservation = await prisma.reservation.create({
             data: {
                 customerName,
-                customerPhone: phone,
+                customerEmail: customerEmail || null,
+                customerPhone: customerPhone || null,
                 partySize: parseInt(partySize),
-                time: new Date(time),
+                time: reservationTime,
                 userId: restaurantId
             }
         });
 
-        // Notify admin via WebSocket (just to refresh list)
+        // Send email confirmation
+        if (customerEmail) {
+            const emailService = require('../services/emailService');
+            const restaurant = await prisma.user.findUnique({
+                where: { id: restaurantId },
+                select: { name: true, email: true }
+            });
+
+            emailService.sendReservationConfirmation(reservation, customerEmail, restaurant)
+                .catch(err => console.error('Email send error:', err));
+        }
+
+        // Notify admin via WebSocket
         const websocketService = require('../services/websocketService');
         websocketService.sendToUser(restaurantId, {
-            type: 'order_update', // Re-use for refreshing
-            message: 'New reservation received'
+            type: 'new_reservation',
+            reservationId: reservation.id,
+            customerName: reservation.customerName,
+            time: reservation.time,
+            partySize: reservation.partySize
         });
 
-        res.status(201).json(reservation);
+        res.status(201).json({
+            reservation,
+            message: 'Reservation created successfully'
+        });
     } catch (error) {
+        console.error('Create Public Reservation Error:', error);
         res.status(500).json({ message: 'Error creating reservation', error: error.message });
     }
 };
