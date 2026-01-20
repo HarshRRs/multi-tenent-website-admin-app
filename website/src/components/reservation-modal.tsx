@@ -22,6 +22,7 @@ type ReservationFormData = z.infer<typeof reservationSchema>;
 
 export default function ReservationModal({ onClose }: { onClose: () => void }) {
     const { config } = useConfigStore();
+    const { restaurant } = useRestaurant();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [reservationSuccess, setReservationSuccess] = useState(false);
 
@@ -42,7 +43,7 @@ export default function ReservationModal({ onClose }: { onClose: () => void }) {
             const reservationDateTime = new Date(`${data.date}T${data.time}`);
 
             const reservationData = {
-                restaurantId: process.env.NEXT_PUBLIC_RESTAURANT_ID,
+                restaurantId: restaurant?.id,
                 customerName: data.customerName,
                 customerEmail: data.customerEmail,
                 customerPhone: data.customerPhone,
