@@ -51,7 +51,7 @@ exports.getProducts = async (req, res) => {
 
 exports.createProduct = async (req, res) => {
     try {
-        const { name, description, price, categoryId, imageUrl } = req.body;
+        const { name, description, price, categoryId, imageUrl, images } = req.body;
 
         // Basic validation
         if (!name || !price || !categoryId) {
