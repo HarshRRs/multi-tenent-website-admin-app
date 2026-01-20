@@ -41,22 +41,50 @@ const generalLimiter = rateLimit({
     legacyHeaders: false,
 });
 
-app.use('/auth/login', authLimiter);
-app.use('/auth/register', authLimiter);
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
+app.use('/auth/login', authLimiter); // Old APK support
+app.use('/auth/register', authLimiter); // Old APK support
 app.use(generalLimiter); // Apply to all other routes
 
-// Routes
-app.use('/api/auth', require('./src/routes/authRoutes'));
-app.use('/api/menu', require('./src/routes/menuRoutes'));
-app.use('/api/tables', require('./src/routes/tableRoutes'));
-app.use('/api/upload', require('./src/routes/uploadRoutes'));
-app.use('/api/payments', require('./src/routes/paymentRoutes'));
-app.use('/api/orders', require('./src/routes/orderRoutes'));
-app.use('/api/dashboard', require('./src/routes/dashboardRoutes'));
-app.use('/api/reservations', require('./src/routes/reservationRoutes'));
-app.use('/api/notifications', require('./src/routes/notificationRoutes'));
-app.use('/api/website', require('./src/routes/websiteRoutes')); // Multi-Tenant Config
-app.use('/api/public', require('./src/routes/publicRoutes')); // Consumer Website API
+// Routes - Define controllers once
+const authRoutes = require('./src/routes/authRoutes');
+const menuRoutes = require('./src/routes/menuRoutes');
+const tableRoutes = require('./src/routes/tableRoutes');
+const uploadRoutes = require('./src/routes/uploadRoutes');
+const paymentRoutes = require('./src/routes/paymentRoutes');
+const orderRoutes = require('./src/routes/orderRoutes');
+const dashboardRoutes = require('./src/routes/dashboardRoutes');
+const reservationRoutes = require('./src/routes/reservationRoutes');
+const notificationRoutes = require('./src/routes/notificationRoutes');
+const websiteRoutes = require('./src/routes/websiteRoutes');
+const publicRoutes = require('./src/routes/publicRoutes');
+
+// API V2 (New Standard)
+app.use('/api/auth', authRoutes);
+app.use('/api/menu', menuRoutes);
+app.use('/api/tables', tableRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/reservations', reservationRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/website', websiteRoutes);
+app.use('/api/public', publicRoutes);
+
+// API V1 (Backward Compatibility for APK v6)
+app.use('/auth', authRoutes);
+app.use('/menu', menuRoutes);
+app.use('/tables', tableRoutes);
+app.use('/upload', uploadRoutes);
+app.use('/payments', paymentRoutes);
+app.use('/orders', orderRoutes);
+app.use('/dashboard', dashboardRoutes);
+app.use('/reservations', reservationRoutes);
+app.use('/notifications', notificationRoutes);
+app.use('/website', websiteRoutes);
+app.use('/public', publicRoutes);
 
 const websocketService = require('./src/services/websocketService');
 
