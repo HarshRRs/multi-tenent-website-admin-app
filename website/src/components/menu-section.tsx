@@ -98,9 +98,28 @@ export default function MenuSection() {
                             style={{ animationDelay: `${idx * 100}ms` }}
                         >
                             <div className="relative h-72 rounded-[2rem] overflow-hidden mb-6">
-                                {product.imageUrl ? (
+                                {product.images && product.images.length > 1 ? (
+                                    <div className="w-full h-full relative group/gallery">
+                                        <div className="w-full h-full overflow-x-auto flex snap-x snap-mandatory no-scrollbar scroll-smooth">
+                                            {product.images.map((img, i) => (
+                                                <img
+                                                    key={i}
+                                                    src={img}
+                                                    alt={`${product.name} ${i + 1}`}
+                                                    className="w-full h-full flex-shrink-0 object-cover snap-center"
+                                                />
+                                            ))}
+                                        </div>
+                                        {/* Gallery Indicator Badge */}
+                                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-md px-2 py-1 rounded-full text-white text-[10px] font-bold tracking-widest flex gap-1">
+                                            {product.images.map((_, i) => (
+                                                <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/50" />
+                                            ))}
+                                        </div>
+                                    </div>
+                                ) : product.imageUrl || (product.images && product.images.length > 0) ? (
                                     <img
-                                        src={product.imageUrl}
+                                        src={product.imageUrl || product.images![0]}
                                         alt={product.name}
                                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                     />
@@ -111,7 +130,7 @@ export default function MenuSection() {
                                 )}
 
                                 {/* Float Badge */}
-                                <div className="absolute top-4 right-4 glass-dark px-3 py-1 rounded-full text-white text-xs font-bold uppercase tracking-widest">
+                                <div className="absolute top-4 right-4 glass-dark px-3 py-1 rounded-full text-white text-xs font-bold uppercase tracking-widest pointer-events-none">
                                     Popular
                                 </div>
                             </div>
