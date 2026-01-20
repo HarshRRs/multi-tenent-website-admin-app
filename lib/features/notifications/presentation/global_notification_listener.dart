@@ -4,6 +4,7 @@ import 'package:rockster/core/network/websocket_service.dart';
 import 'package:rockster/core/services/sound_service.dart';
 import 'package:rockster/features/notifications/presentation/notifications_provider.dart';
 import 'package:rockster/features/orders/presentation/orders_provider.dart';
+import 'package:rockster/features/reservations/presentation/reservations_provider.dart';
 import 'package:rockster/core/providers/providers.dart';
 import 'package:rockster/core/providers/sound_provider.dart';
 
@@ -63,6 +64,13 @@ class _GlobalNotificationListenerState extends ConsumerState<GlobalNotificationL
       
       // Refresh providers
       ref.read(ordersProvider.notifier).refresh();
+      ref.read(notificationsProvider.notifier).loadNotifications();
+    } else if (type == 'new_reservation') {
+      // Play sound
+      soundService.playOrderSound(loop: true); // Or distinct sound if available
+      
+      // Refresh providers
+      ref.read(reservationsProvider.notifier).loadReservations();
       ref.read(notificationsProvider.notifier).loadNotifications();
     }
   }
