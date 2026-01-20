@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
@@ -89,12 +90,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               constraints: const BoxConstraints(maxWidth: 440),
               child: Form(
                 key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    // Glowing COSMOS title - CENTERED (no hero image)
-                    const GlowingText(
+                child: AutofillGroup(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Glowing COSMOS title - CENTERED (no hero image)
+                      const GlowingText(
                       text: 'COSMOS',
                       style: TextStyle(
                         fontSize: 56,
@@ -153,6 +155,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       icon: Icons.email_outlined,
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
+                      autofillHints: const [AutofillHints.email],
+                      textInputAction: TextInputAction.next,
                       validator: (value) {
                         if (value == null || value.isEmpty) return 'Required';
                         if (!value.contains('@')) return 'Invalid email';
@@ -169,6 +173,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       icon: Icons.lock_outline,
                       controller: _passwordController,
                       obscureText: _obscurePassword,
+                      autofillHints: const [AutofillHints.password],
+                      textInputAction: TextInputAction.done,
+                      onFieldSubmitted: (_) => _handleLogin(),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
@@ -238,6 +245,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ).animate().fadeIn(duration: 600.ms, delay: 900.ms),
                   ],
                 ),
+              ),
               ),
             ),
           ),

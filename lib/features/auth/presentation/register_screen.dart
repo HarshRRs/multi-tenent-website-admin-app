@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
@@ -126,12 +127,13 @@ Cancel anytime. Data export available for 30 days after cancellation.''';
               constraints: const BoxConstraints(maxWidth: 440),
               child: Form(
                 key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    // Glowing COSMOS title (no hero image)
-                    const GlowingText(
+                child: AutofillGroup(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Glowing COSMOS title (no hero image)
+                      const GlowingText(
                       text: 'COSMOS',
                       style: TextStyle(
                         fontSize: 50,
@@ -189,6 +191,8 @@ Cancel anytime. Data export available for 30 days after cancellation.''';
                       hint: 'John Doe',
                       icon: Icons.person_outline,
                       controller: _nameController,
+                      autofillHints: const [AutofillHints.name],
+                      textInputAction: TextInputAction.next,
                       validator: (v) => v?.isEmpty == true ? 'Required' : null,
                     ).animate().fadeIn(duration: 500.ms, delay: 500.ms).slideX(begin: -0.2, end: 0),
                     
@@ -231,6 +235,8 @@ Cancel anytime. Data export available for 30 days after cancellation.''';
                       hint: 'My Awesome Store',
                       icon: Icons.store_outlined,
                       controller: _businessNameController,
+                      autofillHints: const [AutofillHints.organizationName],
+                      textInputAction: TextInputAction.next,
                     ).animate().fadeIn(duration: 500.ms, delay: 700.ms).slideX(begin: -0.2, end: 0),
                     
                     const SizedBox(height: 16),
@@ -242,6 +248,8 @@ Cancel anytime. Data export available for 30 days after cancellation.''';
                       icon: Icons.email_outlined,
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
+                      autofillHints: const [AutofillHints.email],
+                      textInputAction: TextInputAction.next,
                       validator: (v) => (v != null && v.contains('@')) ? null : 'Invalid email',
                     ).animate().fadeIn(duration: 500.ms, delay: 800.ms).slideX(begin: -0.2, end: 0),
                     
@@ -254,6 +262,9 @@ Cancel anytime. Data export available for 30 days after cancellation.''';
                       icon: Icons.lock_outline,
                       controller: _passwordController,
                       obscureText: _obscurePassword,
+                      autofillHints: const [AutofillHints.newPassword],
+                      textInputAction: TextInputAction.done,
+                      onFieldSubmitted: (_) => _handleRegister(),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
@@ -339,6 +350,7 @@ Cancel anytime. Data export available for 30 days after cancellation.''';
                     ).animate().fadeIn(duration: 600.ms, delay: 1200.ms),
                   ],
                 ),
+              ),
               ),
             ),
           ),
