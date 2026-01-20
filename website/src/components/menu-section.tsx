@@ -133,7 +133,7 @@ export default function MenuSection() {
                                         onClick={() => {
                                             addItem(product);
                                             // Show simple feedback
-                                            const btn = event?.currentTarget;
+                                            const btn = event?.currentTarget as HTMLButtonElement;
                                             if (btn) {
                                                 const original = btn.textContent;
                                                 btn.textContent = '✓ Added!';
