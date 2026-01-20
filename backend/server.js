@@ -72,6 +72,7 @@ app.use('/api/reservations', reservationRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/website', websiteRoutes);
 app.use('/api/public', publicRoutes);
+app.use('/api/test', require('./src/routes/testEmailRoute'));
 
 // API V1 (Backward Compatibility for APK v6)
 app.use('/auth', authRoutes);
