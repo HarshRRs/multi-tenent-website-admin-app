@@ -46,17 +46,17 @@ app.use('/auth/register', authLimiter);
 app.use(generalLimiter); // Apply to all other routes
 
 // Routes
-app.use('/auth', require('./src/routes/authRoutes'));
-app.use('/menu', require('./src/routes/menuRoutes'));
-app.use('/tables', require('./src/routes/tableRoutes'));
-app.use('/upload', require('./src/routes/uploadRoutes'));
-app.use('/payments', require('./src/routes/paymentRoutes'));
-app.use('/orders', require('./src/routes/orderRoutes'));
-app.use('/dashboard', require('./src/routes/dashboardRoutes'));
-app.use('/reservations', require('./src/routes/reservationRoutes'));
-app.use('/notifications', require('./src/routes/notificationRoutes'));
-app.use('/website', require('./src/routes/websiteRoutes')); // Multi-Tenant Config
-app.use('/public', require('./src/routes/publicRoutes')); // Consumer Website API
+app.use('/api/auth', require('./src/routes/authRoutes'));
+app.use('/api/menu', require('./src/routes/menuRoutes'));
+app.use('/api/tables', require('./src/routes/tableRoutes'));
+app.use('/api/upload', require('./src/routes/uploadRoutes'));
+app.use('/api/payments', require('./src/routes/paymentRoutes'));
+app.use('/api/orders', require('./src/routes/orderRoutes'));
+app.use('/api/dashboard', require('./src/routes/dashboardRoutes'));
+app.use('/api/reservations', require('./src/routes/reservationRoutes'));
+app.use('/api/notifications', require('./src/routes/notificationRoutes'));
+app.use('/api/website', require('./src/routes/websiteRoutes')); // Multi-Tenant Config
+app.use('/api/public', require('./src/routes/publicRoutes')); // Consumer Website API
 
 const websocketService = require('./src/services/websocketService');
 
