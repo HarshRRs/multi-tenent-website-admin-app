@@ -58,6 +58,7 @@ model Product {
   description String?
   price       Float
   imageUrl    String?
+  images      String[] @default([])
   isAvailable Boolean  @default(true)
   categoryId  String
   createdAt   DateTime @default(now())

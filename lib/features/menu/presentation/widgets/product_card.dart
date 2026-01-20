@@ -110,7 +110,7 @@ class ProductCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '€\${product.price}',
+                      '€${product.price.toStringAsFixed(2)}',
                       style: AppTextStyles.labelLarge.copyWith(color: AppColors.primaryLight),
                     ),
                   ],

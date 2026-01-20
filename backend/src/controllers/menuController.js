@@ -78,6 +78,7 @@ exports.createProduct = async (req, res) => {
                 categoryId,
                 userId: req.user.id,
                 imageUrl: imageUrl || 'https://placehold.co/200',
+                images: images || (imageUrl ? [imageUrl] : []),
                 isAvailable: true
             }
         });
@@ -90,7 +91,7 @@ exports.createProduct = async (req, res) => {
 exports.updateProduct = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, description, price, categoryId, imageUrl, isAvailable } = req.body;
+        const { name, description, price, categoryId, imageUrl, images, isAvailable } = req.body;
 
         // Security: Ensure product belongs to user
         // We use findFirst to check ownership before update, or updateMany
@@ -123,6 +124,7 @@ exports.updateProduct = async (req, res) => {
                 price: price ? parseFloat(price) : undefined,
                 categoryId,
                 imageUrl,
+                images,
                 isAvailable
             }
         });

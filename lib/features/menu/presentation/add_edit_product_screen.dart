@@ -12,6 +12,7 @@ import 'package:rockster/features/menu/domain/menu_models.dart';
 import 'package:rockster/features/menu/presentation/menu_provider.dart';
 import 'package:rockster/features/menu/data/menu_service.dart';
 import 'package:rockster/core/providers/providers.dart';
+import 'package:rockster/features/auth/presentation/auth_provider.dart';
 
 class AddEditProductScreen extends ConsumerStatefulWidget {
   final String? productId;
@@ -33,8 +34,8 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
   
   // Image handling
   final ImagePicker _picker = ImagePicker();
-  XFile? _pickedFile;
-  String? _currentImageUrl;
+  final List<XFile> _pickedImages = [];
+  List<String> _currentImages = []; // URLs of existing images
 
   @override
   void initState() {
@@ -51,23 +52,53 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
         _descriptionController.text = product.description;
         _priceController.text = product.price.toString();
         _selectedCategory = product.categoryId;
-        _currentImageUrl = product.imageUrl;
+        
+        // Load images
+        if (product.images.isNotEmpty) {
+            _currentImages = List.from(product.images);
+        } else if (product.imageUrl.isNotEmpty) {
+            _currentImages = [product.imageUrl];
+        }
       }
     }
   }
 
+  int get _maxImages {
+      final user = ref.read(authNotifierProvider).user;
+      final type = user?.businessType?.toLowerCase() ?? 'restaurant';
+      return (type == 'restaurant') ? 1 : 4;
+  }
+
   Future<void> _pickImage() async {
+    final currentCount = _currentImages.length + _pickedImages.length;
+    final limit = _maxImages;
+
+    if (currentCount >= limit) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Maximum $limit images allowed for your business type.')));
+        return;
+    }
+
     try {
       final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
       if (image != null) {
         setState(() {
-          _pickedFile = image;
+          _pickedImages.add(image);
         });
       }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error picking image: $e')));
     }
+  }
+
+  void _removeImage(int index, bool isExisting) {
+      setState(() {
+          if (isExisting) {
+              _currentImages.removeAt(index);
+          } else {
+              _pickedImages.removeAt(index);
+          }
+      });
   }
 
   Future<void> _handleSave() async {
@@ -81,22 +112,28 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
 
       setState(() => _isLoading = true);
       try {
-        String finalImageUrl = _currentImageUrl ?? '';
+        List<String> finalImages = List.from(_currentImages);
 
-        // 1. Upload Image if new one picked
-        if (_pickedFile != null) {
-            final menuService = ref.read(menuServiceProvider); // Get service directly for upload
-            finalImageUrl = await menuService.uploadImage(_pickedFile);
+        // 1. Upload new videos
+        if (_pickedImages.isNotEmpty) {
+            final menuService = ref.read(menuServiceProvider);
+            for (var img in _pickedImages) {
+                final url = await menuService.uploadImage(img);
+                finalImages.add(url);
+            }
         }
+
+        String mainImageUrl = finalImages.isNotEmpty ? finalImages.first : '';
 
         // 2. Create Object
         final product = MenuItem(
-            id: widget.productId ?? '', // Empty for new
+            id: widget.productId ?? '', 
             name: _nameController.text,
             description: _descriptionController.text,
             price: double.parse(_priceController.text),
             categoryId: _selectedCategory!,
-            imageUrl: finalImageUrl,
+            imageUrl: mainImageUrl, // Backward compatibility
+            images: finalImages,    // Multi-image support
             isAvailable: true,
         );
 
@@ -142,6 +179,8 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
     final isEditing = widget.productId != null;
     final menuState = ref.watch(menuProvider);
     final categories = menuState.categories;
+    final maxImages = _maxImages;
+    final currentCount = _currentImages.length + _pickedImages.length;
 
     return Scaffold(
       appBar: AppBar(
@@ -158,34 +197,57 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Image Picker
-              GestureDetector(
-                onTap: _pickImage,
-                child: Container(
-                  height: 200,
-                  clipBehavior: Clip.hardEdge,
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceLight,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
-                  ),
-                  child: _pickedFile != null 
-                    ? (kIsWeb 
-                        ? Image.network(_pickedFile!.path, fit: BoxFit.cover) 
-                        : Image.file(File(_pickedFile!.path), fit: BoxFit.cover))
-                    : (_currentImageUrl != null && _currentImageUrl!.isNotEmpty
-                        ? Image.network(_currentImageUrl!, fit: BoxFit.cover, errorBuilder: (c,e,s) => const Icon(Icons.broken_image))
-                        : Center(
-                            child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                Icon(Icons.add_photo_alternate_outlined, size: 48, color: AppColors.primaryLight),
-                                const SizedBox(height: 8),
-                                Text('Tap to upload image', style: AppTextStyles.labelMedium.copyWith(color: AppColors.textSecondaryLight)),
-                                ],
+              // Image Gallery / Picker
+              Text('Images ($currentCount/$maxImages)', style: AppTextStyles.labelMedium.copyWith(color: AppColors.deepInk)),
+              const SizedBox(height: 12),
+              
+              SizedBox(
+                  height: 120,
+                  child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                          // Add Button
+                          if (currentCount < maxImages)
+                            GestureDetector(
+                                onTap: _pickImage,
+                                child: Container(
+                                    width: 120,
+                                    margin: const EdgeInsets.only(right: 12),
+                                    decoration: BoxDecoration(
+                                        color: AppColors.surfaceLight,
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+                                    ),
+                                    child: const Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                            Icon(Icons.add_a_photo, color: AppColors.primaryLight),
+                                            SizedBox(height: 4),
+                                            Text('Add', style: TextStyle(color: AppColors.textSecondaryLight, fontSize: 12)),
+                                        ],
+                                    ),
+                                ),
                             ),
-                            )),
-                ),
+
+                          // Existing Images
+                          ..._currentImages.asMap().entries.map((entry) {
+                              return _buildImageItem(
+                                  child: Image.network(entry.value, fit: BoxFit.cover),
+                                  onDelete: () => _removeImage(entry.key, true),
+                              );
+                          }),
+
+                          // New Images
+                          ..._pickedImages.asMap().entries.map((entry) {
+                              return _buildImageItem(
+                                  child: kIsWeb 
+                                    ? Image.network(entry.value.path, fit: BoxFit.cover) 
+                                    : Image.file(File(entry.value.path), fit: BoxFit.cover),
+                                  onDelete: () => _removeImage(entry.key, false),
+                              );
+                          }),
+                      ],
+                  ),
               ),
               const SizedBox(height: 24),
 
@@ -275,5 +337,38 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildImageItem({required Widget child, required VoidCallback onDelete}) {
+      return Container(
+          width: 120,
+          margin: const EdgeInsets.only(right: 12),
+          clipBehavior: Clip.hardEdge,
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+          ),
+          child: Stack(
+              fit: StackFit.expand,
+              children: [
+                  child,
+                  Positioned(
+                      top: 4,
+                      right: 4,
+                      child: GestureDetector(
+                          onTap: onDelete,
+                          child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.close, size: 16, color: Colors.red),
+                          ),
+                      ),
+                  ),
+              ],
+          ),
+      );
   }
 }

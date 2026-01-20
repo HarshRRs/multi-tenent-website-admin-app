@@ -27,6 +27,7 @@ MenuItem menuItemFromJson(Map<String, dynamic> json) {
     description: json['description'] ?? '',
     price: (json['price'] as num?)?.toDouble() ?? 0.0,
     imageUrl: json['imageUrl'] ?? '',
+    images: (json['images'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
     isAvailable: json['isAvailable'] ?? true,
     categoryId: json['categoryId'] ?? '',
   );
@@ -39,6 +40,7 @@ Map<String, dynamic> menuItemToJson(MenuItem item) {
     'description': item.description,
     'price': item.price,
     'imageUrl': item.imageUrl,
+    'images': item.images,
     'isAvailable': item.isAvailable,
     'categoryId': item.categoryId,
   };

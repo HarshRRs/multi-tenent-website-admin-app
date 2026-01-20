@@ -11,6 +11,7 @@ class MenuItem {
   final String description;
   final double price;
   final String imageUrl;
+  final List<String> images;
   final bool isAvailable;
   final String categoryId;
 
@@ -20,6 +21,7 @@ class MenuItem {
     required this.description,
     required this.price,
     required this.imageUrl,
+    this.images = const [],
     required this.isAvailable,
     required this.categoryId,
   });
@@ -31,6 +33,7 @@ class MenuItem {
       description: description,
       price: price,
       imageUrl: imageUrl,
+      images: images,
       isAvailable: isAvailable ?? this.isAvailable,
       categoryId: categoryId,
     );
