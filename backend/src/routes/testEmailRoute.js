@@ -23,14 +23,23 @@ router.get('/test-email', async (req, res) => {
         await transporter.verify(); // Verify connection first
         console.log('SMTP Connection Verified');
 
-        await transporter.sendMail({
+        const info = await transporter.sendMail({
             from: process.env.EMAIL_USER,
             to: testEmail,
             subject: 'Test Email from Cosmos Admin',
             text: 'If you see this, your email configuration is working perfectly!'
         });
 
-        res.json({ message: 'Email sent successfully!', config: 'OK' });
+        res.json({
+            message: 'Email sent successfully!',
+            config: {
+                user: process.env.EMAIL_USER ? `${process.env.EMAIL_USER.substring(0, 3)}...` : 'MISSING',
+                pass: process.env.EMAIL_PASS ? 'SET' : 'MISSING',
+                host: process.env.EMAIL_HOST
+            },
+            messageId: info.messageId,
+            recipient: testEmail
+        });
     } catch (error) {
         console.error('Email Test Failed:', error);
         res.status(500).json({
