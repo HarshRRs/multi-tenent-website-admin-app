@@ -81,7 +81,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/website', websiteRoutes);
-app / get('/api/public', publicRoutes);
+app.use('/api/public', publicRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/test', require('./src/routes/testEmailRoute'));
