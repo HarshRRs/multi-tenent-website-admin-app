@@ -5,6 +5,9 @@ const app = express();
 const port = process.env.PORT || 3000;
 const path = require('path');
 
+// Trust Proxy (Required for Railway/Heroku/Vercel)
+app.set('trust proxy', 1);
+
 // Middleware
 const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['*'];
 
