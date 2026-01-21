@@ -191,6 +191,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
             actions: [
               IconButton(
                 icon: Icon(_isSearching ? Icons.close : Icons.search, color: AppColors.deepInk),
+                tooltip: _isSearching ? 'Close search' : 'Search items',
                 onPressed: () {
                   setState(() {
                     if (_isSearching) {
@@ -207,10 +208,12 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
                 if (categories.isNotEmpty && _tabController != null)
                   IconButton(
                     icon: const Icon(Icons.delete_outline, color: AppColors.burntTerracotta),
+                    tooltip: 'Delete current category',
                     onPressed: () => _confirmDeleteCategory(context, categories[_tabController!.index]),
                   ),
                 IconButton(
                   icon: const Icon(Icons.playlist_add, color: AppColors.burntTerracotta),
+                  tooltip: 'Add new category',
                   onPressed: () => _showAddCategoryDialog(context),
                 ),
               ],
@@ -319,15 +322,19 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
                                         Positioned(
                                           top: 8,
                                           left: 8,
-                                          child: GestureDetector(
-                                            onTap: () => _confirmDeleteProduct(context, product),
-                                            child: Container(
-                                              padding: const EdgeInsets.all(6),
-                                              decoration: BoxDecoration(
-                                                color: Colors.white.withValues(alpha: 0.9),
-                                                shape: BoxShape.circle,
+                                          child: Tooltip(
+                                            message: 'Delete ${product.name}',
+                                            child: Material(
+                                              color: Colors.white.withValues(alpha: 0.9),
+                                              shape: const CircleBorder(),
+                                              child: InkWell(
+                                                onTap: () => _confirmDeleteProduct(context, product),
+                                                customBorder: const CircleBorder(),
+                                                child: const Padding(
+                                                  padding: EdgeInsets.all(6),
+                                                  child: Icon(Icons.delete_outline, color: Colors.red, size: 20),
+                                                ),
                                               ),
-                                              child: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
                                             ),
                                           ),
                                         ),
