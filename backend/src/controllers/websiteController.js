@@ -78,7 +78,22 @@ exports.getPublicMenu = async (req, res) => {
             where: { userId: restaurantId },
             include: {
                 products: {
-                    where: { isAvailable: true }
+                    where: { isAvailable: true },
+                    include: {
+                        modifierGroups: {
+                            include: { modifiers: true }
+                        },
+                        reviews: {
+                            where: { isApproved: true },
+                            select: {
+                                id: true,
+                                rating: true,
+                                comment: true,
+                                customerName: true,
+                                createdAt: true
+                            }
+                        }
+                    }
                 }
             }
         });

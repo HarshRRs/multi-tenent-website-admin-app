@@ -48,4 +48,9 @@ class PaymentService {
       return [];
     }
   }
+
+  Future<String> getDashboardLink() async {
+    final response = await _dio.get('payments/dashboard-link');
+    return response.data['url'] as String;
+  }
 }

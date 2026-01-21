@@ -4,14 +4,22 @@ import { Product } from '@/types';
 
 export interface CartItem extends Product {
     quantity: number;
+    selectedModifiers?: {
+        groupId: string;
+        groupName: string;
+        id: string;
+        name: string;
+        price: number;
+    }[];
+    modifiersKey?: string;
 }
 
 interface CartStore {
     items: CartItem[];
     isOpen: boolean;
-    addItem: (product: Product) => void;
-    removeItem: (productId: string) => void;
-    updateQuantity: (productId: string, quantity: number) => void;
+    addItem: (product: Product, selectedModifiers?: CartItem['selectedModifiers']) => void;
+    removeItem: (productId: string, modifiersKey?: string) => void;
+    updateQuantity: (productId: string, quantity: number, modifiersKey?: string) => void;
     clearCart: () => void;
     getTotal: () => number;
     getTotalItems: () => number;
@@ -26,40 +34,55 @@ export const useCartStore = create<CartStore>()(
             items: [],
             isOpen: false,
 
-            addItem: (product) => {
+            addItem: (product, selectedModifiers) => {
                 const { items } = get();
-                const existingItem = items.find((item) => item.id === product.id);
+                const modifiersKey = selectedModifiers
+                    ? selectedModifiers.map(m => m.id).sort().join(',')
+                    : '';
+
+                const existingItem = items.find(
+                    (item) => item.id === product.id && (item.modifiersKey || '') === modifiersKey
+                );
 
                 if (existingItem) {
                     set({
                         items: items.map((item) =>
-                            item.id === product.id
+                            (item.id === product.id && (item.modifiersKey || '') === modifiersKey)
                                 ? { ...item, quantity: item.quantity + 1 }
                                 : item
                         ),
                     });
                 } else {
                     set({
-                        items: [...items, { ...product, quantity: 1 }],
+                        items: [...items, {
+                            ...product,
+                            quantity: 1,
+                            selectedModifiers,
+                            modifiersKey
+                        }],
                     });
                 }
             },
 
-            removeItem: (productId) => {
+            removeItem: (productId, modifiersKey) => {
                 set({
-                    items: get().items.filter((item) => item.id !== productId),
+                    items: get().items.filter((item) =>
+                        !(item.id === productId && (item.modifiersKey || '') === (modifiersKey || ''))
+                    ),
                 });
             },
 
-            updateQuantity: (productId, quantity) => {
+            updateQuantity: (productId, quantity, modifiersKey) => {
                 if (quantity <= 0) {
-                    get().removeItem(productId);
+                    get().removeItem(productId, modifiersKey);
                     return;
                 }
 
                 set({
                     items: get().items.map((item) =>
-                        item.id === productId ? { ...item, quantity } : item
+                        (item.id === productId && (item.modifiersKey || '') === (modifiersKey || ''))
+                            ? { ...item, quantity }
+                            : item
                     ),
                 });
             },
@@ -69,7 +92,10 @@ export const useCartStore = create<CartStore>()(
             },
 
             getTotal: () => {
-                return get().items.reduce((total, item) => total + item.price * item.quantity, 0);
+                return get().items.reduce((total, item) => {
+                    const modifiersTotal = item.selectedModifiers?.reduce((sum, mod) => sum + mod.price, 0) || 0;
+                    return total + (item.price + modifiersTotal) * item.quantity;
+                }, 0);
             },
 
             getTotalItems: () => {

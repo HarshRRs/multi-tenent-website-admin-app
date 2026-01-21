@@ -43,4 +43,10 @@ router.post('/reset-password', authController.resetPassword);
 // @access  Private
 router.put('/update-slug', auth, authController.updateSlug);
 
+// @route   POST /auth/fcm-token
+// @desc    Register FCM token for push notifications
+// @access  Private
+router.post('/fcm-token', auth, authController.registerFCMToken);
+
 module.exports = router;
+

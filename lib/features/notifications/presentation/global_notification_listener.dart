@@ -70,7 +70,7 @@ class _GlobalNotificationListenerState extends ConsumerState<GlobalNotificationL
       soundService.playOrderSound(loop: true); // Or distinct sound if available
       
       // Refresh providers
-      ref.read(reservationsProvider.notifier).loadReservations();
+      ref.read(reservationsProvider.notifier).refresh();
       ref.read(notificationsProvider.notifier).loadNotifications();
     }
   }

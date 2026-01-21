@@ -27,10 +27,15 @@ type CheckoutFormData = z.infer<typeof checkoutSchema>;
 function CheckoutForm({ onClose }: { onClose: () => void }) {
     const { items, getTotal, clearCart } = useCartStore();
     const { config } = useConfigStore();
+    const { restaurant } = useRestaurant();
     const [step, setStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [orderSuccess, setOrderSuccess] = useState(false);
     const [orderNumber, setOrderNumber] = useState('');
+    const [couponCode, setCouponCode] = useState('');
+    const [appliedCoupon, setAppliedCoupon] = useState<{ id: string, amount: number } | null>(null);
+    const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
+    const [couponError, setCouponError] = useState<string | null>(null);
 
     const stripe = useStripe();
     const elements = useElements();
@@ -49,23 +54,48 @@ function CheckoutForm({ onClose }: { onClose: () => void }) {
 
     const paymentMethod = watch('paymentMethod');
 
+    const handleApplyCoupon = async () => {
+        if (!couponCode || !restaurant?.id) return;
+        setIsValidatingCoupon(true);
+        setCouponError(null);
+        try {
+            const response = await apiClient.post('/coupons/validate', {
+                code: couponCode,
+                cartTotal: getTotal(),
+                restaurantId: restaurant.id
+            });
+            setAppliedCoupon({ id: response.data.couponId, amount: response.data.discountAmount });
+        } catch (error: any) {
+            setCouponError(error.response?.data?.message || 'Invalid coupon code');
+            setAppliedCoupon(null);
+        } finally {
+            setIsValidatingCoupon(false);
+        }
+    };
+
     const onSubmit = async (data: CheckoutFormData) => {
         setIsSubmitting(true);
         try {
             const orderData = {
-                restaurantId: process.env.NEXT_PUBLIC_RESTAURANT_ID,
+                restaurantId: restaurant?.id,
                 customerName: data.customerName,
                 customerEmail: data.customerEmail,
                 customerPhone: data.customerPhone,
                 deliveryAddress: data.deliveryAddress,
                 paymentMethod: data.paymentMethod,
                 totalAmount: getTotal(),
+                couponCode: appliedCoupon ? couponCode : undefined,
                 items: items.map(item => ({
                     name: item.name,
                     quantity: item.quantity,
                     price: item.price,
+                    selectedModifiers: item.selectedModifiers,
                 })),
             };
+
+            if (!restaurant?.id) {
+                throw new Error('Restaurant information missing. Please refresh the page.');
+            }
 
             const response = await apiClient.post('/public/order', orderData);
 
@@ -261,6 +291,41 @@ function CheckoutForm({ onClose }: { onClose: () => void }) {
                             </div>
                         )}
 
+                        {/* Coupon Code section */}
+                        <div className="mt-6">
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Coupon Code</label>
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={couponCode}
+                                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                                    className="flex-1 px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-gray-400 outline-none transition-colors"
+                                    placeholder="Enter code"
+                                    disabled={!!appliedCoupon || isValidatingCoupon}
+                                />
+                                {appliedCoupon ? (
+                                    <button
+                                        type="button"
+                                        onClick={() => { setAppliedCoupon(null); setCouponCode(''); }}
+                                        className="px-4 py-3 rounded-xl bg-red-50 text-red-600 font-bold"
+                                    >
+                                        Remove
+                                    </button>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={handleApplyCoupon}
+                                        disabled={!couponCode || isValidatingCoupon}
+                                        className="px-4 py-3 rounded-xl bg-gray-900 text-white font-bold disabled:opacity-50"
+                                    >
+                                        {isValidatingCoupon ? <Loader2 className="animate-spin" size={20} /> : 'Apply'}
+                                    </button>
+                                )}
+                            </div>
+                            {couponError && <p className="text-red-500 text-sm mt-1">{couponError}</p>}
+                            {appliedCoupon && <p className="text-green-600 text-sm mt-1 font-bold">Coupon applied! -${appliedCoupon.amount.toFixed(2)}</p>}
+                        </div>
+
                         {/* Order Summary */}
                         <div className="mt-8 p-6 bg-gray-50 rounded-2xl">
                             <h4 className="font-bold text-gray-900 mb-4">Order Summary</h4>
@@ -275,12 +340,22 @@ function CheckoutForm({ onClose }: { onClose: () => void }) {
                                         </span>
                                     </div>
                                 ))}
-                                <div className="border-t-2 border-gray-200 pt-2 mt-2 flex justify-between">
-                                    <span className="font-bold text-gray-900">Total</span>
-                                    <span className="text-2xl font-black" style={{ color: config?.primaryColor }}>
-                                        ${getTotal().toFixed(2)}
-                                    </span>
+                                <span className="font-bold text-gray-900">Subtotal</span>
+                                <span className="font-bold text-gray-900">
+                                    ${getTotal().toFixed(2)}
+                                </span>
+                            </div>
+                            {appliedCoupon && (
+                                <div className="flex justify-between text-green-600 font-bold">
+                                    <span>Discount</span>
+                                    <span>-${appliedCoupon.amount.toFixed(2)}</span>
                                 </div>
+                            )}
+                            <div className="border-t-2 border-gray-200 pt-2 mt-2 flex justify-between">
+                                <span className="font-bold text-gray-900">Total</span>
+                                <span className="text-2xl font-black" style={{ color: config?.primaryColor }}>
+                                    ${(getTotal() - (appliedCoupon?.amount || 0)).toFixed(2)}
+                                </span>
                             </div>
                         </div>
                     </div>

@@ -1,50 +1,73 @@
 const express = require('express');
 const router = express.Router();
 const emailService = require('../services/emailService');
-const transporter = require('nodemailer').createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    }
-});
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
-// Test Endpoint
+// Existing test email (simple text)
 router.get('/test-email', async (req, res) => {
     try {
         const testEmail = req.query.email || process.env.EMAIL_USER;
         if (!testEmail) return res.status(400).send('No recipient email provided (query param ?email=...)');
 
-        console.log(`Testing email to: ${testEmail}`);
-        console.log(`Config: User=${process.env.EMAIL_USER ? 'Set' : 'Missing'}, Pass=${process.env.EMAIL_PASS ? 'Set' : 'Missing'}`);
+        const mockRestaurant = { name: 'Test Restaurant' };
+        // We'll just use a simple subject for this basic test
+        await emailService.sendOrderConfirmation({
+            id: 'TEST-BASIC',
+            customerName: 'Basic Tester',
+            totalAmount: 0,
+            items: [],
+            paymentMethod: 'cash'
+        }, testEmail, mockRestaurant);
 
-        await transporter.verify(); // Verify connection first
-        console.log('SMTP Connection Verified');
-
-        const info = await transporter.sendMail({
-            from: process.env.EMAIL_USER,
-            to: testEmail,
-            subject: 'Test Email from Cosmos Admin',
-            text: 'If you see this, your email configuration is working perfectly!'
-        });
-
-        res.json({
-            message: 'Email sent successfully!',
-            config: {
-                user: process.env.EMAIL_USER ? `${process.env.EMAIL_USER.substring(0, 3)}...` : 'MISSING',
-                pass: process.env.EMAIL_PASS ? 'SET' : 'MISSING',
-                host: process.env.EMAIL_HOST
-            },
-            messageId: info.messageId,
-            recipient: testEmail
-        });
+        res.json({ message: 'Basic test email sent!', recipient: testEmail });
     } catch (error) {
-        console.error('Email Test Failed:', error);
-        res.status(500).json({
-            message: 'Email failed',
-            error: error.message,
-            stack: error.stack
-        });
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Test Order Email
+router.post('/test-order-email', async (req, res) => {
+    try {
+        const testEmail = req.body.email || process.env.EMAIL_USER;
+        const mockOrder = {
+            id: 'TEST-' + Math.random().toString(36).substring(2, 8).toUpperCase(),
+            customerName: 'Test Customer',
+            deliveryAddress: '123 Test Street, City',
+            customerPhone: '+123456789',
+            totalAmount: 45.99,
+            paymentMethod: 'card',
+            items: [
+                { name: 'Pizza Margherita', quantity: 2, price: 15.00 },
+                { name: 'Coca Cola', quantity: 2, price: 2.50 },
+                { name: 'Garlic Bread', quantity: 1, price: 10.99 }
+            ]
+        };
+        const mockRestaurant = { name: 'Test Restaurant' };
+
+        await emailService.sendOrderConfirmation(mockOrder, testEmail, mockRestaurant);
+        res.json({ message: 'Order confirmation test email sent!', recipient: testEmail });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Test Reservation Email
+router.post('/test-reservation-email', async (req, res) => {
+    try {
+        const testEmail = req.body.email || process.env.EMAIL_USER;
+        const mockReservation = {
+            customerName: 'Test Customer',
+            customerPhone: '+123456789',
+            partySize: 4,
+            time: new Date(Date.now() + 86400000).toISOString() // Tomorrow
+        };
+        const mockRestaurant = { name: 'Test Restaurant' };
+
+        await emailService.sendReservationConfirmation(mockReservation, testEmail, mockRestaurant);
+        res.json({ message: 'Reservation confirmation test email sent!', recipient: testEmail });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 });
 

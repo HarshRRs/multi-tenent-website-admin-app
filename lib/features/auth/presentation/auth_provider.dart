@@ -1,12 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:rockster/core/network/api_client.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:rockster/core/utils/secure_storage.dart';
-import 'package:rockster/features/auth/data/auth_repository_impl.dart';
-import 'package:rockster/features/auth/data/auth_service.dart';
 import 'package:rockster/features/auth/domain/auth_models.dart';
 import 'package:rockster/features/auth/domain/auth_repository.dart';
-import 'package:rockster/core/providers/messenger_provider.dart';
-
 import 'package:rockster/core/providers/providers.dart';
 
 // Auth State
@@ -52,6 +48,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final user = await _authRepository.getCurrentUser();
       if (user != null) {
         state = AuthState(status: AuthStatus.authenticated, user: user);
+        _registerFCM();
       } else {
         state = AuthState(status: AuthStatus.unauthenticated);
       }
@@ -69,11 +66,23 @@ class AuthNotifier extends StateNotifier<AuthState> {
         status: AuthStatus.authenticated,
         user: response.user,
       );
+      _registerFCM();
     } catch (e) {
       state = AuthState(
         status: AuthStatus.error,
         error: e.toString(),
       );
+    }
+  }
+
+  Future<void> _registerFCM() async {
+    try {
+      final token = await FirebaseMessaging.instance.getToken();
+      if (token != null) {
+        await _authRepository.registerFCMToken(token);
+      }
+    } catch (e) {
+      print('FCM Registration failed: $e');
     }
   }
 
@@ -86,6 +95,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         status: AuthStatus.authenticated,
         user: response.user,
       );
+      _registerFCM();
     } catch (e) {
       state = AuthState(
         status: AuthStatus.error,

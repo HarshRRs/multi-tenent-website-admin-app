@@ -103,24 +103,23 @@ class MoreScreen extends ConsumerWidget {
                   ),
                 ),
                 
-                const SizedBox(height: 24),
-                
-                _buildSectionHeader(AppLocalizations.of(context)!.settingsBusiness.toUpperCase()),
+                const SizedBox(height: 16),
+                _buildSectionHeader('Marketing'),
                 _buildMenuTile(
                   context,
-                  icon: Icons.credit_card_outlined,
-                  title: 'Payments & Payouts',
-                  subtitle: 'Stripe Connect, Transaction History',
-                  onTap: () => context.push('/payments'),
+                  icon: Icons.confirmation_number_outlined,
+                  title: 'Coupons & Discounts',
+                  subtitle: 'Create and manage promo codes',
+                  onTap: () => context.push('/coupons'),
                 ),
                 _buildMenuTile(
                   context,
-                  icon: Icons.language,
-                  title: 'Website Customizer',
-                  subtitle: 'Customize your public site',
-                  onTap: () => context.push('/website-customizer'),
+                  icon: Icons.rate_review_outlined,
+                  title: 'Reviews Moderation',
+                  subtitle: 'Approve or delete feedback',
+                  onTap: () => context.push('/reviews'),
                 ),
-                
+
                 const SizedBox(height: 16),
                 _buildSectionHeader(AppLocalizations.of(context)!.settingsGeneral.toUpperCase()),
                 _buildMenuTile(

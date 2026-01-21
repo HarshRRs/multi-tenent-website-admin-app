@@ -1,5 +1,13 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import createMiddleware from 'next-intl/middleware';
+import { locales, localePrefix } from './navigation';
+
+const intlMiddleware = createMiddleware({
+    locales,
+    localePrefix,
+    defaultLocale: 'en'
+});
 
 export function middleware(request: NextRequest) {
     const hostname = request.headers.get('host') || '';
@@ -7,8 +15,8 @@ export function middleware(request: NextRequest) {
     // Extract subdomain
     const subdomain = extractSubdomain(hostname);
 
-    // Store subdomain in a custom header for use in components
-    const response = NextResponse.next();
+    // Run next-intl middleware first
+    const response = intlMiddleware(request);
 
     if (subdomain) {
         response.headers.set('x-subdomain', subdomain);

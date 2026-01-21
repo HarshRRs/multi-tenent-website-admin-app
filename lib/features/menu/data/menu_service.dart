@@ -92,4 +92,20 @@ class MenuService {
     final response = await _dio.post('upload', data: formData);
     return response.data['url'];
   }
+
+  Future<MenuItem> createProductRaw(Map<String, dynamic> data) async {
+    final response = await _dio.post(
+      'menu/products',
+      data: data,
+    );
+    return menuItemFromJson(response.data);
+  }
+
+  Future<MenuItem> updateProductRaw(String id, Map<String, dynamic> data) async {
+    final response = await _dio.put(
+      'menu/products/$id',
+      data: data,
+    );
+    return menuItemFromJson(response.data);
+  }
 }

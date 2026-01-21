@@ -3,8 +3,10 @@
 import { useConfigStore } from '@/store/config-store';
 import { cn } from '@/lib/utils';
 import { ChevronDown, Play, ArrowRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function HeroSection() {
+    const t = useTranslations('Hero');
     const { config } = useConfigStore();
 
     if (!config) return null;
@@ -34,7 +36,7 @@ export default function HeroSection() {
             <div className="relative z-20 text-center px-6 max-w-5xl mx-auto">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-dark text-white/90 text-sm font-medium mb-8 animate-fade-up">
                     <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: config.primaryColor }} />
-                    Discover Culinary Excellence
+                    {t('subtitle')}
                 </div>
 
                 <h1 className="text-6xl md:text-8xl font-black text-white mb-8 tracking-tighter leading-none animate-fade-up delay-100">

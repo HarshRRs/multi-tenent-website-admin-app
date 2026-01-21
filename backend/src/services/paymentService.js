@@ -40,7 +40,7 @@ exports.createPaymentIntent = async (amount, restaurantId, metadata = {}) => {
 
         // If restaurant has Stripe Connect account, use it
         if (restaurant?.stripeAccountId) {
-            paymentIntentParams.application_fee_amount = Math.round(amountInCents * 0.05); // 5% platform fee
+            paymentIntentParams.application_fee_amount = Math.round(amountInCents * 0.03); // 3% platform fee
             paymentIntentParams.transfer_data = {
                 destination: restaurant.stripeAccountId
             };

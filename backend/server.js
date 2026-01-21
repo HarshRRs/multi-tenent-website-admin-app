@@ -22,7 +22,12 @@ app.use(cors({
     },
     credentials: true
 }));
+// Webhook route MUST come before express.json() for Stripe signature verification
+const webhookRoutes = require('./src/routes/webhookRoutes');
+app.use('/api/webhooks', webhookRoutes);
+
 app.use(express.json());
+
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Rate Limiting
@@ -62,6 +67,8 @@ const reservationRoutes = require('./src/routes/reservationRoutes');
 const notificationRoutes = require('./src/routes/notificationRoutes');
 const websiteRoutes = require('./src/routes/websiteRoutes');
 const publicRoutes = require('./src/routes/publicRoutes');
+const couponRoutes = require('./src/routes/couponRoutes');
+const reviewRoutes = require('./src/routes/reviewRoutes');
 
 // API V2 (New Standard)
 app.use('/api/auth', authRoutes);
@@ -74,7 +81,9 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/website', websiteRoutes);
-app.use('/api/public', publicRoutes);
+app / get('/api/public', publicRoutes);
+app.use('/api/coupons', couponRoutes);
+app.use('/api/reviews', reviewRoutes);
 app.use('/api/test', require('./src/routes/testEmailRoute'));
 
 // API V1 (Backward Compatibility for APK v6)
@@ -89,6 +98,8 @@ app.use('/reservations', reservationRoutes);
 app.use('/notifications', notificationRoutes);
 app.use('/website', websiteRoutes);
 app.use('/public', publicRoutes);
+app.use('/coupons', couponRoutes);
+app.use('/reviews', reviewRoutes);
 
 const websocketService = require('./src/services/websocketService');
 

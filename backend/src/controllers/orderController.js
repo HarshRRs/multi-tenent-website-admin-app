@@ -158,13 +158,46 @@ exports.createPublicOrder = async (req, res) => {
             customerPhone,
             deliveryAddress,
             items,
-            totalAmount,
+            totalAmount: providedTotal,
+            couponCode,
             paymentMethod = 'cash' // 'card' or 'cash'
         } = req.body;
 
         // Validation
         if (!restaurantId || !items || !Array.isArray(items) || items.length === 0) {
             return res.status(400).json({ message: 'Restaurant ID and items are required' });
+        }
+
+        let totalAmount = parseFloat(providedTotal) || 0;
+        let discountAmount = 0;
+        let appliedCouponId = null;
+
+        // Handle Coupon logic
+        if (couponCode) {
+            const coupon = await prisma.coupon.findFirst({
+                where: {
+                    code: couponCode.toUpperCase(),
+                    userId: restaurantId,
+                    isActive: true
+                }
+            });
+
+            if (coupon) {
+                const now = new Date();
+                const isNotExpired = !coupon.expiresAt || new Date(coupon.expiresAt) > now;
+                const meetsMinAmount = totalAmount >= coupon.minOrderAmount;
+
+                if (isNotExpired && meetsMinAmount) {
+                    appliedCouponId = coupon.id;
+                    if (coupon.discountType === 'PERCENT') {
+                        discountAmount = (totalAmount * coupon.discountValue) / 100;
+                    } else {
+                        discountAmount = coupon.discountValue;
+                    }
+                    discountAmount = Math.min(discountAmount, totalAmount);
+                    totalAmount = totalAmount - discountAmount;
+                }
+            }
         }
 
         if (!customerEmail && paymentMethod === 'card') {
@@ -175,8 +208,24 @@ exports.createPublicOrder = async (req, res) => {
         let paymentStatus = 'pending';
         let stripePaymentIntentId = null;
 
+        // Fetch restaurant details early to check Stripe status
+        const restaurant = await prisma.user.findUnique({
+            where: { id: restaurantId },
+            select: { name: true, email: true, stripeAccountId: true }
+        });
+
+        if (!restaurant) {
+            return res.status(404).json({ message: 'Restaurant not found' });
+        }
+
         // Handle card payment
         if (paymentMethod === 'card') {
+            if (!restaurant.stripeAccountId) {
+                return res.status(400).json({
+                    message: 'Online payments are currently unavailable for this restaurant. Please choose Cash on Delivery.'
+                });
+            }
+
             const paymentService = require('../services/paymentService');
             try {
                 paymentIntentData = await paymentService.createPaymentIntent(
@@ -205,7 +254,9 @@ exports.createPublicOrder = async (req, res) => {
                 customerEmail: customerEmail || null,
                 customerPhone: customerPhone || null,
                 deliveryAddress: deliveryAddress || null,
-                totalAmount: parseFloat(totalAmount) || 0,
+                totalAmount,
+                discountAmount,
+                appliedCouponId,
                 paymentMethod,
                 paymentStatus,
                 stripePaymentIntentId,
@@ -215,7 +266,8 @@ exports.createPublicOrder = async (req, res) => {
                     create: items.map(item => ({
                         name: item.name,
                         quantity: parseInt(item.quantity),
-                        price: parseFloat(item.price)
+                        price: parseFloat(item.price),
+                        selectedModifiers: item.selectedModifiers || null
                     }))
                 }
             },
@@ -243,6 +295,16 @@ exports.createPublicOrder = async (req, res) => {
             paymentMethod: order.paymentMethod
         });
 
+        // Add System Notification (triggers FCM)
+        const notificationController = require('./notificationController');
+        notificationController.createNotification(
+            restaurantId,
+            'New Order Received',
+            `Order from ${order.customerName} for $${order.totalAmount.toFixed(2)}`,
+            'order'
+        ).catch(err => console.error('Notification error:', err));
+
+
         // Return response with payment intent if card payment
         const response = {
             order,
@@ -259,5 +321,31 @@ exports.createPublicOrder = async (req, res) => {
     } catch (error) {
         console.error('Create Public Order Error:', error);
         res.status(500).json({ message: 'Error creating order', error: error.message });
+    }
+};
+exports.getReceipt = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const order = await prisma.order.findUnique({
+            where: { id, userId: req.user.id },
+            include: { items: true }
+        });
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        const user = await prisma.user.findUnique({
+            where: { id: req.user.id },
+            select: { name: true, address: true }
+        });
+
+        const receiptService = require('../services/receiptService');
+        const { filePath, fileName } = await receiptService.generateOrderReceipt(order, user);
+
+        res.download(filePath, fileName);
+    } catch (error) {
+        console.error('Receipt Generation Error:', error);
+        res.status(500).json({ message: 'Error generating receipt', error: error.message });
     }
 };

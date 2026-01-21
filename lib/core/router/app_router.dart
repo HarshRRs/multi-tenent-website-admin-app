@@ -12,6 +12,8 @@ import 'package:rockster/features/website_customizer/presentation/website_custom
 import 'package:rockster/features/website_customizer/presentation/subdomain_settings_screen.dart';
 import 'package:rockster/features/notifications/presentation/notifications_screen.dart';
 import 'package:rockster/features/settings/presentation/settings_screen.dart';
+import 'package:rockster/features/marketing/presentation/coupons_screen.dart';
+import 'package:rockster/features/marketing/presentation/reviews_screen.dart';
 import 'package:rockster/features/more/presentation/more_screen.dart';
 import 'package:rockster/features/auth/presentation/login_screen.dart';
 import 'package:rockster/features/auth/presentation/register_screen.dart';
@@ -117,6 +119,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/settings',
             builder: (context, state) => const SettingsScreen(),
+          ),
+          GoRoute(
+            path: '/coupons',
+            builder: (context, state) => const CouponsScreen(),
+          ),
+          GoRoute(
+            path: '/reviews',
+            builder: (context, state) => const ReviewsScreen(),
           ),
           GoRoute(
             path: '/more',

@@ -9,5 +9,6 @@ router.post('/create-connected-account', auth, paymentController.createConnected
 
 router.get('/account', auth, paymentController.getStripeAccount);
 router.get('/transactions', auth, paymentController.getTransactions);
+router.get('/dashboard-link', auth, paymentController.getDashboardLink);
 
 module.exports = router;

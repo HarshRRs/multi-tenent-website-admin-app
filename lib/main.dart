@@ -14,6 +14,16 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:rockster/core/providers/locale_provider.dart';
 import 'package:rockster/features/notifications/presentation/global_notification_listener.dart';
 import 'package:rockster/l10n/app_localizations.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+const AndroidNotificationChannel channel = AndroidNotificationChannel(
+  'high_importance_channel',
+  'High Importance Notifications',
+  description: 'This channel is used for important notifications.',
+  importance: Importance.max,
+);
 
 // Background message handler - must be top-level function
 @pragma('vm:entry-point')
@@ -52,6 +62,23 @@ void main() async {
     };
 
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+    // Create high importance channel
+    await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
+        
+    // Initialize local notifications
+    const initializationSettings = InitializationSettings(
+      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      iOS: DarwinInitializationSettings(),
+    );
+    await flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: (details) {
+        debugPrint('Notification clicked: ${details.payload}');
+      },
+    );
   }
   
   // Enable edge-to-edge fullscreen mode
@@ -121,6 +148,26 @@ Future<void> _initializeFCM() async {
   // Handle foreground messages
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     debugPrint('Foreground message: ${message.notification?.title}');
+    
+    final notification = message.notification;
+    final android = message.notification?.android;
+
+    if (notification != null && android != null) {
+      flutterLocalNotificationsPlugin.show(
+        notification.hashCode,
+        notification.title,
+        notification.body,
+        NotificationDetails(
+          android: AndroidNotificationDetails(
+            channel.id,
+            channel.name,
+            channelDescription: channel.description,
+            icon: android.smallIcon,
+          ),
+        ),
+        payload: message.data.toString(),
+      );
+    }
   });
 }
 
@@ -149,6 +196,7 @@ class RocksterApp extends ConsumerWidget {
       supportedLocales: const [
         Locale('en'),
         Locale('fr'),
+        Locale('es'),
       ],
     );
   }

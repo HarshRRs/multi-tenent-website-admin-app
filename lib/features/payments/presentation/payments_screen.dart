@@ -16,21 +16,38 @@ class PaymentsScreen extends ConsumerStatefulWidget {
   ConsumerState<PaymentsScreen> createState() => _PaymentsScreenState();
 }
 
-class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
+class _PaymentsScreenState extends ConsumerState<PaymentsScreen> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(paymentsProvider.notifier).refresh();
       ref.read(paymentsProvider.notifier).initStripe();
     });
   }
 
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Refresh data when returning to app (e.g. after Stripe onboarding)
+      ref.read(paymentsProvider.notifier).refresh();
+    }
+  }
+
   void _handleConnectStripe() {
     ref.read(paymentsProvider.notifier).connectStripe();
   }
-  
 
+  void _handleOpenDashboard() {
+    ref.read(paymentsProvider.notifier).openStripeDashboard();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,9 +84,6 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
-
-
             // Stripe Unconfigured Warning
             if (stripeStatus != null && !stripeStatus.stripeEnabled)
               Container(
@@ -98,7 +112,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                 ),
               ),
 
-            // Stripe Connect Card - Keeping Purple as it's Stripe's Brand, but modernizing shape
+            // Stripe Connect Card
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
@@ -109,7 +123,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.circular(24), // Modern rounded
+                borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
                     color: ((stripeStatus != null && !stripeStatus.stripeEnabled) ? Colors.grey : const Color(0xFF635BFF)).withValues(alpha: 0.3),
@@ -140,31 +154,50 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                     (stripeStatus != null && !stripeStatus.stripeEnabled)
                         ? 'Payment service is currently disabled on the server.'
                         : (isConnected
-                            ? 'Your account is connected and ready to receive payouts.'
+                            ? 'Your account is connected and ready to receive payouts. Manage your details in the dashboard.'
                             : 'Connect your Stripe account to start accepting payments securely.'),
                     style: GoogleFonts.inter(color: Colors.white.withValues(alpha: 0.9)),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 24),
                   if (isConnected)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(30),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.5)),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.check_circle, color: Colors.white, size: 16),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Connected: ${stripeStatus?.accountId ?? "Unknown"}',
-                            style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600),
+                    Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(30),
+                            border: Border.all(color: Colors.white.withValues(alpha: 0.5)),
                           ),
-                        ],
-                      ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.check_circle, color: Colors.white, size: 16),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Connected',
+                                style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: state.status == DataStatus.loading ? null : _handleOpenDashboard,
+                            icon: const Icon(Icons.open_in_new, size: 18),
+                            label: const Text('Manage Stripe Dashboard'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              side: const BorderSide(color: Colors.white),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            ),
+                          ),
+                        ),
+                      ],
                     )
                   else
                     SizedBox(

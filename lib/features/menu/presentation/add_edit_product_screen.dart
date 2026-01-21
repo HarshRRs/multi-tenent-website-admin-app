@@ -32,6 +32,9 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
   String? _selectedCategory;
   bool _isLoading = false;
   
+  // Modifiers state
+  final List<ModifierGroupEditState> _modifierGroups = [];
+  
   // Image handling
   final ImagePicker _picker = ImagePicker();
   final List<XFile> _pickedImages = [];
@@ -58,6 +61,19 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
             _currentImages = List.from(product.images);
         } else if (product.imageUrl.isNotEmpty) {
             _currentImages = [product.imageUrl];
+        }
+
+        // Load modifiers
+        _modifierGroups.clear();
+        for (var group in product.modifierGroups) {
+          _modifierGroups.add(ModifierGroupEditState(
+            name: group.name,
+            minSelect: group.minSelect,
+            maxSelect: group.maxSelect,
+            modifiers: group.modifiers
+                .map((m) => ModifierEditState(name: m.name, price: m.extraPrice))
+                .toList(),
+          ));
         }
       }
     }
@@ -125,7 +141,23 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
 
         String mainImageUrl = finalImages.isNotEmpty ? finalImages.first : '';
 
-        // 2. Create Object
+        // 2. Prepare Modifiers
+        final List<Map<String, dynamic>> modifierGroupsData = _modifierGroups.map((g) {
+          return {
+            'name': g.nameController.text,
+            'minSelect': int.tryParse(g.minController.text) ?? 0,
+            'maxSelect': int.tryParse(g.maxController.text) ?? 1,
+            'modifiers': g.modifiers.map((m) => {
+              'name': m.nameController.text,
+              'extraPrice': double.tryParse(m.priceController.text) ?? 0.0,
+            }).toList(),
+          };
+        }).toList();
+
+        // 3. Create Object (The notifier and service handle the translation to JSON)
+        // We need to update MenuProvider/MenuService to handle nested modifier data logic
+        // For now, let's assume we pass them as part of the product object if possible or as a separate map.
+        
         final product = MenuItem(
             id: widget.productId ?? '', 
             name: _nameController.text,
@@ -135,13 +167,26 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
             imageUrl: mainImageUrl, // Backward compatibility
             images: finalImages,    // Multi-image support
             isAvailable: true,
+            modifierGroups: [], // This will be handled in the update call
         );
+        
+        // Custom update call to include modifiers
+        final Map<String, dynamic> productData = {
+          'name': product.name,
+          'description': product.description,
+          'price': product.price,
+          'categoryId': product.categoryId,
+          'imageUrl': product.imageUrl,
+          'images': product.images,
+          'isAvailable': product.isAvailable,
+          'modifierGroups': modifierGroupsData,
+        };
 
-        // 3. Call Notifier
+        // 4. Call Notifier (Updated)
         if (widget.productId == null) {
-            await ref.read(menuProvider.notifier).addProduct(product);
+            await ref.read(menuProvider.notifier).addProductRaw(productData);
         } else {
-            await ref.read(menuProvider.notifier).updateProduct(product);
+            await ref.read(menuProvider.notifier).updateProductRaw(widget.productId!, productData);
         }
 
         if (mounted) {
@@ -318,6 +363,116 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
               ),
               const SizedBox(height: 32),
 
+              // Modifiers Section
+              Theme(
+                data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                child: ExpansionTile(
+                  title: Text('Menu Modifiers', style: AppTextStyles.headlineMedium.copyWith(fontSize: 18)),
+                  subtitle: const Text('Add extras like "Extra Cheese" or "Large Size"', style: TextStyle(fontSize: 12)),
+                  children: [
+                    ..._modifierGroups.asMap().entries.map((groupEntry) {
+                      final groupIndex = groupEntry.key;
+                      final group = groupEntry.value;
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 16, left: 8, right: 8),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceLight,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.softBorder),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: CustomTextField(
+                                    label: 'Group Name',
+                                    hint: 'e.g., Size',
+                                    controller: group.nameController,
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete_outline, color: Colors.red),
+                                  onPressed: () => setState(() => _modifierGroups.removeAt(groupIndex)),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: CustomTextField(
+                                    label: 'Min Select',
+                                    hint: '0',
+                                    controller: group.minController,
+                                    keyboardType: TextInputType.number,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: CustomTextField(
+                                    label: 'Max Select',
+                                    hint: '1',
+                                    controller: group.maxController,
+                                    keyboardType: TextInputType.number,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const Divider(height: 24),
+                            Text('Options', style: AppTextStyles.labelMedium),
+                            ...group.modifiers.asMap().entries.map((modEntry) {
+                              final modIndex = modEntry.key;
+                              final mod = modEntry.value;
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      flex: 3,
+                                      child: CustomTextField(
+                                        hint: 'Name',
+                                        controller: mod.nameController,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      flex: 2,
+                                      child: CustomTextField(
+                                        hint: 'Extra €',
+                                        controller: mod.priceController,
+                                        keyboardType: TextInputType.number,
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.remove_circle_outline, color: Colors.grey),
+                                      onPressed: () => setState(() => group.modifiers.removeAt(modIndex)),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }),
+                            TextButton.icon(
+                              onPressed: () => setState(() => group.modifiers.add(ModifierEditState())),
+                              icon: const Icon(Icons.add, size: 18),
+                              label: const Text('Add Option'),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                    CustomButton(
+                      text: 'Add Modifier Group',
+                      isOutlined: true,
+                      onPressed: () => setState(() => _modifierGroups.add(ModifierGroupEditState())),
+                    ).paddingSymmetric(horizontal: 16),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 32),
+
               CustomButton(
                 text: 'Save Product',
                 isLoading: _isLoading,
@@ -371,4 +526,32 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
           ),
       );
   }
+}
+
+class ModifierGroupEditState {
+  final TextEditingController nameController;
+  final TextEditingController minController;
+  final TextEditingController maxController;
+  final List<ModifierEditState> modifiers;
+
+  ModifierGroupEditState({
+    String name = '',
+    int minSelect = 0,
+    int maxSelect = 1,
+    List<ModifierEditState>? modifiers,
+  })  : nameController = TextEditingController(text: name),
+        minController = TextEditingController(text: minSelect.toString()),
+        maxController = TextEditingController(text: maxSelect.toString()),
+        modifiers = modifiers ?? [];
+}
+
+class ModifierEditState {
+  final TextEditingController nameController;
+  final TextEditingController priceController;
+
+  ModifierEditState({
+    String name = '',
+    double price = 0.0,
+  })  : nameController = TextEditingController(text: name),
+        priceController = TextEditingController(text: price.toString());
 }

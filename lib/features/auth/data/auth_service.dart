@@ -83,5 +83,10 @@ class AuthService {
         'newPassword': newPassword,
       },
     );
+  Future<void> registerFCMToken(String token) async {
+    await _dio.post(
+      'auth/fcm-token',
+      data: {'token': token},
+    );
   }
 }

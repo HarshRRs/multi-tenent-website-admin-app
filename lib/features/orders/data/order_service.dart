@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:rockster/features/orders/data/order_dto.dart';
 import 'package:rockster/features/orders/domain/order_model.dart';
@@ -41,5 +42,13 @@ class OrderService {
 
   Future<void> deleteOrder(String id) async {
     await _dio.delete('orders/$id');
+  }
+
+  Future<Uint8List> downloadReceipt(String id) async {
+    final response = await _dio.get<List<int>>(
+      'orders/$id/receipt',
+      options: Options(responseType: ResponseType.bytes),
+    );
+    return Uint8List.fromList(response.data!);
   }
 }

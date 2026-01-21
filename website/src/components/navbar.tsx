@@ -2,18 +2,25 @@
 
 import { useConfigStore } from '@/store/config-store';
 import { useCartStore } from '@/store/cart-store';
-import { Menu as MenuIcon, X, ShoppingBag, CalendarCheck } from 'lucide-react';
+import { Menu as MenuIcon, X, ShoppingBag, CalendarCheck, Globe } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import CartDrawer from './cart-drawer';
 import ReservationModal from './reservation-modal';
+import { useTranslations, useLocale } from 'next-intl';
+import { usePathname, useRouter } from '@/navigation';
 
 export default function Navbar() {
+    const t = useTranslations('Navbar');
+    const locale = useLocale();
+    const router = useRouter();
+    const pathname = usePathname();
     const { config } = useConfigStore();
     const { getTotalItems, openCart } = useCartStore();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [reservationOpen, setReservationOpen] = useState(false);
+    const [langMenuOpen, setLangMenuOpen] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -22,6 +29,11 @@ export default function Navbar() {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    const toggleLanguage = (newLocale: string) => {
+        router.replace(pathname, { locale: newLocale });
+        setLangMenuOpen(false);
+    };
 
     const scrollToSection = (id: string) => {
         document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -73,7 +85,7 @@ export default function Navbar() {
                                         : "text-white/70 hover:text-white hover:bg-white/10"
                                 )}
                             >
-                                {item}
+                                {t(item)}
                             </button>
                         ))}
                     </div>
@@ -105,6 +117,35 @@ export default function Navbar() {
                                 </span>
                             )}
                         </button>
+
+                        {/* Language Switcher */}
+                        <div className="relative">
+                            <button
+                                onClick={() => setLangMenuOpen(!langMenuOpen)}
+                                className={cn(
+                                    "p-3 rounded-xl transition-all hover:scale-105 active:scale-95",
+                                    scrolled ? "bg-gray-100 text-gray-900" : "bg-white/10 text-white"
+                                )}
+                            >
+                                <Globe size={20} />
+                            </button>
+                            {langMenuOpen && (
+                                <div className="absolute top-full right-0 mt-2 w-32 glass-panel rounded-2xl overflow-hidden shadow-2xl py-2">
+                                    {['en', 'es'].map((l) => (
+                                        <button
+                                            key={l}
+                                            onClick={() => toggleLanguage(l)}
+                                            className={cn(
+                                                "w-full px-4 py-2 text-left text-sm font-bold transition-colors",
+                                                locale === l ? "bg-gray-100 text-gray-900" : "text-gray-500 hover:bg-gray-50"
+                                            )}
+                                        >
+                                            {l === 'en' ? 'English' : 'Español'}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
 
                         <button
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

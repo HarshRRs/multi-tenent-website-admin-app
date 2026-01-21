@@ -66,4 +66,8 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<bool> isAuthenticated() async {
     return await _secureStorage.isAuthenticated();
   }
+  @override
+  Future<void> registerFCMToken(String token) async {
+    await _authService.registerFCMToken(token);
+  }
 }

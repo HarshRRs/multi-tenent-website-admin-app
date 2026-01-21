@@ -19,13 +19,17 @@ model User {
   createdAt       DateTime       @default(now())
   stripeAccountId String?
   slug            String?        @unique
+  fcmTokens       String[]       @default([])
   categories      Category[]
   orders          Order[]
   products        Product[]
   reservations    Reservation[]
+
   tables          Table[]
   websiteConfig   WebsiteConfig?
   notifications   Notification[]
+  coupons         Coupon[]
+  reviews         Review[]
 
   @@index([slug])
 }
@@ -65,6 +69,26 @@ model Product {
   userId      String
   category    Category @relation(fields: [categoryId], references: [id])
   user        User     @relation(fields: [userId], references: [id])
+  modifierGroups ModifierGroup[]
+  reviews     Review[]
+}
+
+model ModifierGroup {
+  id         String     @id @default(uuid())
+  name       String
+  minSelect  Int        @default(0)
+  maxSelect  Int        @default(1)
+  productId  String
+  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  modifiers  Modifier[]
+}
+
+model Modifier {
+  id              String        @id @default(uuid())
+  name            String
+  extraPrice      Float         @default(0)
+  modifierGroupId String
+  modifierGroup   ModifierGroup @relation(fields: [modifierGroupId], references: [id], onDelete: Cascade)
 }
 
 model Table {
@@ -106,8 +130,11 @@ model Order {
   status       String      @default("pending")
   createdAt    DateTime    @default(now())
   userId       String
+  discountAmount Float     @default(0)
+  appliedCouponId String?
   user         User        @relation(fields: [userId], references: [id])
   items        OrderItem[]
+  appliedCoupon Coupon?    @relation(fields: [appliedCouponId], references: [id])
 }
 
 model OrderItem {
@@ -116,6 +143,7 @@ model OrderItem {
   name     String
   quantity Int
   price    Float
+  selectedModifiers Json? // Snapshot of modifiers chosen at time of order
   order    Order  @relation(fields: [orderId], references: [id])
 }
 
@@ -136,4 +164,33 @@ model PasswordReset {
   code      String
   expiresAt DateTime
   createdAt DateTime @default(now())
+}
+
+model Coupon {
+  id              String   @id @default(uuid())
+  code            String   @unique
+  discountType    String   // "PERCENT" or "FIXED"
+  discountValue   Float
+  minOrderAmount  Float    @default(0)
+  expiresAt       DateTime?
+  isActive        Boolean  @default(true)
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  createdAt       DateTime @default(now())
+  orders          Order[]
+
+  @@index([code])
+}
+
+model Review {
+  id            String   @id @default(uuid())
+  rating        Int
+  comment       String?
+  customerName  String
+  productId     String
+  isApproved    Boolean  @default(false)
+  userId        String
+  createdAt     DateTime @default(now())
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user          User     @relation(fields: [userId], references: [id])
 }

@@ -313,3 +313,39 @@ exports.updateSlug = async (req, res) => {
         res.status(500).json({ message: 'Error updating slug', error: error.message });
     }
 };
+
+exports.registerFCMToken = async (req, res) => {
+    try {
+        const { token } = req.body;
+
+        if (!token) {
+            return res.status(400).json({ message: 'Token is required' });
+        }
+
+        const user = await prisma.user.findUnique({
+            where: { id: req.user.id },
+            select: { fcmTokens: true }
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Add token if not already exists
+        if (!user.fcmTokens.includes(token)) {
+            await prisma.user.update({
+                where: { id: req.user.id },
+                data: {
+                    fcmTokens: {
+                        push: token
+                    }
+                }
+            });
+        }
+
+        res.json({ message: 'FCM token registered successfully' });
+    } catch (error) {
+        console.error('FCM Token Registration Error:', error);
+        res.status(500).json({ message: 'Error registering FCM token', error: error.message });
+    }
+};

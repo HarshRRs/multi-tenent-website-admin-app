@@ -87,7 +87,7 @@ exports.createConnectedAccount = async (req, res) => {
 
         const accountLink = await stripe.accountLinks.create({
             account: accountId,
-            refresh_url: refreshUrl,
+            refresh_url: `${refreshUrl}?userId=${userId}`,
             return_url: returnUrl,
             type: 'account_onboarding',
         });
@@ -178,5 +178,26 @@ exports.getTransactions = async (req, res) => {
     } catch (error) {
         console.error('Stripe Transactions Error:', error);
         res.status(500).json({ message: 'Failed to fetch transactions', error: error.message });
+    }
+};
+
+exports.getDashboardLink = async (req, res) => {
+    if (!stripe) return res.status(400).json({ message: 'Stripe not configured' });
+
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id: req.user.id }
+        });
+
+        if (!user || !user.stripeAccountId) {
+            return res.status(400).json({ message: 'No connected Stripe account found' });
+        }
+
+        const loginLink = await stripe.accounts.createLoginLink(user.stripeAccountId);
+        res.json({ url: loginLink.url });
+
+    } catch (error) {
+        console.error('Stripe Dashboard Link Error:', error);
+        res.status(500).json({ message: 'Failed to generate dashboard link', error: error.message });
     }
 };

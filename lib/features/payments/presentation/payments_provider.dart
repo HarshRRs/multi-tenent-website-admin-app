@@ -93,6 +93,28 @@ class PaymentsNotifier extends StateNotifier<PaymentsState> {
     }
   }
 
+  Future<void> openStripeDashboard() async {
+    state = state.copyWith(status: DataStatus.loading);
+    try {
+      final url = await _service.getDashboardLink();
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        state = state.copyWith(
+          status: DataStatus.error,
+          error: "Could not open Stripe dashboard URL",
+        );
+      }
+      state = state.copyWith(status: DataStatus.success);
+    } catch (e) {
+      state = state.copyWith(
+        status: DataStatus.error,
+        error: "Failed to load dashboard: ${e.toString()}",
+      );
+    }
+  }
+
   Future<void> initStripe() async {
     try {
       final key = await _service.getStripePublishableKey();

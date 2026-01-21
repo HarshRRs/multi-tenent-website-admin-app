@@ -15,11 +15,10 @@
     -   **Latest Version**: v5 (Release APK)
     -   **Filename**: `cosmos-admin-2026-v5.apk` (or similar, verified in file list)
 
-### 🧩 System Overview
--   **App Name**: Cosmos Admin
--   **Architecture**: Multi-tenant SaaS (Restaurant Admin)
--   **Backend**: Node.js/Prisma (PostgreSQL)
--   **Frontend**: Flutter (Riverpod)
+3.  **Customer Website (Next.js)**
+    -   **Tech**: Next.js 14, Tailwind v4, Zustand.
+    -   **Features**: Dynamic branding (colors/hero), live menu categories, high-end aesthetics (glassmorphism).
+    -   **Status**: Built and ready for deployment.
 
 ### ✅ Completed Modules
 -   **Authentication**: Login/Register with Multi-tenancy support.

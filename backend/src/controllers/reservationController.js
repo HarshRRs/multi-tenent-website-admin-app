@@ -134,6 +134,15 @@ exports.createPublicReservation = async (req, res) => {
             partySize: reservation.partySize
         });
 
+        // Send System Notification (triggers FCM)
+        const notificationController = require('./notificationController');
+        notificationController.createNotification(
+            userId,
+            'New Reservation',
+            `${customerName} reserved for ${partySize} people at ${new Date(time).toLocaleString()}`,
+            'reservation'
+        ).catch(err => console.error('Notification error:', err));
+
         res.status(201).json({
             reservation,
             message: 'Reservation created successfully'

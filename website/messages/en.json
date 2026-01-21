@@ -1,0 +1,29 @@
+{
+    "Common": {
+        "loading": "Loading...",
+        "error": "Something went wrong",
+        "retry": "Retry"
+    },
+    "Navbar": {
+        "menu": "Menu",
+        "reservations": "Reservations",
+        "contact": "Contact",
+        "orderNow": "Order Now"
+    },
+    "Hero": {
+        "title": "Welcome to {name}",
+        "subtitle": "Discover the finest culinary experience"
+    },
+    "Menu": {
+        "title": "Our Menu",
+        "addToCart": "Add to Cart",
+        "customise": "Customise",
+        "price": "Price"
+    },
+    "Cart": {
+        "title": "Your Order",
+        "empty": "Your cart is empty",
+        "subtotal": "Subtotal",
+        "checkout": "Checkout"
+    }
+}

@@ -72,6 +72,14 @@ exports.createNotification = async (userId, title, body, type = 'system') => {
             type: 'new_notification',
             notification
         });
+
+        // Send FCM Push Notification
+        const fcmService = require('../services/fcmService');
+        fcmService.sendPush(userId, title, body, {
+            type: type,
+            notificationId: notification.id
+        });
+
     } catch (error) {
         console.error('Error creating notification:', error);
     }

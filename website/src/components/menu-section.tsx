@@ -8,11 +8,18 @@ import { useCartStore } from '@/store/cart-store';
 import { useRestaurant } from '@/contexts/restaurant-context';
 import { ShoppingCart, Star, Plus, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
+import ModifierModal from './modifier-modal';
+import ReviewModal from './review-modal';
+import { Product } from '@/types';
 
 export default function MenuSection() {
+    const t = useTranslations('Menu');
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [modifyingProduct, setModifyingProduct] = useState<Product | null>(null);
+    const [reviewingProduct, setReviewingProduct] = useState<Product | null>(null);
     const { config } = useConfigStore();
     const { addItem } = useCartStore();
     const { restaurant } = useRestaurant();
@@ -59,7 +66,7 @@ export default function MenuSection() {
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
                     <div>
                         <span className="text-sm font-bold uppercase tracking-[0.2em]" style={{ color: config?.primaryColor }}>Delicious Selections</span>
-                        <h2 className="text-5xl md:text-7xl font-black text-gray-900 mt-2 tracking-tighter">Our Menu</h2>
+                        <h2 className="text-5xl md:text-7xl font-black text-gray-900 mt-2 tracking-tighter">{t('title')}</h2>
                     </div>
                     <p className="max-w-md text-xl text-gray-500 font-medium leading-relaxed">
                         Every dish is a masterpiece, crafted with passion and the finest seasonal ingredients.
@@ -129,9 +136,12 @@ export default function MenuSection() {
                                     </div>
                                 )}
 
-                                {/* Float Badge */}
-                                <div className="absolute top-4 right-4 glass-dark px-3 py-1 rounded-full text-white text-xs font-bold uppercase tracking-widest pointer-events-none">
-                                    Popular
+                                {/* Float Badge - Popular or Rating */}
+                                <div className="absolute top-4 right-4 glass-dark px-3 py-1 rounded-full text-white text-xs font-bold uppercase tracking-widest pointer-events-none flex items-center gap-1.5">
+                                    <Star size={10} className="fill-amber-400 text-amber-400" />
+                                    {product.reviews && product.reviews.length > 0
+                                        ? (product.reviews.reduce((acc: number, r: any) => acc + r.rating, 0) / product.reviews.length).toFixed(1)
+                                        : 'NEW'}
                                 </div>
                             </div>
 
@@ -150,25 +160,33 @@ export default function MenuSection() {
                                 <div className="flex items-center gap-2">
                                     <button
                                         onClick={() => {
-                                            addItem(product);
-                                            // Show simple feedback
-                                            const btn = event?.currentTarget as HTMLButtonElement;
-                                            if (btn) {
-                                                const original = btn.textContent;
-                                                btn.textContent = '✓ Added!';
-                                                setTimeout(() => {
-                                                    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Add to Order';
-                                                }, 1500);
+                                            if (product.modifierGroups && product.modifierGroups.length > 0) {
+                                                setModifyingProduct(product);
+                                            } else {
+                                                addItem(product);
+                                                // Show simple feedback
+                                                const btn = event?.currentTarget as HTMLButtonElement;
+                                                if (btn) {
+                                                    const original = btn.textContent;
+                                                    btn.textContent = '✓ Added!';
+                                                    setTimeout(() => {
+                                                        btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Add to Order';
+                                                    }, 1500);
+                                                }
                                             }
                                         }}
                                         className="flex-1 py-4 rounded-2xl font-bold text-white transition-all flex items-center justify-center gap-2 active:scale-95 hover:opacity-90"
                                         style={{ backgroundColor: config?.primaryColor }}
                                     >
                                         <Plus size={20} />
-                                        Add to Order
+                                        {product.modifierGroups && product.modifierGroups.length > 0 ? t('customise') : 'Add to Order'}
                                     </button>
-                                    <button className="p-4 rounded-2xl bg-white border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-500 transition-all">
+                                    <button
+                                        onClick={() => setReviewingProduct(product)}
+                                        className="p-4 rounded-2xl bg-white border border-gray-200 text-gray-400 hover:text-amber-500 hover:border-amber-500 transition-all flex flex-col items-center justify-center text-[10px]"
+                                    >
                                         <Star size={20} />
+                                        <span className="font-bold">{product.reviews?.length || 0}</span>
                                     </button>
                                 </div>
                             </div>
@@ -191,6 +209,18 @@ export default function MenuSection() {
                     </button>
                 </div>
             </div>
+            {modifyingProduct && (
+                <ModifierModal
+                    product={modifyingProduct}
+                    onClose={() => setModifyingProduct(null)}
+                />
+            )}
+            {reviewingProduct && (
+                <ReviewModal
+                    product={reviewingProduct}
+                    onClose={() => setReviewingProduct(null)}
+                />
+            )}
         </section>
     );
 }

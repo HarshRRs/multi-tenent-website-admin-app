@@ -40,7 +40,12 @@ exports.getProducts = async (req, res) => {
                 userId: req.user.id
             },
             include: {
-                category: true // Include category details if needed
+                category: true,
+                modifierGroups: {
+                    include: {
+                        modifiers: true
+                    }
+                }
             }
         });
         res.json(products);
@@ -79,7 +84,27 @@ exports.createProduct = async (req, res) => {
                 userId: req.user.id,
                 imageUrl: imageUrl || 'https://placehold.co/200',
                 images: images || (imageUrl ? [imageUrl] : []),
-                isAvailable: true
+                isAvailable: true,
+                modifierGroups: req.body.modifierGroups ? {
+                    create: req.body.modifierGroups.map(group => ({
+                        name: group.name,
+                        minSelect: group.minSelect || 0,
+                        maxSelect: group.maxSelect || 1,
+                        modifiers: {
+                            create: group.modifiers.map(mod => ({
+                                name: mod.name,
+                                extraPrice: parseFloat(mod.extraPrice) || 0
+                            }))
+                        }
+                    }))
+                } : undefined
+            },
+            include: {
+                modifierGroups: {
+                    include: {
+                        modifiers: true
+                    }
+                }
             }
         });
         res.status(201).json(product);
@@ -116,16 +141,47 @@ exports.updateProduct = async (req, res) => {
             }
         }
 
+        const updateData = {
+            name,
+            description,
+            price: price ? parseFloat(price) : undefined,
+            categoryId,
+            imageUrl,
+            images,
+            isAvailable
+        };
+
+        // If modifierGroups are provided, replace them
+        if (req.body.modifierGroups) {
+            // Delete existing ones first (cascade handles modifiers)
+            await prisma.modifierGroup.deleteMany({
+                where: { productId: id }
+            });
+
+            updateData.modifierGroups = {
+                create: req.body.modifierGroups.map(group => ({
+                    name: group.name,
+                    minSelect: group.minSelect || 0,
+                    maxSelect: group.maxSelect || 1,
+                    modifiers: {
+                        create: group.modifiers.map(mod => ({
+                            name: mod.name,
+                            extraPrice: parseFloat(mod.extraPrice) || 0
+                        }))
+                    }
+                }))
+            };
+        }
+
         const product = await prisma.product.update({
             where: { id },
-            data: {
-                name,
-                description,
-                price: price ? parseFloat(price) : undefined,
-                categoryId,
-                imageUrl,
-                images,
-                isAvailable
+            data: updateData,
+            include: {
+                modifierGroups: {
+                    include: {
+                        modifiers: true
+                    }
+                }
             }
         });
 

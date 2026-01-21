@@ -20,6 +20,30 @@ export interface Product {
     images?: string[];
     isAvailable: boolean;
     categoryId: string;
+    modifierGroups?: ModifierGroup[];
+    reviews?: Review[];
+}
+
+export interface Review {
+    id: string;
+    rating: number;
+    comment?: string;
+    customerName: string;
+    createdAt: string;
+}
+
+export interface ModifierGroup {
+    id: string;
+    name: string;
+    minSelection: number;
+    maxSelection: number;
+    modifiers: Modifier[];
+}
+
+export interface Modifier {
+    id: string;
+    name: string;
+    price: number;
 }
 
 export interface Category {
