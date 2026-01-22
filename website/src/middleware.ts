@@ -1,13 +1,9 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import createMiddleware from 'next-intl/middleware';
-import { locales, localePrefix } from './navigation';
+import { routing } from './navigation';
 
-const intlMiddleware = createMiddleware({
-    locales,
-    localePrefix,
-    defaultLocale: 'en'
-});
+const intlMiddleware = createMiddleware(routing);
 
 export function middleware(request: NextRequest) {
     const hostname = request.headers.get('host') || '';
