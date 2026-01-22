@@ -95,8 +95,8 @@ export default function Navbar() {
                         <button
                             onClick={() => setReservationOpen(true)}
                             className={cn(
-                                "hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl transition-all hover:scale-105 active:scale-95 font-bold",
-                                scrolled ? "bg-gray-100 text-gray-900" : "bg-white/10 text-white"
+                                "hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl transition-all hover:scale-105 active:scale-95 font-bold backdrop-blur-md",
+                                scrolled ? "bg-gray-100 text-gray-900" : "bg-black/30 text-white border border-white/20"
                             )}
                         >
                             <CalendarCheck size={20} />
@@ -106,8 +106,8 @@ export default function Navbar() {
                         <button
                             onClick={openCart}
                             className={cn(
-                                "p-3 rounded-xl transition-all hover:scale-105 active:scale-95 relative",
-                                scrolled ? "bg-gray-100 text-gray-900" : "bg-white/10 text-white"
+                                "p-3 rounded-xl transition-all hover:scale-105 active:scale-95 relative backdrop-blur-md",
+                                scrolled ? "bg-gray-100 text-gray-900" : "bg-black/30 text-white border border-white/20"
                             )}
                         >
                             <ShoppingBag size={20} />
@@ -123,8 +123,8 @@ export default function Navbar() {
                             <button
                                 onClick={() => setLangMenuOpen(!langMenuOpen)}
                                 className={cn(
-                                    "p-3 rounded-xl transition-all hover:scale-105 active:scale-95",
-                                    scrolled ? "bg-gray-100 text-gray-900" : "bg-white/10 text-white"
+                                    "p-3 rounded-xl transition-all hover:scale-105 active:scale-95 backdrop-blur-md",
+                                    scrolled ? "bg-gray-100 text-gray-900" : "bg-black/30 text-white border border-white/20"
                                 )}
                             >
                                 <Globe size={20} />
@@ -150,8 +150,8 @@ export default function Navbar() {
                         <button
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                             className={cn(
-                                "md:hidden p-3 rounded-xl",
-                                scrolled ? "bg-gray-100 text-gray-900" : "bg-white/10 text-white"
+                                "md:hidden p-3 rounded-xl backdrop-blur-md",
+                                scrolled ? "bg-gray-100 text-gray-900" : "bg-black/30 text-white border border-white/20"
                             )}
                         >
                             {mobileMenuOpen ? <X size={20} /> : <MenuIcon size={20} />}
