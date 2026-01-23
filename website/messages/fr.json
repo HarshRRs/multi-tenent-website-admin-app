@@ -1,0 +1,29 @@
+{
+    "Common": {
+        "loading": "Chargement...",
+        "error": "Quelque chose s'est mal passé",
+        "retry": "Réessayer"
+    },
+    "Navbar": {
+        "menu": "Menu",
+        "reservations": "Réservations",
+        "contact": "Contact",
+        "orderNow": "Commander maintenant"
+    },
+    "Hero": {
+        "title": "Bienvenue chez {name}",
+        "subtitle": "Découvrez la meilleure expérience culinaire"
+    },
+    "Menu": {
+        "title": "Notre Menu",
+        "addToCart": "Ajouter au panier",
+        "customise": "Personnaliser",
+        "price": "Prix"
+    },
+    "Cart": {
+        "title": "Votre Commande",
+        "empty": "Votre panier est vide",
+        "subtotal": "Sous-total",
+        "checkout": "Payer"
+    }
+}
