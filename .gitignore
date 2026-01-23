@@ -54,3 +54,4 @@ app.*.map.json
 !/ios/Runner/Base.lproj/Main.storyboard
 
 node_modules/
+*.log
