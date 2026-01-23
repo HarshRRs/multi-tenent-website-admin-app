@@ -14,6 +14,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/navigation';
+import AxiosConfig from '@/components/axios-config';
 
 export default async function RootLayout(props: {
   children: React.ReactNode;
@@ -33,6 +34,7 @@ export default async function RootLayout(props: {
     <html lang={locale} className="scroll-smooth">
       <body className={inter.className}>
         <NextIntlClientProvider messages={messages}>
+          <AxiosConfig />
           <RestaurantProvider>
             {children}
           </RestaurantProvider>
