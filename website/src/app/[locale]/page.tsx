@@ -10,7 +10,11 @@ import { useRestaurant } from '@/contexts/restaurant-context';
 import apiClient from '@/lib/api-client';
 import { useEffect } from 'react';
 
-export default function HomePage() {
+import React from 'react';
+
+export default function HomePage(props: { params: Promise<{ locale: string }> }) {
+  const { locale } = React.use(props.params);
+
   const { setConfig } = useConfigStore();
   const { restaurant, loading, error } = useRestaurant();
 
