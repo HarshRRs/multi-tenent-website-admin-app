@@ -8,7 +8,13 @@ import { cn } from '@/lib/utils';
 import CartDrawer from './cart-drawer';
 import ReservationModal from './reservation-modal';
 import { useTranslations, useLocale } from 'next-intl';
-import { usePathname, useRouter } from '@/navigation';
+import { usePathname, useRouter, routing } from '@/navigation';
+
+const languageNames = {
+    en: 'English',
+    es: 'Español',
+    fr: 'Français'
+};
 
 export default function Navbar() {
     const t = useTranslations('Navbar');
@@ -131,7 +137,7 @@ export default function Navbar() {
                             </button>
                             {langMenuOpen && (
                                 <div className="absolute top-full right-0 mt-2 w-32 glass-panel rounded-2xl overflow-hidden shadow-2xl py-2">
-                                    {['en', 'es'].map((l) => (
+                                    {routing.locales.map((l) => (
                                         <button
                                             key={l}
                                             onClick={() => toggleLanguage(l)}
@@ -140,7 +146,7 @@ export default function Navbar() {
                                                 locale === l ? "bg-gray-100 text-gray-900" : "text-gray-500 hover:bg-gray-50"
                                             )}
                                         >
-                                            {l === 'en' ? 'English' : 'Español'}
+                                            {languageNames[l as keyof typeof languageNames]}
                                         </button>
                                     ))}
                                 </div>
