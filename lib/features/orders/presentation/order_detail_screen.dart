@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:printing/printing.dart';
 import 'package:rockster/core/components/custom_button.dart';
+import 'package:rockster/core/providers/providers.dart';
 import 'package:rockster/core/theme/app_colors.dart';
 import 'package:rockster/core/theme/app_text_styles.dart';
 import 'package:rockster/features/orders/domain/order_model.dart';
@@ -249,8 +251,7 @@ class OrderDetailScreen extends ConsumerWidget {
       final orderService = ref.read(orderServiceProvider);
       final pdfBytes = await orderService.downloadReceipt(orderId);
       
-      final printing = await import('package:printing/printing.dart');
-      await printing.Printing.layoutPdf(
+      await Printing.layoutPdf(
         onLayout: (format) async => pdfBytes,
         name: 'receipt_$orderId',
       );
@@ -260,8 +261,4 @@ class OrderDetailScreen extends ConsumerWidget {
       );
     }
   }
-
-  // Helper to dynamically import printing package since it might not be in pubspec yet
-  // actually I should just check if it's there. 
-  // For this task, I'll assume I'll add the dependency.
 }

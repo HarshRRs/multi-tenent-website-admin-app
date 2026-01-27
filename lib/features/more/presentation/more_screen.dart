@@ -121,6 +121,16 @@ class MoreScreen extends ConsumerWidget {
                 ),
 
                 const SizedBox(height: 16),
+                _buildSectionHeader('Management'),
+                _buildMenuTile(
+                  context,
+                  icon: Icons.layers_outlined,
+                  title: 'Floor Plan Designer',
+                  subtitle: 'Arrange tables and layout',
+                  onTap: () => context.push('/tables'),
+                ),
+
+                const SizedBox(height: 16),
                 _buildSectionHeader(AppLocalizations.of(context)!.settingsGeneral.toUpperCase()),
                 _buildMenuTile(
                   context,

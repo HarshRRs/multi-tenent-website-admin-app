@@ -20,42 +20,39 @@ class GlassBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
-      decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 20,
-            offset: const Offset(0, -5),
+      padding: const EdgeInsets.only(left: 24, right: 24, bottom: 32),
+      child: Container(
+        height: 72,
+        decoration: BoxDecoration(
+          color: isDark ? Colors.white.withOpacity(0.08) : Colors.white.withOpacity(0.85),
+          borderRadius: BorderRadius.circular(32),
+          border: Border.all(
+            color: isDark ? Colors.white.withOpacity(0.1) : Colors.white.withOpacity(0.5),
+            width: 1,
           ),
-        ],
-      ),
-      child: ClipRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.9),
-              border: Border(
-                top: BorderSide(
-                  color: Colors.white.withOpacity(0.5),
-                  width: 1.0,
-                ),
-              ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 30,
+              offset: const Offset(0, 10),
             ),
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: List.generate(
-                    items.length,
-                    (index) => _NavButton(
-                      item: items[index],
-                      isSelected: currentIndex == index,
-                      onTap: () => onTap(index),
-                    ),
-                  ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(32),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: List.generate(
+                items.length,
+                (index) => _NavButton(
+                  item: items[index],
+                  isSelected: currentIndex == index,
+                  onTap: () => onTap(index),
                 ),
               ),
             ),
@@ -91,32 +88,38 @@ class _NavButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    final activeColor = AppColors.liquidAmber;
+
+    return GestureDetector(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOutBack,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              isSelected ? (item.activeIcon ?? item.icon) : item.icon,
-              color: isSelected
-                  ? AppColors.burntTerracotta
-                  : AppColors.textSecondaryLight,
-              size: 24,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              item.label,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                color: isSelected
-                    ? AppColors.burntTerracotta
-                    : AppColors.textSecondaryLight,
+            AnimatedScale(
+              scale: isSelected ? 1.2 : 1.0,
+              duration: const Duration(milliseconds: 300),
+              child: Icon(
+                isSelected ? (item.activeIcon ?? item.icon) : item.icon,
+                color: isSelected ? activeColor : Colors.grey.withOpacity(0.8),
+                size: 26,
               ),
             ),
+            if (isSelected) ...[
+              const SizedBox(height: 4),
+              Container(
+                width: 4,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: activeColor,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ],
           ],
         ),
       ),

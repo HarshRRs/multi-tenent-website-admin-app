@@ -78,7 +78,7 @@ class _ReviewsScreenState extends ConsumerState<ReviewsScreen> {
                                 if (review.productName != null)
                                   Text(
                                     'Product: ${review.productName}',
-                                    style: TextStyle(fontSize: 12, color: AppColors.primary),
+                                    style: TextStyle(fontSize: 12, color: AppColors.primaryLight),
                                   ),
                                 const SizedBox(height: 8),
                                 if (review.comment != null && review.comment!.isNotEmpty)

@@ -7,6 +7,7 @@ import 'package:rockster/features/orders/presentation/orders_screen.dart';
 import 'package:rockster/features/menu/presentation/menu_screen.dart';
 import 'package:rockster/features/menu/presentation/add_edit_product_screen.dart';
 import 'package:rockster/features/reservations/presentation/reservations_screen.dart';
+import 'package:rockster/features/tables/presentation/pages/table_management_screen.dart';
 import 'package:rockster/features/payments/presentation/payments_screen.dart';
 import 'package:rockster/features/website_customizer/presentation/website_customizer_screen.dart';
 import 'package:rockster/features/website_customizer/presentation/subdomain_settings_screen.dart';
@@ -20,6 +21,7 @@ import 'package:rockster/features/auth/presentation/register_screen.dart';
 import 'package:rockster/features/orders/presentation/order_detail_screen.dart';
 import 'package:rockster/features/auth/presentation/forgot_password_screen.dart';
 import 'package:rockster/features/auth/presentation/auth_provider.dart';
+import 'package:rockster/features/red_flags/presentation/onboarding_screen.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -35,10 +37,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isLoggingIn = state.uri.toString() == '/login';
       final isRegistering = state.uri.toString() == '/register';
       final isForgotPassword = state.uri.toString() == '/forgot-password';
+      final isOnboarding = state.uri.toString() == '/onboarding';
 
       if (!isAuth) {
-         if (isLoggingIn || isRegistering || isForgotPassword) return null;
-         return '/login';
+         if (isLoggingIn || isRegistering || isForgotPassword || isOnboarding) return null;
+         return '/onboarding';
       }
 
       if (isLoggingIn || isRegistering) return '/';
@@ -46,6 +49,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
+      GoRoute(
+        path: '/onboarding',
+        builder: (context, state) => const OnboardingScreen(),
+      ),
       GoRoute(
         path: '/login',
         builder: (context, state) => const LoginScreen(),
@@ -66,22 +73,61 @@ final routerProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: '/',
-            builder: (context, state) => const DashboardScreen(),
+            pageBuilder: (context, state) => CustomTransitionPage(
+              key: state.pageKey,
+              child: const DashboardScreen(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+                  child: child,
+                );
+              },
+            ),
           ),
           GoRoute(
             path: '/orders',
-            builder: (context, state) => const OrdersScreen(),
+            pageBuilder: (context, state) => CustomTransitionPage(
+              key: state.pageKey,
+              child: const OrdersScreen(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+                  child: child,
+                );
+              },
+            ),
           ),
           GoRoute(
             path: '/order/:id',
-            builder: (context, state) {
+            pageBuilder: (context, state) {
               final id = state.pathParameters['id']!;
-              return OrderDetailScreen(orderId: id);
+              return CustomTransitionPage(
+                key: state.pageKey,
+                child: OrderDetailScreen(orderId: id),
+                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                  return SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(1, 0),
+                      end: Offset.zero,
+                    ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
+                    child: child,
+                  );
+                },
+              );
             },
           ),
           GoRoute(
             path: '/menu',
-            builder: (context, state) => const MenuScreen(),
+            pageBuilder: (context, state) => CustomTransitionPage(
+              key: state.pageKey,
+              child: const MenuScreen(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+                  child: child,
+                );
+              },
+            ),
             routes: [
               GoRoute(
                 path: 'add',
@@ -98,39 +144,133 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/reservations',
-            builder: (context, state) => const ReservationsScreen(),
+            pageBuilder: (context, state) => CustomTransitionPage(
+              key: state.pageKey,
+              child: const ReservationsScreen(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+                  child: child,
+                );
+              },
+            ),
+          ),
+          GoRoute(
+            path: '/tables',
+            pageBuilder: (context, state) => CustomTransitionPage(
+              key: state.pageKey,
+              child: const TableManagementScreen(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+                  child: child,
+                );
+              },
+            ),
           ),
           GoRoute(
             path: '/payments',
-            builder: (context, state) => const PaymentsScreen(),
+            pageBuilder: (context, state) => CustomTransitionPage(
+              key: state.pageKey,
+              child: const PaymentsScreen(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+                  child: child,
+                );
+              },
+            ),
           ),
           GoRoute(
             path: '/website-customizer',
-            builder: (context, state) => const WebsiteCustomizerScreen(),
+            pageBuilder: (context, state) => CustomTransitionPage(
+              key: state.pageKey,
+              child: const WebsiteCustomizerScreen(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+                  child: child,
+                );
+              },
+            ),
           ),
           GoRoute(
             path: '/subdomain-settings',
-            builder: (context, state) => const SubdomainSettingsScreen(),
+            pageBuilder: (context, state) => CustomTransitionPage(
+              key: state.pageKey,
+              child: const SubdomainSettingsScreen(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+                  child: child,
+                );
+              },
+            ),
           ),
           GoRoute(
             path: '/notifications',
-            builder: (context, state) => const NotificationsScreen(),
+            pageBuilder: (context, state) => CustomTransitionPage(
+              key: state.pageKey,
+              child: const NotificationsScreen(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+                  child: child,
+                );
+              },
+            ),
           ),
           GoRoute(
             path: '/settings',
-            builder: (context, state) => const SettingsScreen(),
+            pageBuilder: (context, state) => CustomTransitionPage(
+              key: state.pageKey,
+              child: const SettingsScreen(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+                  child: child,
+                );
+              },
+            ),
           ),
           GoRoute(
             path: '/coupons',
-            builder: (context, state) => const CouponsScreen(),
+            pageBuilder: (context, state) => CustomTransitionPage(
+              key: state.pageKey,
+              child: const CouponsScreen(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+                  child: child,
+                );
+              },
+            ),
           ),
           GoRoute(
             path: '/reviews',
-            builder: (context, state) => const ReviewsScreen(),
+            pageBuilder: (context, state) => CustomTransitionPage(
+              key: state.pageKey,
+              child: const ReviewsScreen(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+                  child: child,
+                );
+              },
+            ),
           ),
           GoRoute(
             path: '/more',
-            builder: (context, state) => const MoreScreen(),
+            pageBuilder: (context, state) => CustomTransitionPage(
+              key: state.pageKey,
+              child: const MoreScreen(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+                  child: child,
+                );
+              },
+            ),
           ),
         ],
       ),

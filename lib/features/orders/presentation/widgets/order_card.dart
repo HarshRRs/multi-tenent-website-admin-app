@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rockster/core/theme/app_colors.dart';
 import 'package:rockster/core/theme/app_text_styles.dart';
+import 'package:rockster/core/components/modern_card.dart';
 import 'package:rockster/features/orders/domain/order_model.dart';
 import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
@@ -12,26 +13,11 @@ class OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget cardContent = Container(
-      width: 280, // Fixed width for columns
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08), // Slightly darker for depth
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-        border: Border(
-          left: BorderSide(
-            color: _getStatusColor(order.status),
-            width: 4,
-          ),
-        ),
-      ),
+    final statusColor = _getStatusColor(order.status);
+    
+    Widget cardContent = ModernCard(
+      margin: EdgeInsets.zero,
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -39,59 +25,78 @@ class OrderCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '#\${order.id}',
-                style: AppTextStyles.labelLarge.copyWith(color: AppColors.textSecondaryLight),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: statusColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '#${order.id.length > 6 ? order.id.substring(0, 6) : order.id}',
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: statusColor,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
               ),
               Text(
-                DateFormat('hh:mm a').format(order.createdAt),
-                style: AppTextStyles.labelMedium.copyWith(color: AppColors.textSecondaryLight),
+                DateFormat('HH:mm').format(order.createdAt),
+                style: AppTextStyles.labelMedium.copyWith(color: Colors.grey),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
           Text(
             order.customerName,
-            style: AppTextStyles.headlineMedium.copyWith(fontSize: 18),
+            style: AppTextStyles.headlineSmall.copyWith(fontWeight: FontWeight.w800),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 12),
-          const Divider(height: 1),
-          const SizedBox(height: 12),
-          ...order.items.map((item) => Padding(
-                padding: const EdgeInsets.only(bottom: 4),
+          const SizedBox(height: 16),
+          ...order.items.take(2).map((item) => Padding(
+                padding: const EdgeInsets.only(bottom: 6),
                 child: Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: AppColors.backgroundLight,
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+                    Text(
+                      '${item.quantity}x',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.liquidAmber,
+                        fontWeight: FontWeight.bold,
                       ),
-                      child: Text('\${item.quantity}x', style: AppTextStyles.labelSmall),
                     ),
                     const SizedBox(width: 8),
-                    Expanded(child: Text(item.name, style: AppTextStyles.bodyMedium, overflow: TextOverflow.ellipsis, maxLines: 1)),
+                    Expanded(
+                      child: Text(
+                        item.name,
+                        style: AppTextStyles.bodySmall,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   ],
                 ),
               )),
-          const SizedBox(height: 12),
+          if (order.items.length > 2)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                '+ ${order.items.length - 2} more items',
+                style: AppTextStyles.labelSmall.copyWith(color: Colors.grey),
+              ),
+            ),
+          const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.backgroundLight,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.delivery_dining, size: 16, color: AppColors.textSecondaryLight),
+              Text(
+                'Total',
+                style: AppTextStyles.labelMedium.copyWith(color: Colors.grey),
               ),
               Text(
-                '€\${order.totalAmount.toStringAsFixed(2)}',
-                style: AppTextStyles.headlineMedium.copyWith(color: AppColors.primaryLight),
+                '€${order.totalAmount.toStringAsFixed(2)}',
+                style: AppTextStyles.headlineSmall.copyWith(
+                  color: AppColors.deepInk,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
             ],
           ),
@@ -100,22 +105,22 @@ class OrderCard extends StatelessWidget {
     );
 
     return GestureDetector(
-      onTap: () => context.push('/order/\${order.id}'),
+      onTap: () => context.push('/order/${order.id}'),
       child: Draggable<Order>(
-      data: order,
-      feedback: Transform.scale(
-        scale: 1.05,
-        child: Material(
-          color: Colors.transparent,
-          child: cardContent,
+        data: order,
+        feedback: SizedBox(
+          width: 280,
+          child: Material(
+            color: Colors.transparent,
+            child: cardContent,
+          ),
         ),
+        childWhenDragging: Opacity(
+          opacity: 0.4,
+          child: SizedBox(width: 280, child: cardContent),
+        ),
+        child: SizedBox(width: 280, child: cardContent),
       ),
-      childWhenDragging: Opacity(
-        opacity: 0.5,
-        child: cardContent,
-      ),
-      child: cardContent,
-    ),
     );
   }
 
@@ -124,13 +129,15 @@ class OrderCard extends StatelessWidget {
       case OrderStatus.newOrder:
         return AppColors.info;
       case OrderStatus.preparing:
-        return AppColors.burntTerracotta;
+        return AppColors.liquidAmber;
       case OrderStatus.ready:
         return AppColors.success;
       case OrderStatus.outForDelivery:
         return AppColors.info;
+      case OrderStatus.completed:
+        return AppColors.success;
       default:
-        return AppColors.textSecondaryLight;
+        return Colors.grey;
     }
   }
 }

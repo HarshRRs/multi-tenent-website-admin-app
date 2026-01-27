@@ -3,12 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:rockster/core/theme/app_colors.dart';
-import 'package:rockster/core/components/modern_button.dart';
+import 'package:rockster/core/theme/app_text_styles.dart';
+import 'package:rockster/core/components/elite_button.dart';
 import 'package:rockster/core/components/modern_card.dart';
-import 'package:rockster/core/components/glossy_metric_card.dart';
 import 'package:rockster/features/menu/presentation/menu_provider.dart';
 import 'package:rockster/features/menu/domain/menu_models.dart';
-import 'package:rockster/features/menu/presentation/widgets/product_card.dart';
 import 'package:rockster/core/components/shimmer_skeleton.dart';
 
 class MenuScreen extends ConsumerStatefulWidget {
@@ -149,117 +148,70 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
     }
 
     return Scaffold(
-      backgroundColor: AppColors.cloudDancer,
-      body: Stack(
-        children: [
-          // Premium Floral Background
-          Positioned.fill(
-            child: Opacity(
-              opacity: 0.05,
-              child: Image.asset(
-                'assets/images/flower_background.jpg',
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => const SizedBox(),
-              ),
-            ),
-          ),
-          NestedScrollView(
+      backgroundColor: Colors.transparent,
+      body: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           SliverAppBar(
-            backgroundColor: AppColors.cloudDancer,
+            backgroundColor: Colors.transparent,
             surfaceTintColor: Colors.transparent,
             pinned: true,
             floating: true,
-            title: _isSearching
-                ? TextField(
-                    controller: _searchController,
-                    autofocus: true,
-                    style: GoogleFonts.inter(color: AppColors.deepInk),
-                    decoration: InputDecoration(
-                      hintText: 'Search items...',
-                      border: InputBorder.none,
-                      hintStyle: GoogleFonts.inter(color: AppColors.textSecondaryLight),
+            expandedHeight: 120,
+            flexibleSpace: FlexibleSpaceBar(
+              titlePadding: const EdgeInsets.only(left: 24, bottom: 16),
+              title: _isSearching
+                  ? TextField(
+                      controller: _searchController,
+                      autofocus: true,
+                      style: AppTextStyles.headlineSmall,
+                      decoration: const InputDecoration(
+                        hintText: 'Search collection...',
+                        border: InputBorder.none,
+                      ),
+                    )
+                  : Text(
+                      'Menu Collection',
+                      style: AppTextStyles.headlineLarge,
                     ),
-                  )
-                : Text(
-                    'Menu Management',
-                    style: GoogleFonts.inter(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.deepInk,
-                    ),
-                  ),
+            ),
             actions: [
               IconButton(
                 icon: Icon(_isSearching ? Icons.close : Icons.search, color: AppColors.deepInk),
-                onPressed: () {
-                  setState(() {
-                    if (_isSearching) {
-                      _isSearching = false;
-                      _searchController.clear();
-                      _searchQuery = '';
-                    } else {
-                      _isSearching = true;
-                    }
-                  });
-                },
+                onPressed: () => setState(() => _isSearching = !_isSearching),
               ),
               if (!_isSearching) ...[
-                if (categories.isNotEmpty && _tabController != null)
-                  IconButton(
-                    icon: const Icon(Icons.delete_outline, color: AppColors.burntTerracotta),
-                    onPressed: () => _confirmDeleteCategory(context, categories[_tabController!.index]),
-                  ),
                 IconButton(
-                  icon: const Icon(Icons.playlist_add, color: AppColors.burntTerracotta),
+                  icon: const Icon(Icons.playlist_add, color: AppColors.liquidAmber),
                   onPressed: () => _showAddCategoryDialog(context),
                 ),
               ],
             ],
             bottom: categories.isEmpty
                 ? null
-                : TabBar(
-                    controller: _tabController,
-                    isScrollable: true,
-                    labelColor: AppColors.burntTerracotta,
-                    unselectedLabelColor: AppColors.textSecondaryLight,
-                    indicatorColor: AppColors.burntTerracotta,
-                    labelStyle: GoogleFonts.inter(fontWeight: FontWeight.w600),
-                    tabs: categories.map((c) => Tab(text: c.name)).toList(),
+                : PreferredSize(
+                    preferredSize: const Size.fromHeight(48),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: TabBar(
+                        controller: _tabController,
+                        isScrollable: true,
+                        labelColor: AppColors.liquidAmber,
+                        unselectedLabelColor: Colors.grey,
+                        indicatorColor: AppColors.liquidAmber,
+                        indicatorWeight: 3,
+                        indicatorPadding: const EdgeInsets.symmetric(horizontal: 16),
+                        labelStyle: AppTextStyles.labelLarge,
+                        dividerColor: Colors.transparent,
+                        tabs: categories.map((c) => Tab(text: c.name)).toList(),
+                      ),
+                    ),
                   ),
           ),
         ],
         body: isLoading
-            ? GridView.builder(
-                padding: const EdgeInsets.all(16),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.8,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                ),
-                itemCount: 6, // Show 6 skeleton cards
-                itemBuilder: (context, index) => const ProductCardSkeleton(),
-              )
+            ? _buildSkeletonGrid()
             : categories.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.restaurant_menu, size: 64, color: AppColors.softBorder),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Start by adding a category',
-                          style: GoogleFonts.inter(color: AppColors.textSecondaryLight),
-                        ),
-                        const SizedBox(height: 16),
-                        ModernButton(
-                          text: 'Add Category',
-                          icon: Icons.add,
-                          onPressed: () => _showAddCategoryDialog(context),
-                        ).paddingSymmetric(horizontal: 48),
-                      ],
-                    ),
-                  )
+                ? _buildEmptyState()
                 : TabBarView(
                     controller: _tabController,
                     children: categories.map((category) {
@@ -270,111 +222,141 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
                       if (categoryProducts.isEmpty) {
                         return Center(
                           child: Text(
-                            'No items in this category',
-                            style: GoogleFonts.inter(color: AppColors.textSecondaryLight),
+                            'No exquisite items found',
+                            style: AppTextStyles.bodyMedium.copyWith(color: Colors.grey),
                           ),
                         );
                       }
 
                       return GridView.builder(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+                        padding: const EdgeInsets.fromLTRB(24, 24, 24, 120),
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
-                          childAspectRatio: 0.8,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
+                          childAspectRatio: 0.75,
+                          crossAxisSpacing: 20,
+                          mainAxisSpacing: 20,
                         ),
                         itemCount: categoryProducts.length,
                         itemBuilder: (context, index) {
                           final product = categoryProducts[index];
-                          return ModernCard(
-                            padding: EdgeInsets.zero,
-                            onTap: () => context.go('/menu/edit/\${product.id}', extra: product),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Expanded(
-                                  child: ClipRRect(
-                                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                                    child: Stack(
-                                      fit: StackFit.expand,
-                                      children: [
-                                        product.imageUrl != null
-                                          ? Image.network(product.imageUrl!, fit: BoxFit.cover)
-                                          : Container(
-                                              color: AppColors.cloudDancer,
-                                              child: const Icon(Icons.fastfood, color: AppColors.burntTerracotta),
-                                            ),
-                                        Positioned(
-                                          top: 8,
-                                          right: 8,
-                                          child: Switch(
-                                            value: product.isAvailable,
-                                            onChanged: (val) {
-                                              ref.read(menuProvider.notifier).toggleAvailability(product.id, val);
-                                            },
-                                            activeTrackColor: AppColors.burntTerracotta,
-                                          ),
-                                        ),
-                                        Positioned(
-                                          top: 8,
-                                          left: 8,
-                                          child: GestureDetector(
-                                            onTap: () => _confirmDeleteProduct(context, product),
-                                            child: Container(
-                                              padding: const EdgeInsets.all(6),
-                                              decoration: BoxDecoration(
-                                                color: Colors.white.withValues(alpha: 0.9),
-                                                shape: BoxShape.circle,
-                                              ),
-                                              child: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(12),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        product.name,
-                                        style: GoogleFonts.inter(
-                                          fontWeight: FontWeight.w600,
-                                          color: AppColors.deepInk,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        '€\${product.price.toStringAsFixed(2)}',
-                                        style: GoogleFonts.inter(
-                                          fontWeight: FontWeight.bold,
-                                          color: AppColors.burntTerracotta,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
+                          return _buildEliteProductCard(product);
                         },
                       );
                     }).toList(),
                   ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => context.go('/menu/add'),
+        backgroundColor: AppColors.liquidAmber,
+        elevation: 10,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: const Icon(Icons.add, color: Colors.white, size: 32),
+      ),
+    );
+  }
+
+  Widget _buildEliteProductCard(MenuItem product) {
+    return ModernCard(
+      padding: EdgeInsets.zero,
+      onTap: () => context.go('/menu/edit/${product.id}', extra: product),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                  child: product.imageUrl != null
+                      ? Image.network(product.imageUrl!, fit: BoxFit.cover)
+                      : Container(
+                          color: AppColors.etherealBorder,
+                          child: const Icon(Icons.restaurant, color: Colors.grey, size: 40),
+                        ),
+                ),
+                // Glass Overlay for availability
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.8),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Transform.scale(
+                      scale: 0.8,
+                      child: Switch(
+                        value: product.isAvailable,
+                        onChanged: (val) => ref.read(menuProvider.notifier).toggleAvailability(product.id, val),
+                        activeTrackColor: AppColors.liquidAmber,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  product.name,
+                  style: AppTextStyles.labelLarge,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '€${product.price.toStringAsFixed(2)}',
+                  style: AppTextStyles.headlineSmall.copyWith(
+                    color: AppColors.liquidAmber,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.go('/menu/add'),
-        backgroundColor: AppColors.burntTerracotta,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: Text('Add Item', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.white)),
+    );
+  }
+
+  Widget _buildSkeletonGrid() {
+    return GridView.builder(
+      padding: const EdgeInsets.all(24),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 0.75,
+        crossAxisSpacing: 20,
+        mainAxisSpacing: 20,
+      ),
+      itemCount: 6,
+      itemBuilder: (context, index) => const ProductCardSkeleton(),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.auto_awesome_outlined, size: 80, color: AppColors.etherealBorder),
+          const SizedBox(height: 24),
+          Text(
+            'Curate your first collection',
+            style: AppTextStyles.headlineSmall.copyWith(color: Colors.grey),
+          ),
+          const SizedBox(height: 32),
+          EliteButton(
+            text: 'Add Category',
+            onPressed: () => _showAddCategoryDialog(context),
+            width: 220,
+          ),
+        ],
       ),
     );
   }

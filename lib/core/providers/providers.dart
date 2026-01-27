@@ -10,6 +10,7 @@ import 'package:rockster/features/menu/data/menu_service.dart';
 import 'package:rockster/features/orders/data/order_service.dart';
 import 'package:rockster/features/payments/data/payment_service.dart';
 import 'package:rockster/features/reservations/data/reservation_service.dart';
+import 'package:rockster/features/tables/data/table_service.dart';
 import 'package:rockster/features/website_customizer/data/website_service.dart';
 import 'package:rockster/core/network/websocket_service.dart';
 import 'package:rockster/core/services/sound_service.dart';
@@ -61,6 +62,12 @@ final menuServiceProvider = Provider<MenuService>((ref) {
 final reservationServiceProvider = Provider<ReservationService>((ref) {
   final apiClient = ref.watch(apiClientProvider);
   return ReservationService(apiClient.dio);
+});
+
+// Table Providers
+final tableServiceProvider = Provider<TableService>((ref) {
+  final apiClient = ref.watch(apiClientProvider);
+  return TableService(apiClient.dio);
 });
 
 // Payment Providers

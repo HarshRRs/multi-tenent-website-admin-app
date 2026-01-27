@@ -433,6 +433,7 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
                                     Expanded(
                                       flex: 3,
                                       child: CustomTextField(
+                                        label: 'Name',
                                         hint: 'Name',
                                         controller: mod.nameController,
                                       ),
@@ -441,6 +442,7 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
                                     Expanded(
                                       flex: 2,
                                       child: CustomTextField(
+                                        label: 'Price',
                                         hint: 'Extra €',
                                         controller: mod.priceController,
                                         keyboardType: TextInputType.number,
@@ -463,11 +465,14 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
                         ),
                       );
                     }),
-                    CustomButton(
-                      text: 'Add Modifier Group',
-                      isOutlined: true,
-                      onPressed: () => setState(() => _modifierGroups.add(ModifierGroupEditState())),
-                    ).paddingSymmetric(horizontal: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: CustomButton(
+                        text: 'Add Modifier Group',
+                        isOutlined: true,
+                        onPressed: () => setState(() => _modifierGroups.add(ModifierGroupEditState())),
+                      ),
+                    ),
                   ],
                 ),
               ),

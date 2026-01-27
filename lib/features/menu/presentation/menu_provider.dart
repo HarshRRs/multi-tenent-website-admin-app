@@ -138,6 +138,26 @@ class MenuNotifier extends StateNotifier<MenuState> {
       rethrow;
     }
   }
+
+  Future<void> addProductRaw(Map<String, dynamic> data) async {
+    try {
+      await _menuService.createProductRaw(data);
+      await loadMenu();
+    } catch (e) {
+      state = state.copyWith(error: "Failed to add product: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> updateProductRaw(String id, Map<String, dynamic> data) async {
+    try {
+      await _menuService.updateProductRaw(id, data);
+      await loadMenu();
+    } catch (e) {
+      state = state.copyWith(error: "Failed to update product: $e");
+      rethrow;
+    }
+  }
 }
 
 final menuProvider = StateNotifierProvider<MenuNotifier, MenuState>((ref) {

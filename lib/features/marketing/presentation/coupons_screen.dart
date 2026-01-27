@@ -49,10 +49,13 @@ class _CouponsScreenState extends ConsumerState<CouponsScreen> {
                           const SizedBox(height: 16),
                           Text('No coupons created yet', style: AppTextStyles.labelLarge),
                           const SizedBox(height: 24),
-                          CustomButton(
-                            text: 'Create First Coupon',
-                            onPressed: _showAddCouponDialog,
-                          ).paddingSymmetric(horizontal: 48),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 48),
+                            child: CustomButton(
+                              text: 'Create First Coupon',
+                              onPressed: _showAddCouponDialog,
+                            ),
+                          ),
                         ],
                       ),
                     )
@@ -67,7 +70,7 @@ class _CouponsScreenState extends ConsumerState<CouponsScreen> {
                           child: ListTile(
                             title: Row(
                               children: [
-                                Text(coupon.code, style: AppTextStyles.headlineSmall.copyWith(color: AppColors.primary)),
+                                Text(coupon.code, style: AppTextStyles.headlineSmall.copyWith(color: AppColors.primaryLight)),
                                 const Spacer(),
                                 Switch(
                                   value: coupon.isActive,
@@ -170,7 +173,6 @@ class _AddCouponDialogState extends ConsumerState<AddCouponDialog> {
               label: 'Coupon Code',
               hint: 'e.g., WELCOME10',
               controller: _codeController,
-              textCapitalization: TextCapitalization.characters,
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(

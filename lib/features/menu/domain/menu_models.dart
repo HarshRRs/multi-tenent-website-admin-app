@@ -22,7 +22,7 @@ class Modifier {
   factory Modifier.fromJson(Map<String, dynamic> json) {
     return Modifier(
       id: json['id'],
-      name: (json['extraPrice'] as num).toDouble(),
+      name: json['name'],
       extraPrice: (json['extraPrice'] as num).toDouble(),
     );
   }

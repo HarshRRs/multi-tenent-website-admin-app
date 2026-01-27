@@ -115,24 +115,48 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
     final currentIndex = _getCurrentIndex(GoRouterState.of(context).uri.path, routes);
 
     return Scaffold(
-      backgroundColor: AppColors.cloudDancer,
-      body: Column(
+      backgroundColor: AppColors.alabasterMist,
+      body: Stack(
         children: [
-          const BrandGradientLine(),
-          if (isOffline)
-            Container(
-              width: double.infinity,
-              color: Colors.red,
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: const Text(
-                'No Internet Connection',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+          // Brand Halo
+          Positioned(
+            top: -150,
+            left: 0,
+            right: 0,
+            child: Container(
+              height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.liquidAmber.withOpacity(0.1),
+                    blurRadius: 150,
+                    spreadRadius: 50,
+                  ),
+                ],
               ),
             ),
-          Expanded(child: widget.child),
+          ),
+          
+          Column(
+            children: [
+              if (isOffline)
+                Container(
+                  width: double.infinity,
+                  color: AppColors.error,
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: const Text(
+                    'No Internet Connection',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                  ),
+                ),
+              Expanded(child: widget.child),
+            ],
+          ),
         ],
       ),
+      extendBody: true,
       bottomNavigationBar: GlassBottomNav(
         currentIndex: currentIndex,
         items: navItems,
