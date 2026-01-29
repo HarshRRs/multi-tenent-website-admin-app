@@ -259,16 +259,16 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
                                     width: 120,
                                     margin: const EdgeInsets.only(right: 12),
                                     decoration: BoxDecoration(
-                                        color: AppColors.surfaceLight,
+                                        color: AppColors.alabasterMist,
                                         borderRadius: BorderRadius.circular(12),
                                         border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
                                     ),
                                     child: const Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                            Icon(Icons.add_a_photo, color: AppColors.primaryLight),
+                                            Icon(Icons.add_a_photo, color: AppColors.liquidAmber),
                                             SizedBox(height: 4),
-                                            Text('Add', style: TextStyle(color: AppColors.textSecondaryLight, fontSize: 12)),
+                                            Text('Add', style: TextStyle(color: Colors.grey, fontSize: 12)),
                                         ],
                                     ),
                                 ),
@@ -377,7 +377,7 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
                         margin: const EdgeInsets.only(bottom: 16, left: 8, right: 8),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: AppColors.surfaceLight,
+                          color: AppColors.alabasterMist,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: AppColors.softBorder),
                         ),
@@ -395,6 +395,7 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
                                 ),
                                 IconButton(
                                   icon: const Icon(Icons.delete_outline, color: Colors.red),
+                                  tooltip: 'Delete modifier group',
                                   onPressed: () => setState(() => _modifierGroups.removeAt(groupIndex)),
                                 ),
                               ],
@@ -450,6 +451,7 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
                                     ),
                                     IconButton(
                                       icon: const Icon(Icons.remove_circle_outline, color: Colors.grey),
+                                      tooltip: 'Remove option',
                                       onPressed: () => setState(() => group.modifiers.removeAt(modIndex)),
                                     ),
                                   ],
@@ -500,36 +502,41 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
   }
 
   Widget _buildImageItem({required Widget child, required VoidCallback onDelete}) {
-      return Container(
-          width: 120,
-          margin: const EdgeInsets.only(right: 12),
-          clipBehavior: Clip.hardEdge,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
-          ),
-          child: Stack(
-              fit: StackFit.expand,
-              children: [
-                  child,
-                  Positioned(
-                      top: 4,
-                      right: 4,
-                      child: GestureDetector(
-                          onTap: onDelete,
-                          child: Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                              ),
-                              child: const Icon(Icons.close, size: 16, color: Colors.red),
-                          ),
-                      ),
+    return Container(
+      width: 120,
+      margin: const EdgeInsets.only(right: 12),
+      clipBehavior: Clip.hardEdge,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          child,
+          Positioned(
+            top: 4,
+            right: 4,
+            child: Material(
+              color: Colors.white,
+              shape: const CircleBorder(),
+              elevation: 2,
+              child: Tooltip(
+                message: 'Remove image',
+                child: InkWell(
+                  onTap: onDelete,
+                  customBorder: const CircleBorder(),
+                  child: const Padding(
+                    padding: EdgeInsets.all(8),
+                    child: Icon(Icons.close, size: 16, color: Colors.red),
                   ),
-              ],
+                ),
+              ),
+            ),
           ),
-      );
+        ],
+      ),
+    );
   }
 }
 
