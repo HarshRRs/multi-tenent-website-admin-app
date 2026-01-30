@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
-import 'package:rockster/core/theme/app_colors.dart';
 import 'package:rockster/core/components/cosmic_background.dart';
 import 'package:rockster/core/components/glowing_text.dart';
 import 'package:rockster/core/components/cosmic_input_field.dart';
@@ -146,39 +145,50 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     
                     const SizedBox(height: 48),
                     
-                    // Email Input
-                    CosmicInputField(
-                      label: 'Email Address',
-                      hint: 'owner@business.com',
-                      icon: Icons.email_outlined,
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) return 'Required';
-                        if (!value.contains('@')) return 'Invalid email';
-                        return null;
-                      },
-                    ).animate().fadeIn(duration: 600.ms, delay: 500.ms).slideX(begin: -0.2, end: 0),
-                    
-                    const SizedBox(height: 20),
-                    
-                    // Password Input
-                    CosmicInputField(
-                      label: 'Password',
-                      hint: '••••••••',
-                      icon: Icons.lock_outline,
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                          color: Colors.white60,
-                        ),
-                        tooltip: _obscurePassword ? 'Show password' : 'Hide password',
-                        onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                    AutofillGroup(
+                      child: Column(
+                        children: [
+                          // Email Input
+                          CosmicInputField(
+                            label: 'Email Address',
+                            hint: 'owner@business.com',
+                            icon: Icons.email_outlined,
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            textInputAction: TextInputAction.next,
+                            autofillHints: const [AutofillHints.email],
+                            validator: (value) {
+                              if (value == null || value.isEmpty) return 'Required';
+                              if (!value.contains('@')) return 'Invalid email';
+                              return null;
+                            },
+                          ).animate().fadeIn(duration: 600.ms, delay: 500.ms).slideX(begin: -0.2, end: 0),
+
+                          const SizedBox(height: 20),
+
+                          // Password Input
+                          CosmicInputField(
+                            label: 'Password',
+                            hint: '••••••••',
+                            icon: Icons.lock_outline,
+                            controller: _passwordController,
+                            obscureText: _obscurePassword,
+                            textInputAction: TextInputAction.done,
+                            autofillHints: const [AutofillHints.password],
+                            onFieldSubmitted: (_) => _handleLogin(),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                                color: Colors.white60,
+                              ),
+                              tooltip: _obscurePassword ? 'Show password' : 'Hide password',
+                              onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                            ),
+                            validator: (value) => (value == null || value.isEmpty) ? 'Required' : null,
+                          ).animate().fadeIn(duration: 600.ms, delay: 600.ms).slideX(begin: -0.2, end: 0),
+                        ],
                       ),
-                      validator: (value) => (value == null || value.isEmpty) ? 'Required' : null,
-                    ).animate().fadeIn(duration: 600.ms, delay: 600.ms).slideX(begin: -0.2, end: 0),
+                    ),
                     
                     const SizedBox(height: 16),
                     
