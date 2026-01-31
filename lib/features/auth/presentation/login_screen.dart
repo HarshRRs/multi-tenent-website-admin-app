@@ -31,10 +31,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
-      await ref.read(authNotifierProvider.notifier).login(
-            _emailController.text.trim(),
-            _passwordController.text,
-          );
+      await ref
+          .read(authNotifierProvider.notifier)
+          .login(_emailController.text.trim(), _passwordController.text);
     }
   }
 
@@ -48,18 +47,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
         if (next.error != null) {
           final errorLower = next.error!.toLowerCase();
-          
-          if (errorLower.contains('connection timeout') || 
-              errorLower.contains('no internet') || 
+
+          if (errorLower.contains('connection timeout') ||
+              errorLower.contains('no internet') ||
               errorLower.contains('connection error')) {
-             errorMessage = 'Network Error: Cannot connect to server';
+            errorMessage = 'Network Error: Cannot connect to server';
           } else if (errorLower.contains('401') || errorLower.contains('400')) {
-             errorMessage = 'Invalid Email or Password';
+            errorMessage = 'Invalid Email or Password';
           } else {
-             errorMessage = next.error!.replaceAll('Exception:', '').trim();
+            errorMessage = next.error!.replaceAll('Exception:', '').trim();
           }
         }
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
@@ -71,7 +70,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             ),
             backgroundColor: Colors.red.shade800,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       }
@@ -93,95 +94,126 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Glowing COSMOS title - CENTERED (no hero image)
-                    const GlowingText(
-                      text: 'COSMOS',
-                      style: TextStyle(
-                        fontSize: 56,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 4.0,
+                    AutofillGroup(
+                      child: Column(
+                        children: [
+                          // Glowing COSMOS title - CENTERED (no hero image)
+                          const GlowingText(
+                                text: 'COSMOS',
+                                style: TextStyle(
+                                  fontSize: 56,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 4.0,
+                                ),
+                                glowColor: Colors.cyan,
+                                glowRadius: 28,
+                              )
+                              .animate()
+                              .fadeIn(duration: 800.ms)
+                              .slideY(begin: -0.2, end: 0),
+
+                          const SizedBox(height: 12),
+
+                          // BUSINESS ADMIN subtitle
+                          Text(
+                            'BUSINESS ADMIN',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 3.5,
+                            ),
+                          ).animate().fadeIn(duration: 800.ms, delay: 200.ms),
+
+                          const SizedBox(height: 56),
+
+                          // Welcome Back
+                          Text(
+                            'Welcome Back',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ).animate().fadeIn(duration: 600.ms, delay: 300.ms),
+
+                          const SizedBox(height: 8),
+
+                          // Subtitle
+                          Text(
+                            'Sign in to manage your business',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                            ),
+                          ).animate().fadeIn(duration: 600.ms, delay: 400.ms),
+
+                          const SizedBox(height: 48),
+
+                          // Email Input
+                          CosmicInputField(
+                                label: 'Email Address',
+                                hint: 'owner@business.com',
+                                icon: Icons.email_outlined,
+                                controller: _emailController,
+                                keyboardType: TextInputType.emailAddress,
+                                autofillHints: const [AutofillHints.email],
+                                textInputAction: TextInputAction.next,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty)
+                                    return 'Required';
+                                  if (!value.contains('@'))
+                                    return 'Invalid email';
+                                  return null;
+                                },
+                              )
+                              .animate()
+                              .fadeIn(duration: 600.ms, delay: 500.ms)
+                              .slideX(begin: -0.2, end: 0),
+
+                          const SizedBox(height: 20),
+
+                          // Password Input
+                          CosmicInputField(
+                                label: 'Password',
+                                hint: '••••••••',
+                                icon: Icons.lock_outline,
+                                controller: _passwordController,
+                                obscureText: _obscurePassword,
+                                autofillHints: const [AutofillHints.password],
+                                textInputAction: TextInputAction.done,
+                                onFieldSubmitted: (_) => _handleLogin(),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscurePassword
+                                        ? Icons.visibility_outlined
+                                        : Icons.visibility_off_outlined,
+                                    color: Colors.white60,
+                                  ),
+                                  tooltip: _obscurePassword
+                                      ? 'Show password'
+                                      : 'Hide password',
+                                  onPressed: () => setState(
+                                    () => _obscurePassword = !_obscurePassword,
+                                  ),
+                                ),
+                                validator: (value) =>
+                                    (value == null || value.isEmpty)
+                                    ? 'Required'
+                                    : null,
+                              )
+                              .animate()
+                              .fadeIn(duration: 600.ms, delay: 600.ms)
+                              .slideX(begin: -0.2, end: 0),
+
+                          const SizedBox(height: 16),
+                        ],
                       ),
-                      glowColor: Colors.cyan,
-                      glowRadius: 28,
-                    ).animate().fadeIn(duration: 800.ms).slideY(begin: -0.2, end: 0),
-                    
-                    const SizedBox(height: 12),
-                    
-                    // BUSINESS ADMIN subtitle
-                    Text(
-                      'BUSINESS ADMIN',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 3.5,
-                      ),
-                    ).animate().fadeIn(duration: 800.ms, delay: 200.ms),
-                    
-                    const SizedBox(height: 56),
-                    
-                    // Welcome Back
-                    Text(
-                      'Welcome Back',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ).animate().fadeIn(duration: 600.ms, delay: 300.ms),
-                    
-                    const SizedBox(height: 8),
-                    
-                    // Subtitle
-                    Text(
-                      'Sign in to manage your business',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                      ),
-                    ).animate().fadeIn(duration: 600.ms, delay: 400.ms),
-                    
-                    const SizedBox(height: 48),
-                    
-                    // Email Input
-                    CosmicInputField(
-                      label: 'Email Address',
-                      hint: 'owner@business.com',
-                      icon: Icons.email_outlined,
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) return 'Required';
-                        if (!value.contains('@')) return 'Invalid email';
-                        return null;
-                      },
-                    ).animate().fadeIn(duration: 600.ms, delay: 500.ms).slideX(begin: -0.2, end: 0),
-                    
-                    const SizedBox(height: 20),
-                    
-                    // Password Input
-                    CosmicInputField(
-                      label: 'Password',
-                      hint: '••••••••',
-                      icon: Icons.lock_outline,
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                          color: Colors.white60,
-                        ),
-                        tooltip: _obscurePassword ? 'Show password' : 'Hide password',
-                        onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-                      ),
-                      validator: (value) => (value == null || value.isEmpty) ? 'Required' : null,
-                    ).animate().fadeIn(duration: 600.ms, delay: 600.ms).slideX(begin: -0.2, end: 0),
-                    
-                    const SizedBox(height: 16),
-                    
+                    ),
+
                     // Forgot Password
                     Center(
                       child: TextButton(
@@ -196,18 +228,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                       ),
                     ).animate().fadeIn(duration: 600.ms, delay: 700.ms),
-                    
+
                     const SizedBox(height: 32),
-                    
+
                     // Sign In Button
                     CosmicButton(
-                      text: 'SIGN IN',
-                      onPressed: _handleLogin,
-                      isLoading: isLoading,
-                    ).animate().fadeIn(duration: 600.ms, delay: 800.ms).scale(begin: const Offset(0.95, 0.95)),
-                    
+                          text: 'SIGN IN',
+                          onPressed: _handleLogin,
+                          isLoading: isLoading,
+                        )
+                        .animate()
+                        .fadeIn(duration: 600.ms, delay: 800.ms)
+                        .scale(begin: const Offset(0.95, 0.95)),
+
                     const SizedBox(height: 40),
-                    
+
                     // New to Cosmos?
                     Center(
                       child: Row(
