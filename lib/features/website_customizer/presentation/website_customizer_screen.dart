@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-// import 'package:rockster/core/components/custom_button.dart';
-import 'package:rockster/core/components/custom_text_field.dart';
 import 'package:rockster/core/theme/app_colors.dart';
 import 'package:rockster/core/components/modern_card.dart';
-// import 'package:rockster/features/website_customizer/data/website_service.dart';
 import 'package:rockster/features/website_customizer/domain/website_models.dart';
 import 'package:rockster/features/website_customizer/presentation/widgets/website_preview_widget.dart';
 
@@ -167,20 +164,22 @@ class _WebsiteCustomizerScreenState extends ConsumerState<WebsiteCustomizerScree
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppColors.burntTerracotta)));
+      return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppColors.liquidAmber)));
     }
 
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: AppColors.cloudDancer,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
           'Website Customizer',
-          style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: AppColors.deepInk),
+          style: theme.textTheme.headlineMedium,
         ),
-        backgroundColor: AppColors.cloudDancer,
+        backgroundColor: theme.scaffoldBackgroundColor,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.deepInk),
+          icon: Icon(Icons.arrow_back, color: theme.colorScheme.onSurface),
           onPressed: () => context.pop(),
         ),
         actions: [
@@ -188,8 +187,8 @@ class _WebsiteCustomizerScreenState extends ConsumerState<WebsiteCustomizerScree
             onPressed: _saveConfig,
             child: Text(
               'Publish',
-              style: GoogleFonts.inter(
-                color: AppColors.burntTerracotta,
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: AppColors.liquidAmber,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -197,11 +196,11 @@ class _WebsiteCustomizerScreenState extends ConsumerState<WebsiteCustomizerScree
         ],
         bottom: TabBar(
           controller: _tabController,
-          labelColor: AppColors.burntTerracotta,
-          unselectedLabelColor: AppColors.textSecondaryLight,
-          indicatorColor: AppColors.burntTerracotta,
+          labelColor: AppColors.liquidAmber,
+          unselectedLabelColor: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+          indicatorColor: AppColors.liquidAmber,
           indicatorSize: TabBarIndicatorSize.tab,
-          labelStyle: GoogleFonts.inter(fontWeight: FontWeight.w600),
+          labelStyle: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
           tabs: const [
             Tab(text: 'Edit'),
             Tab(text: 'Preview'),
@@ -217,14 +216,14 @@ class _WebsiteCustomizerScreenState extends ConsumerState<WebsiteCustomizerScree
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildSectionTitle('Branding'),
+                _buildSectionTitle('Branding', theme),
                 const SizedBox(height: 12),
                 
                 ModernCard(
                   child: Column(
                     children: [
                       // Color Picker
-                      Text('Primary Color', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: AppColors.deepInk)),
+                      Text('Primary Color', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
                       const SizedBox(height: 12),
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
@@ -256,38 +255,37 @@ class _WebsiteCustomizerScreenState extends ConsumerState<WebsiteCustomizerScree
                 ),
                 
                 const SizedBox(height: 24),
-                const SizedBox(height: 24),
-                _buildSectionTitle('Content'),
+                _buildSectionTitle('Content', theme),
                 const SizedBox(height: 12),
 
                 ModernCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CustomTextField(
-                        label: 'Headline',
+                      TextFormField(
                         controller: _headlineController,
+                        decoration: const InputDecoration(labelText: 'Headline'),
                       ),
                       const SizedBox(height: 16),
-                      CustomTextField(
-                        label: 'Sub-headline',
+                      TextFormField(
                         controller: _subheadlineController,
+                        decoration: const InputDecoration(labelText: 'Sub-headline'),
                       ),
                       const SizedBox(height: 16),
-                      CustomTextField(
-                        label: 'Button Text',
+                      TextFormField(
                         controller: _btnTextController,
+                        decoration: const InputDecoration(labelText: 'Button Text'),
                       ),
                       const SizedBox(height: 24),
                       Text(
                         'Delivery Radius: ${_config.deliveryRadiusKm.toStringAsFixed(1)} km',
-                        style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: AppColors.deepInk),
+                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 8),
                       SliderTheme(
                         data: SliderTheme.of(context).copyWith(
                           activeTrackColor: _config.primaryColor,
-                          inactiveTrackColor: AppColors.softBorder,
+                          inactiveTrackColor: theme.dividerColor,
                           thumbColor: _config.primaryColor,
                           overlayColor: _config.primaryColor.withValues(alpha: 0.2),
                           valueIndicatorColor: _config.primaryColor,
@@ -311,7 +309,7 @@ class _WebsiteCustomizerScreenState extends ConsumerState<WebsiteCustomizerScree
                 ),
                 
                 const SizedBox(height: 24),
-                _buildSectionTitle('Assets'),
+                _buildSectionTitle('Assets', theme),
                 const SizedBox(height: 12),
                 
                 ModernCard(
@@ -322,7 +320,7 @@ class _WebsiteCustomizerScreenState extends ConsumerState<WebsiteCustomizerScree
                     child: Container(
                       height: 140,
                       decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.softBorder, style: BorderStyle.none),
+                        border: Border.all(color: theme.dividerColor, style: BorderStyle.none),
                         borderRadius: BorderRadius.circular(16),
                         image: DecorationImage(
                            image: NetworkImage(_config.heroImageUrl),
@@ -367,15 +365,14 @@ class _WebsiteCustomizerScreenState extends ConsumerState<WebsiteCustomizerScree
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget _buildSectionTitle(String title, ThemeData theme) {
     return Padding(
       padding: const EdgeInsets.only(left: 4),
       child: Text(
         title.toUpperCase(),
-        style: GoogleFonts.inter(
-          fontSize: 12,
+        style: theme.textTheme.labelSmall?.copyWith(
           fontWeight: FontWeight.w600,
-          color: AppColors.textSecondaryLight,
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
           letterSpacing: 1.2,
         ),
       ),

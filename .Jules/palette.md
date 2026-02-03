@@ -25,3 +25,7 @@ This journal records critical UX and accessibility learnings specific to this pr
 ## 2024-05-23 - Dialog Styling Consistency
 **Learning:** Custom styled dialogs often drift from the main app theme.
 **Action:** Refactored `ReservationsScreen` to use standard `AlertDialog` and `TimePicker` which automatically pick up the new `AppTheme` colors, ensuring a cohesive experience without manual styling overrides.
+
+## 2024-05-23 - Editor UI Modernization
+**Learning:** Complex configuration screens (like `WebsiteCustomizerScreen`) benefit from standard components (`TextFormField`, `Slider`) over custom implementations to maintain visual consistency and accessibility features like contrast and touch targets.
+**Action:** Refactored the website builder to use standard Material components, removing custom text fields and ensuring all interactive elements align with the global "Premium" theme.
