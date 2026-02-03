@@ -21,3 +21,7 @@ This journal records critical UX and accessibility learnings specific to this pr
 ## 2024-05-23 - Avoiding Custom Widget Wrappers
 **Learning:** Wrapping standard Flutter widgets (like `TextField`, `ElevatedButton`) in custom classes (`CustomTextField`, `CustomButton`) often leads to inconsistent styling and harder maintenance when the global theme changes.
 **Action:** Refactored `MenuScreen` and `AddEditProductScreen` to use standard widgets that inherit properties directly from `AppTheme`, reducing code duplication and enforcing the design system automatically.
+
+## 2024-05-23 - Dialog Styling Consistency
+**Learning:** Custom styled dialogs often drift from the main app theme.
+**Action:** Refactored `ReservationsScreen` to use standard `AlertDialog` and `TimePicker` which automatically pick up the new `AppTheme` colors, ensuring a cohesive experience without manual styling overrides.

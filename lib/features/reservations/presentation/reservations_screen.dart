@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rockster/core/theme/app_colors.dart';
-import 'package:rockster/core/theme/app_text_styles.dart';
 import 'package:rockster/features/reservations/domain/reservation_models.dart';
 import 'package:rockster/features/reservations/presentation/reservations_provider.dart';
 import 'package:intl/intl.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:rockster/core/components/modern_card.dart';
 
 class ReservationsScreen extends ConsumerStatefulWidget {
@@ -31,12 +29,14 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
     final phoneController = TextEditingController();
     final formKey = GlobalKey<FormState>();
     TimeOfDay selectedTime = TimeOfDay.now();
+    final theme = Theme.of(context);
     
     await showDialog(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: Text('New Reservation', style: AppTextStyles.headlineMedium),
+          title: Text('New Reservation', style: theme.textTheme.headlineMedium),
+          backgroundColor: theme.colorScheme.surface,
           content: Form(
             key: formKey,
             child: SingleChildScrollView(
@@ -101,7 +101,7 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
                           const SizedBox(width: 12),
                           Text(
                             'Arrival Time: ${selectedTime.format(context)}',
-                            style: GoogleFonts.inter(fontSize: 16),
+                            style: theme.textTheme.bodyLarge,
                           ),
                           const Spacer(),
                           const Icon(Icons.arrow_drop_down, color: Colors.grey),
@@ -151,6 +151,9 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
                   }
                 }
               },
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.liquidAmber,
+              ),
               child: const Text('Add'),
             ),
           ],
@@ -167,11 +170,17 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
     final tables = state.tables;
     final reservations = state.reservations;
     final isLoading = state.status == DataStatus.loading && tables.isEmpty;
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: AppColors.cloudDancer,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('Bookings'),
+        title: Text(
+          'Bookings',
+          style: theme.textTheme.headlineMedium?.copyWith(
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
@@ -199,15 +208,15 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
               ),
             ),
           ),
-          _buildBody(isLoading, reservations, tables),
+          _buildBody(isLoading, reservations, tables, theme),
         ],
       ),
     );
   }
 
-  Widget _buildBody(bool isLoading, List<Reservation> reservations, List<RestaurantTable> tables) {
+  Widget _buildBody(bool isLoading, List<Reservation> reservations, List<RestaurantTable> tables, ThemeData theme) {
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator(color: AppColors.burntTerracotta));
+      return const Center(child: CircularProgressIndicator(color: AppColors.liquidAmber));
     }
 
     if (reservations.isEmpty) {
@@ -215,20 +224,19 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.event_busy, size: 64, color: AppColors.textSecondaryLight.withValues(alpha: 0.3)),
+            Icon(Icons.event_busy, size: 64, color: theme.colorScheme.onSurface.withValues(alpha: 0.3)),
             const SizedBox(height: 16),
             Text(
               'No reservations yet', 
-              style: GoogleFonts.inter(
-                fontSize: 18,
+              style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w600,
-                color: AppColors.deepInk,
+                color: theme.colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 8),
             FilledButton.icon(
               onPressed: _showAddReservationDialog,
-              style: FilledButton.styleFrom(backgroundColor: AppColors.burntTerracotta),
+              style: FilledButton.styleFrom(backgroundColor: AppColors.liquidAmber),
               icon: const Icon(Icons.add),
               label: const Text('Add Reservation'),
             ),
@@ -254,14 +262,14 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.burntTerracotta.withValues(alpha: 0.1),
+                  color: AppColors.liquidAmber.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Text(
                   DateFormat('HH:mm').format(reservation.time),
-                  style: GoogleFonts.inter(
+                  style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: AppColors.burntTerracotta,
+                    color: AppColors.liquidAmber,
                   ),
                 ),
               ),
@@ -272,22 +280,20 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
                   children: [
                     Text(
                       reservation.customerName, 
-                      style: GoogleFonts.inter(
+                      style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: AppColors.deepInk,
+                        color: theme.colorScheme.onSurface,
                       ),
                     ),
                     if (reservation.customerPhone != null && reservation.customerPhone!.isNotEmpty)
                       Row(
                         children: [
-                          const Icon(Icons.phone_outlined, size: 14, color: AppColors.textSecondaryLight),
+                          Icon(Icons.phone_outlined, size: 14, color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
                           const SizedBox(width: 4),
                           Text(
                             reservation.customerPhone!, 
-                            style: GoogleFonts.inter(
-                              color: AppColors.textSecondaryLight, 
-                              fontSize: 12,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
                           ),
                         ],
@@ -295,13 +301,12 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Icon(Icons.access_time, size: 14, color: AppColors.burntTerracotta),
+                        const Icon(Icons.access_time, size: 14, color: AppColors.liquidAmber),
                         const SizedBox(width: 4),
                         Text(
                           'Arrives at ${DateFormat('hh:mm a').format(reservation.time)}',
-                          style: GoogleFonts.inter(
-                            color: AppColors.burntTerracotta,
-                            fontSize: 13,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: AppColors.liquidAmber,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -310,13 +315,12 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Icon(Icons.people_outline, size: 14, color: AppColors.textSecondaryLight),
+                        Icon(Icons.people_outline, size: 14, color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
                         const SizedBox(width: 4),
                         Text(
                           '${reservation.partySize} Guests',
-                          style: GoogleFonts.inter(
-                            color: AppColors.textSecondaryLight,
-                            fontSize: 13,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                           ),
                         ),
                         if (reservation.tableId.isNotEmpty) ...[
@@ -325,9 +329,8 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
                           const SizedBox(width: 8),
                           Text(
                             'Table $tableName',
-                            style: GoogleFonts.inter(
-                              color: AppColors.textSecondaryLight,
-                              fontSize: 13,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
                           ),
                         ],
@@ -337,8 +340,8 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
                 ),
               ),
               PopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert, color: AppColors.textSecondaryLight),
-                color: Colors.white,
+                icon: Icon(Icons.more_vert, color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+                color: theme.colorScheme.surface,
                 surfaceTintColor: Colors.transparent,
                 onSelected: (value) async {
                   if (value == 'delete') {
@@ -362,7 +365,7 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
                   }
                 },
                 itemBuilder: (context) => [
-                  PopupMenuItem(
+                  const PopupMenuItem(
                     value: 'delete',
                     child: Row(
                       children: [
