@@ -13,3 +13,7 @@ This journal records critical UX and accessibility learnings specific to this pr
 ## 2024-05-23 - Operational Toggles Visibility
 **Learning:** Critical business controls (like Open/Close Store) must be visible on the main Dashboard, not buried in settings.
 **Action:** Placed a high-visibility toggle in the Dashboard header to give users immediate control over their business status.
+
+## 2024-05-23 - KDS Uptime
+**Learning:** For operational screens like "Live Orders" that act as Kitchen Display Systems (KDS), preventing screen timeout is a critical UX requirement.
+**Action:** Maintained `WakelockPlus` integration in the `OrdersScreen` refactor to ensure the device never sleeps while monitoring orders.

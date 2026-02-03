@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:rockster/core/providers/providers.dart';
 import 'package:rockster/core/theme/app_colors.dart';
-import 'package:rockster/core/theme/app_text_styles.dart';
 import 'package:rockster/core/components/glossy_metric_card.dart';
 import 'package:rockster/features/orders/domain/order_model.dart';
 import 'package:rockster/features/orders/presentation/orders_provider.dart';
@@ -85,12 +83,18 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
     final ordersState = ref.watch(ordersProvider);
     final allOrders = ordersState.orders;
     final isLoading = ordersState.status == DataStatus.loading && allOrders.isEmpty;
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: AppColors.cloudDancer,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('Live Orders'),
-        backgroundColor: AppColors.cloudDancer,
+        title: Text(
+          'Live Orders',
+          style: theme.textTheme.headlineMedium?.copyWith(
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
+        backgroundColor: theme.scaffoldBackgroundColor,
         surfaceTintColor: Colors.transparent,
         actions: [
           if (ordersState.status == DataStatus.loading)
@@ -124,6 +128,8 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
   }
 
   Widget _buildBody(OrdersState state, List<Order> allOrders, bool isLoading) {
+    final theme = Theme.of(context);
+
     if (state.status == DataStatus.error) {
        return Center(
           child: Column(
@@ -133,14 +139,14 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
               const SizedBox(height: 16),
               Text(
                 'Failed to load orders',
-                style: AppTextStyles.headlineMedium,
+                style: theme.textTheme.headlineMedium,
               ),
                Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
                   state.error ?? 'Unknown error',
                   textAlign: TextAlign.center,
-                  style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryLight),
+                  style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
                 ),
               ),
               const SizedBox(height: 24),
@@ -165,9 +171,9 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
             children: [
               Icon(Icons.inbox, size: 64, color: Colors.grey[300]),
               const SizedBox(height: 16),
-              Text('No live orders', style: AppTextStyles.headlineMedium),
+              Text('No live orders', style: theme.textTheme.headlineMedium),
                const SizedBox(height: 8),
-              Text('New orders will appear here automatically', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryLight)),
+              Text('New orders will appear here automatically', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withValues(alpha: 0.6))),
               const SizedBox(height: 24),
               FilledButton.icon(
                 onPressed: () => ref.read(ordersProvider.notifier).refresh(),
