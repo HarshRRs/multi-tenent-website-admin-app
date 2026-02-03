@@ -29,3 +29,7 @@ This journal records critical UX and accessibility learnings specific to this pr
 ## 2024-05-23 - Editor UI Modernization
 **Learning:** Complex configuration screens (like `WebsiteCustomizerScreen`) benefit from standard components (`TextFormField`, `Slider`) over custom implementations to maintain visual consistency and accessibility features like contrast and touch targets.
 **Action:** Refactored the website builder to use standard Material components, removing custom text fields and ensuring all interactive elements align with the global "Premium" theme.
+
+## 2024-05-23 - Onboarding Modernization
+**Learning:** Hardcoded gradients and colors in onboarding screens create a disconnect from the app's core branding once the user logs in.
+**Action:** Refactored `OnboardingScreen` to use semantic colors from `AppTheme` (like `AppColors.electricRose` and `scaffoldBackgroundColor`), creating a smoother visual transition into the main application.

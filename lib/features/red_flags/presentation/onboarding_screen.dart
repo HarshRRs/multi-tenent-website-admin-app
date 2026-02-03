@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
+import 'package:rockster/core/theme/app_colors.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -63,25 +64,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0D0D0D),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Stack(
         children: [
-          // Background gradient
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Color(0xFF1A0A0A),
-                  Color(0xFF0D0D0D),
-                  Color(0xFF0D0D0D),
-                ],
-              ),
-            ),
-          ),
-
           // Main content
           Column(
             children: [
@@ -96,7 +84,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       child: Text(
                         'Skip',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.6),
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                           fontSize: 16,
                         ),
                       ),
@@ -114,7 +102,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   },
                   itemCount: _slides.length,
                   itemBuilder: (context, index) {
-                    return _buildSlide(_slides[index], index);
+                    return _buildSlide(_slides[index], index, theme);
                   },
                 ),
               ),
@@ -136,8 +124,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           width: _currentPage == index ? 32 : 8,
                           decoration: BoxDecoration(
                             color: _currentPage == index
-                                ? const Color(0xFFDC143C)
-                                : Colors.white.withOpacity(0.3),
+                                ? AppColors.electricRose
+                                : theme.colorScheme.onSurface.withValues(alpha: 0.3),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -153,13 +141,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       child: ElevatedButton(
                         onPressed: _nextPage,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFDC143C),
+                          backgroundColor: AppColors.electricRose,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
                           elevation: 8,
-                          shadowColor: const Color(0xFFDC143C).withOpacity(0.5),
+                          shadowColor: AppColors.electricRose.withValues(alpha: 0.5),
                         ),
                         child: Text(
                           _currentPage == _slides.length - 1
@@ -185,7 +173,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  Widget _buildSlide(OnboardingSlide slide, int index) {
+  Widget _buildSlide(OnboardingSlide slide, int index, ThemeData theme) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -199,7 +187,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFFDC143C).withOpacity(0.3),
+                  color: AppColors.electricRose.withValues(alpha: 0.3),
                   blurRadius: 30,
                   spreadRadius: 5,
                 ),
@@ -224,11 +212,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           Text(
             slide.title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 28,
+            style: theme.textTheme.displaySmall?.copyWith(
               fontWeight: FontWeight.w900,
               letterSpacing: 2,
+              color: theme.colorScheme.onSurface,
             ),
           ).animate().fadeIn(delay: 200.ms).slideX(begin: -0.2),
 
@@ -238,9 +225,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           Text(
             slide.subtitle,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: const Color(0xFFDC143C).withOpacity(0.9),
-              fontSize: 18,
+            style: theme.textTheme.titleLarge?.copyWith(
+              color: AppColors.electricRose.withValues(alpha: 0.9),
               fontWeight: FontWeight.w600,
             ),
           ).animate().fadeIn(delay: 300.ms),
@@ -251,9 +237,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           Text(
             slide.description,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
-              fontSize: 16,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
               height: 1.5,
             ),
           ).animate().fadeIn(delay: 400.ms),
@@ -265,7 +250,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget _buildFallbackIllustration(int index) {
     final icons = ['🔥', '🏍️', '😈', '✊'];
     final colors = [
-      const Color(0xFFDC143C),
+      AppColors.electricRose,
       const Color(0xFF8B0000),
       const Color(0xFFB22222),
       const Color(0xFF800000),
@@ -277,8 +262,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            colors[index].withOpacity(0.8),
-            colors[index].withOpacity(0.4),
+            colors[index].withValues(alpha: 0.8),
+            colors[index].withValues(alpha: 0.4),
           ],
         ),
       ),
