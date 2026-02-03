@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:rockster/core/theme/app_colors.dart';
 import 'package:rockster/core/components/modern_card.dart';
 import 'package:rockster/features/auth/presentation/auth_provider.dart';
@@ -45,11 +44,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     
     _nameController.text = user.name;
     _addressController.text = user.address;
+    final theme = Theme.of(context);
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Edit Profile', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+        title: Text('Edit Profile', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -97,20 +97,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     
     // Localization - hardcoded for now
     final currentLocale = ref.watch(localeProvider);
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: AppColors.cloudDancer,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            backgroundColor: AppColors.cloudDancer,
+            backgroundColor: theme.scaffoldBackgroundColor,
             surfaceTintColor: Colors.transparent,
             pinned: true,
             title: Text(
               AppLocalizations.of(context)!.settingsTitle,
-              style: GoogleFonts.inter(
+              style: theme.textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: AppColors.deepInk,
+                color: theme.colorScheme.onSurface,
               ),
             ),
           ),
@@ -138,13 +139,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           children: [
                             CircleAvatar(
                               radius: 30,
-                              backgroundColor: AppColors.burntTerracotta,
+                              backgroundColor: AppColors.liquidAmber,
                               child: Text(
                                 restaurantName.isNotEmpty ? restaurantName[0].toUpperCase() : 'C',
-                                style: GoogleFonts.inter(
+                                style: theme.textTheme.headlineSmall?.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 20,
                                 ),
                               ),
                             ),
@@ -155,17 +155,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 children: [
                                   Text(
                                     restaurantName,
-                                    style: GoogleFonts.inter(
-                                      fontSize: 18,
+                                    style: theme.textTheme.titleMedium?.copyWith(
                                       fontWeight: FontWeight.bold,
-                                      color: AppColors.deepInk,
+                                      color: theme.colorScheme.onSurface,
                                     ),
                                   ),
                                     Text(
                                       address,
-                                      style: GoogleFonts.inter(
-                                        fontSize: 14,
-                                        color: AppColors.textSecondaryLight,
+                                      style: theme.textTheme.bodyMedium?.copyWith(
+                                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -174,7 +172,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               ),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.edit_outlined, color: AppColors.burntTerracotta, size: 20),
+                              icon: const Icon(Icons.edit_outlined, color: AppColors.liquidAmber, size: 20),
                               onPressed: _showEditProfileDialog,
                             ),
                           ],
@@ -201,17 +199,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                   const SizedBox(width: 12),
                                   Text(
                                     user?.isStoreOpen == true ? 'Store is Open' : 'Store is Closed',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 15,
+                                    style: theme.textTheme.bodyMedium?.copyWith(
                                       fontWeight: FontWeight.w600,
                                       color: user?.isStoreOpen == true ? AppColors.success : AppColors.error,
                                     ),
                                   ),
                                 ],
                               ),
-                              Switch(
+                              Switch.adaptive(
                                 value: user?.isStoreOpen ?? false,
-                                activeColor: AppColors.success,
                                 activeTrackColor: AppColors.success.withValues(alpha: 0.3),
                                 inactiveThumbColor: AppColors.error,
                                 inactiveTrackColor: AppColors.error.withValues(alpha: 0.3),
@@ -229,11 +225,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 
                 const SizedBox(height: 24),
                 
-                _buildSectionHeader(AppLocalizations.of(context)!.settingsPreferences.toUpperCase()),
+                _buildSectionHeader(AppLocalizations.of(context)!.settingsPreferences.toUpperCase(), theme),
                 _buildSettingTile(
                   icon: Icons.notifications_outlined,
                   title: AppLocalizations.of(context)!.settingsNotifications,
                   subtitle: 'Manage alerts and sounds',
+                  theme: theme,
                   onTap: () {
                     showModalBottomSheet(
                       context: context,
@@ -247,6 +244,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   icon: Icons.language,
                   title: AppLocalizations.of(context)!.settingsLanguage,
                   subtitle: currentLocale.languageCode == 'en' ? 'English (US)' : 'Français',
+                  theme: theme,
                   onTap: () {
                      // Toggle Language
                      final newLocale = currentLocale.languageCode == 'en' 
@@ -266,11 +264,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 
                 const SizedBox(height: 24),
                 
-                _buildSectionHeader(AppLocalizations.of(context)!.settingsHardware.toUpperCase()),
+                _buildSectionHeader(AppLocalizations.of(context)!.settingsHardware.toUpperCase(), theme),
                 _buildSettingTile(
                   icon: Icons.print_outlined,
                   title: AppLocalizations.of(context)!.settingsPrinter,
                   subtitle: 'Epson TM Series / ESC/POS',
+                  theme: theme,
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(builder: (_) => const PrinterSettingsScreen()),
@@ -280,11 +279,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 
                 const SizedBox(height: 24),
                 
-                _buildSectionHeader('WEBSITE'),
+                _buildSectionHeader('WEBSITE', theme),
                 _buildSettingTile(
                   icon: Icons.language_outlined,
                   title: 'Website Subdomain',
                   subtitle: user?.slug != null ? '${user!.slug}.cosmosadmin.com' : 'Set your website URL',
+                  theme: theme,
                   onTap: () {
                     context.push('/subdomain-settings');
                   },
@@ -292,11 +292,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 
                 const SizedBox(height: 24),
                 
-                _buildSectionHeader(AppLocalizations.of(context)!.settingsAccount.toUpperCase()),
+                _buildSectionHeader(AppLocalizations.of(context)!.settingsAccount.toUpperCase(), theme),
                  _buildSettingTile(
                   icon: Icons.logout,
                    title: AppLocalizations.of(context)!.settingsSignOut,
                    subtitle: 'Log out of your account',
+                   theme: theme,
                    onTap: () {
                      ref.read(authNotifierProvider.notifier).logout();
                      context.go('/login');
@@ -313,15 +314,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(String title, ThemeData theme) {
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 12),
       child: Text(
         title.toUpperCase(),
-        style: GoogleFonts.inter(
-          fontSize: 12,
+        style: theme.textTheme.labelSmall?.copyWith(
           fontWeight: FontWeight.w600,
-          color: AppColors.textSecondaryLight,
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
           letterSpacing: 1.2,
         ),
       ),
@@ -332,6 +332,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     required IconData icon,
     required String title,
     required String subtitle,
+    required ThemeData theme,
     Widget? trailing,
     VoidCallback? onTap,
     bool isDestructive = false,
@@ -346,12 +347,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             decoration: BoxDecoration(
               color: isDestructive 
                   ? AppColors.error.withValues(alpha: 0.1)
-                  : AppColors.burntTerracotta.withValues(alpha: 0.1),
+                  : AppColors.liquidAmber.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
               icon,
-              color: isDestructive ? AppColors.error : AppColors.burntTerracotta,
+              color: isDestructive ? AppColors.error : AppColors.liquidAmber,
               size: 20,
             ),
           ),
@@ -362,24 +363,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.inter(
+                  style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: isDestructive ? AppColors.error : AppColors.deepInk,
-                    fontSize: 15,
+                    color: isDestructive ? AppColors.error : theme.colorScheme.onSurface,
                   ),
                 ),
                 Text(
                   subtitle,
-                  style: GoogleFonts.inter(
-                    color: AppColors.textSecondaryLight,
-                    fontSize: 13,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
               ],
             ),
           ),
           if (trailing != null) trailing
-          else Icon(Icons.chevron_right, color: AppColors.softBorder),
+          else Icon(Icons.chevron_right, color: AppColors.etherealBorder),
         ],
       ),
     );

@@ -33,3 +33,7 @@ This journal records critical UX and accessibility learnings specific to this pr
 ## 2024-05-23 - Onboarding Modernization
 **Learning:** Hardcoded gradients and colors in onboarding screens create a disconnect from the app's core branding once the user logs in.
 **Action:** Refactored `OnboardingScreen` to use semantic colors from `AppTheme` (like `AppColors.electricRose` and `scaffoldBackgroundColor`), creating a smoother visual transition into the main application.
+
+## 2024-05-23 - Global Card Theming
+**Learning:** Reusable card components (`ModernCard`) should react to `Theme.of(context)` brightness to support Dark Mode correctly without complex conditional logic in every usage.
+**Action:** Updated `ModernCard` to use standard `theme.cardTheme.color` and `theme.brightness`, simplifying the implementation and ensuring consistent behavior across light and dark modes.

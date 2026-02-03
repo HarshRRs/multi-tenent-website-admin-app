@@ -1,7 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:rockster/core/theme/app_colors.dart';
-import 'package:rockster/core/theme/app_text_styles.dart';
 
 /// Modern card component following 2026 design principles
 /// - 16px rounded corners
@@ -25,7 +24,8 @@ class ModernCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     
     final card = AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -33,16 +33,16 @@ class ModernCard extends StatelessWidget {
       padding: padding ?? const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: isGlass 
-            ? (isDark ? Colors.white.withOpacity(0.05) : Colors.white.withOpacity(0.7))
-            : (isDark ? AppColors.midnightOnyx : Colors.white),
+            ? (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white.withValues(alpha: 0.7))
+            : theme.cardTheme.color,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: isDark ? Colors.white.withOpacity(0.08) : AppColors.etherealBorder,
+          color: isDark ? Colors.white.withValues(alpha: 0.08) : AppColors.etherealBorder,
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.04),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.04),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -89,6 +89,8 @@ class StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return ModernCard(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -103,13 +105,13 @@ class StatCard extends StatelessWidget {
                   gradient: LinearGradient(
                     colors: [
                       AppColors.liquidAmber,
-                      AppColors.liquidAmber.withOpacity(0.8),
+                      AppColors.liquidAmber.withValues(alpha: 0.8),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.liquidAmber.withOpacity(0.3),
+                      color: AppColors.liquidAmber.withValues(alpha: 0.3),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -126,8 +128,8 @@ class StatCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: (isTrendPositive ?? true)
-                        ? AppColors.success.withOpacity(0.1)
-                        : AppColors.error.withOpacity(0.1),
+                        ? AppColors.success.withValues(alpha: 0.1)
+                        : AppColors.error.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -140,7 +142,7 @@ class StatCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         trend!,
-                        style: AppTextStyles.labelMedium.copyWith(
+                        style: theme.textTheme.labelMedium?.copyWith(
                           color: (isTrendPositive ?? true) ? AppColors.success : AppColors.error,
                         ),
                       ),
@@ -152,14 +154,14 @@ class StatCard extends StatelessWidget {
           const SizedBox(height: 24),
           Text(
             title,
-            style: AppTextStyles.labelLarge.copyWith(
+            style: theme.textTheme.labelLarge?.copyWith(
               color: Colors.grey,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             value,
-            style: AppTextStyles.displayMedium,
+            style: theme.textTheme.displayMedium,
           ),
         ],
       ),
