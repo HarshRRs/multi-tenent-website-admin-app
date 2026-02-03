@@ -2,11 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
-import 'package:rockster/core/theme/app_colors.dart';
-import 'package:rockster/core/components/cosmic_background.dart';
-import 'package:rockster/core/components/glowing_text.dart';
-import 'package:rockster/core/components/cosmic_input_field.dart';
-import 'package:rockster/core/components/cosmic_button.dart';
 import 'package:rockster/features/auth/presentation/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -79,43 +74,43 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     final authState = ref.watch(authNotifierProvider);
     final isLoading = authState.status == AuthStatus.loading;
+    final theme = Theme.of(context);
 
     return Scaffold(
-      body: CosmicBackground(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 60),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 440),
-              child: Form(
-                key: _formKey,
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 60),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 440),
+            child: Form(
+              key: _formKey,
+              child: AutofillGroup(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Glowing COSMOS title - CENTERED (no hero image)
-                    const GlowingText(
-                      text: 'COSMOS',
-                      style: TextStyle(
-                        fontSize: 56,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 4.0,
+                    // Premium Title
+                    Center(
+                      child: Text(
+                        'COSMOS',
+                        style: theme.textTheme.displayMedium?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 4.0,
+                          color: theme.colorScheme.primary,
+                        ),
                       ),
-                      glowColor: Colors.cyan,
-                      glowRadius: 28,
                     ).animate().fadeIn(duration: 800.ms).slideY(begin: -0.2, end: 0),
                     
                     const SizedBox(height: 12),
                     
-                    // BUSINESS ADMIN subtitle
-                    Text(
-                      'BUSINESS ADMIN',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 3.5,
+                    Center(
+                      child: Text(
+                        'BUSINESS ADMIN',
+                        style: theme.textTheme.labelLarge?.copyWith(
+                          letterSpacing: 3.5,
+                          fontWeight: FontWeight.w600,
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                        ),
                       ),
                     ).animate().fadeIn(duration: 800.ms, delay: 200.ms),
                     
@@ -124,35 +119,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     // Welcome Back
                     Text(
                       'Welcome Back',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 28,
+                      style: theme.textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onSurface,
                       ),
                     ).animate().fadeIn(duration: 600.ms, delay: 300.ms),
                     
                     const SizedBox(height: 8),
                     
-                    // Subtitle
                     Text(
                       'Sign in to manage your business',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ).animate().fadeIn(duration: 600.ms, delay: 400.ms),
                     
                     const SizedBox(height: 48),
                     
                     // Email Input
-                    CosmicInputField(
-                      label: 'Email Address',
-                      hint: 'owner@business.com',
-                      icon: Icons.email_outlined,
+                    TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
+                      autofillHints: const [AutofillHints.email],
+                      textInputAction: TextInputAction.next,
+                      style: TextStyle(color: theme.colorScheme.onSurface),
+                      decoration: const InputDecoration(
+                        labelText: 'Email Address',
+                        hintText: 'owner@business.com',
+                        prefixIcon: Icon(Icons.email_outlined),
+                      ),
                       validator: (value) {
                         if (value == null || value.isEmpty) return 'Required';
                         if (!value.contains('@')) return 'Invalid email';
@@ -163,19 +158,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     const SizedBox(height: 20),
                     
                     // Password Input
-                    CosmicInputField(
-                      label: 'Password',
-                      hint: '••••••••',
-                      icon: Icons.lock_outline,
+                    TextFormField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                          color: Colors.white60,
+                      autofillHints: const [AutofillHints.password],
+                      textInputAction: TextInputAction.done,
+                      style: TextStyle(color: theme.colorScheme.onSurface),
+                      onFieldSubmitted: (_) => _handleLogin(),
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        hintText: '••••••••',
+                        prefixIcon: const Icon(Icons.lock_outline),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                          ),
+                          tooltip: _obscurePassword ? 'Show password' : 'Hide password',
+                          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                         ),
-                        tooltip: _obscurePassword ? 'Show password' : 'Hide password',
-                        onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                       ),
                       validator: (value) => (value == null || value.isEmpty) ? 'Required' : null,
                     ).animate().fadeIn(duration: 600.ms, delay: 600.ms).slideX(begin: -0.2, end: 0),
@@ -183,14 +183,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     const SizedBox(height: 16),
                     
                     // Forgot Password
-                    Center(
+                    Align(
+                      alignment: Alignment.centerRight,
                       child: TextButton(
                         onPressed: () => context.push('/forgot-password'),
-                        child: const Text(
+                        child: Text(
                           'Forgot Password?',
                           style: TextStyle(
-                            color: Colors.cyan,
-                            fontSize: 14,
+                            color: theme.colorScheme.primary,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -200,41 +200,44 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     const SizedBox(height: 32),
                     
                     // Sign In Button
-                    CosmicButton(
-                      text: 'SIGN IN',
-                      onPressed: _handleLogin,
-                      isLoading: isLoading,
+                    SizedBox(
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: isLoading ? null : _handleLogin,
+                        child: isLoading
+                            ? const SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              )
+                            : const Text(
+                                'SIGN IN',
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                      ),
                     ).animate().fadeIn(duration: 600.ms, delay: 800.ms).scale(begin: const Offset(0.95, 0.95)),
                     
                     const SizedBox(height: 40),
                     
                     // New to Cosmos?
-                    Center(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'New to Cosmos?  ',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          TextButton(
-                            onPressed: () => context.push('/register'),
-                            style: TextButton.styleFrom(
-                              padding: EdgeInsets.zero,
-                              minimumSize: const Size(0, 0),
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            ),
-                            child: const Text(
-                              'Create Account',
-                              style: TextStyle(
-                                color: Colors.cyan,
-                                fontWeight: FontWeight.bold,
-                              ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'New to Cosmos? ',
+                          style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.7)),
+                        ),
+                        GestureDetector(
+                          onTap: () => context.push('/register'),
+                          child: Text(
+                            'Create Account',
+                            style: TextStyle(
+                              color: theme.colorScheme.primary,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ).animate().fadeIn(duration: 600.ms, delay: 900.ms),
                   ],
                 ),
