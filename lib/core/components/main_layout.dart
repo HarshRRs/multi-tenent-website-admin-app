@@ -129,7 +129,7 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.liquidAmber.withOpacity(0.1),
+                    color: AppColors.liquidAmber.withValues(alpha: 0.1),
                     blurRadius: 150,
                     spreadRadius: 50,
                   ),

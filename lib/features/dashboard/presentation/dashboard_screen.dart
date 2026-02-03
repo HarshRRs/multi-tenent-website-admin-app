@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:rockster/core/theme/app_colors.dart';
 import 'package:rockster/core/theme/app_text_styles.dart';
 import 'package:rockster/core/components/modern_card.dart';
@@ -92,9 +91,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final stats = dashboardState.stats;
     final recentOrders = dashboardState.recentOrders;
     final isLoading = dashboardState.status == DataStatus.loading && stats == null;
+    final theme = Theme.of(context);
+    final authState = ref.watch(authNotifierProvider);
+    final isStoreOpen = authState.user?.isStoreOpen ?? false;
     
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: _onRefresh,
         color: AppColors.liquidAmber,
@@ -107,13 +109,39 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'ELITE INTELLIGENCE',
-                      style: AppTextStyles.labelLarge.copyWith(
-                        color: AppColors.liquidAmber,
-                        letterSpacing: 2.0,
-                        fontWeight: FontWeight.w800,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'ELITE INTELLIGENCE',
+                          style: AppTextStyles.labelLarge.copyWith(
+                            color: AppColors.liquidAmber,
+                            letterSpacing: 2.0,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        // Store Status Toggle
+                        Row(
+                          children: [
+                            Text(
+                              isStoreOpen ? 'OPEN' : 'CLOSED',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: isStoreOpen ? AppColors.success : Colors.grey,
+                                fontSize: 12,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Switch.adaptive(
+                              value: isStoreOpen,
+                              activeTrackColor: AppColors.liquidAmber,
+                              onChanged: (val) {
+                                ref.read(authNotifierProvider.notifier).toggleStoreStatus();
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 8),
                     Row(
@@ -123,7 +151,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           'System Overview',
                           style: AppTextStyles.displayLarge,
                         ),
-                        _buildDateTrigger(),
+                        _buildDateTrigger(context),
                       ],
                     ),
                   ],
@@ -186,23 +214,23 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  Widget _buildDateTrigger() {
+  Widget _buildDateTrigger(BuildContext context) {
     return GestureDetector(
       onTap: () => _selectDate(context),
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
           ],
         ),
-        child: const Icon(Icons.calendar_month_outlined, color: AppColors.deepInk),
+        child: Icon(Icons.calendar_month_outlined, color: Theme.of(context).colorScheme.onSurface),
       ),
     );
   }
@@ -280,7 +308,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: statusColor.withOpacity(0.1),
+              color: statusColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(Icons.shopping_bag_outlined, color: statusColor, size: 24),
@@ -365,7 +393,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         padding: const EdgeInsets.all(40),
         child: Column(
           children: [
-            Icon(Icons.inbox_outlined, size: 48, color: Colors.grey.withOpacity(0.3)),
+            Icon(Icons.inbox_outlined, size: 48, color: Colors.grey.withValues(alpha: 0.3)),
             const SizedBox(height: 16),
             Text('No activity today', style: AppTextStyles.bodyMedium.copyWith(color: Colors.grey)),
           ],
@@ -411,7 +439,7 @@ class _PulseIndicatorState extends State<_PulseIndicator> with SingleTickerProvi
             color: AppColors.success,
             boxShadow: [
               BoxShadow(
-                color: AppColors.success.withOpacity(1.0 - _controller.value),
+                color: AppColors.success.withValues(alpha: 1.0 - _controller.value),
                 blurRadius: _controller.value * 10,
                 spreadRadius: _controller.value * 5,
               ),

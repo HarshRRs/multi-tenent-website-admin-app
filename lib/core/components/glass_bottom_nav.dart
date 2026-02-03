@@ -27,15 +27,15 @@ class GlassBottomNav extends StatelessWidget {
       child: Container(
         height: 72,
         decoration: BoxDecoration(
-          color: isDark ? Colors.white.withOpacity(0.08) : Colors.white.withOpacity(0.85),
+          color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.white.withValues(alpha: 0.85),
           borderRadius: BorderRadius.circular(32),
           border: Border.all(
-            color: isDark ? Colors.white.withOpacity(0.1) : Colors.white.withOpacity(0.5),
+            color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.5),
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 30,
               offset: const Offset(0, 10),
             ),
@@ -105,7 +105,7 @@ class _NavButton extends StatelessWidget {
               duration: const Duration(milliseconds: 300),
               child: Icon(
                 isSelected ? (item.activeIcon ?? item.icon) : item.icon,
-                color: isSelected ? activeColor : Colors.grey.withOpacity(0.8),
+                color: isSelected ? activeColor : Colors.grey.withValues(alpha: 0.8),
                 size: 26,
               ),
             ),

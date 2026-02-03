@@ -9,3 +9,7 @@ This journal records critical UX and accessibility learnings specific to this pr
 ## 2024-05-23 - Design System Consistency
 **Learning:** Hardcoded "Cosmic" themes in individual screens clashed with the global "Elite" design system defined in `AppColors`, creating a disjointed user experience.
 **Action:** Rely on global `AppTheme` definitions (like `inputDecorationTheme`) rather than creating custom styled widgets for basic components. This ensures a unified look and easier refactoring.
+
+## 2024-05-23 - Operational Toggles Visibility
+**Learning:** Critical business controls (like Open/Close Store) must be visible on the main Dashboard, not buried in settings.
+**Action:** Placed a high-visibility toggle in the Dashboard header to give users immediate control over their business status.
