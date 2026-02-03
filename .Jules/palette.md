@@ -37,3 +37,7 @@ This journal records critical UX and accessibility learnings specific to this pr
 ## 2024-05-23 - Global Card Theming
 **Learning:** Reusable card components (`ModernCard`) should react to `Theme.of(context)` brightness to support Dark Mode correctly without complex conditional logic in every usage.
 **Action:** Updated `ModernCard` to use standard `theme.cardTheme.color` and `theme.brightness`, simplifying the implementation and ensuring consistent behavior across light and dark modes.
+
+## 2024-05-23 - Payments Integration UI
+**Learning:** Integrating complex flows like Stripe Connect requires clear visual cues for connection status and available actions.
+**Action:** Refactored `PaymentsScreen` to clearly display connection state, balance, and management options using the new "Premium" design system, ensuring critical financial information is legible and actionable.

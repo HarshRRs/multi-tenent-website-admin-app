@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rockster/core/theme/app_colors.dart';
-import 'package:rockster/core/theme/app_text_styles.dart';
 import 'package:rockster/features/payments/domain/payment_models.dart';
 import 'package:rockster/features/payments/presentation/payments_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:rockster/core/components/modern_card.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class PaymentsScreen extends ConsumerStatefulWidget {
   const PaymentsScreen({super.key});
@@ -56,29 +54,30 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> with WidgetsBin
     final transactions = state.transactions;
     final isLoading = state.status == DataStatus.loading && stripeStatus == null;
     final isConnected = stripeStatus?.isConnected ?? false;
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: AppColors.cloudDancer,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: AppColors.cloudDancer,
+        backgroundColor: theme.scaffoldBackgroundColor,
         surfaceTintColor: Colors.transparent,
         title: Text(
           'Payments & Reports',
-          style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: AppColors.deepInk),
+          style: theme.textTheme.headlineMedium,
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.deepInk),
+          icon: Icon(Icons.arrow_back, color: theme.colorScheme.onSurface),
           onPressed: () => context.pop(),
         ),
          actions: [
           IconButton(
-            icon: const Icon(Icons.refresh, color: AppColors.deepInk),
+            icon: Icon(Icons.refresh, color: theme.colorScheme.onSurface),
             onPressed: () => ref.read(paymentsProvider.notifier).refresh(),
           ),
         ],
       ),
       body: isLoading 
-          ? const Center(child: CircularProgressIndicator(color: AppColors.burntTerracotta))
+          ? Center(child: CircularProgressIndicator(color: AppColors.liquidAmber))
           : SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -90,20 +89,19 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> with WidgetsBin
                 margin: const EdgeInsets.only(bottom: 24),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.burntTerracotta.withValues(alpha: 0.1),
+                  color: AppColors.liquidAmber.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.burntTerracotta.withValues(alpha: 0.3)),
+                  border: Border.all(color: AppColors.liquidAmber.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.info_outline, color: AppColors.burntTerracotta),
+                    const Icon(Icons.info_outline, color: AppColors.liquidAmber),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         'Stripe is not configured. Please add your Stripe keys to the server environment to enable payments.',
-                        style: GoogleFonts.inter(
-                          color: AppColors.burntTerracotta,
-                          fontSize: 13,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: AppColors.liquidAmber,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -118,7 +116,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> with WidgetsBin
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: (stripeStatus != null && !stripeStatus.stripeEnabled)
-                      ? [Colors.grey[400]!, Colors.grey[500]!]
+                      ? [Colors.grey.shade400, Colors.grey.shade500]
                       : [const Color(0xFF635BFF), const Color(0xFF5650D8)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -141,8 +139,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> with WidgetsBin
                       const SizedBox(width: 10),
                       Text(
                         'Stripe Connect',
-                        style: GoogleFonts.inter(
-                          fontSize: 22,
+                        style: theme.textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
@@ -156,7 +153,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> with WidgetsBin
                         : (isConnected
                             ? 'Your account is connected and ready to receive payouts. Manage your details in the dashboard.'
                             : 'Connect your Stripe account to start accepting payments securely.'),
-                    style: GoogleFonts.inter(color: Colors.white.withValues(alpha: 0.9)),
+                    style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white.withValues(alpha: 0.9)),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 24),
@@ -177,7 +174,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> with WidgetsBin
                               const SizedBox(width: 8),
                               Text(
                                 'Connected',
-                                style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600),
+                                style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w600),
                               ),
                             ],
                           ),
@@ -219,7 +216,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> with WidgetsBin
                               )
                             : Text(
                                 (stripeStatus != null && !stripeStatus.stripeEnabled) ? 'Service Unavailable' : 'Connect with Stripe', 
-                                style: GoogleFonts.inter(fontWeight: FontWeight.bold)
+                                style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold, color: const Color(0xFF635BFF))
                               ),
                       ),
                     ),
@@ -236,7 +233,8 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> with WidgetsBin
                     child: _buildBalanceCard(
                       'Available Balance',
                       '€${(stripeStatus?.availableBalance ?? 0).toStringAsFixed(2)}',
-                      true, // Is Primary
+                      true,
+                      theme, // Is Primary
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -244,7 +242,8 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> with WidgetsBin
                     child: _buildBalanceCard(
                       'Pending Payout',
                       '€${(stripeStatus?.pendingBalance ?? 0).toStringAsFixed(2)}',
-                      false, // Is Secondary
+                      false,
+                      theme, // Is Secondary
                     ),
                   ),
                 ],
@@ -255,10 +254,8 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> with WidgetsBin
             // Recent Transactions
             Text(
               'Recent Transactions', 
-              style: GoogleFonts.inter(
-                fontSize: 18,
+              style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: AppColors.deepInk
               ),
             ),
             const SizedBox(height: 16),
@@ -268,9 +265,9 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> with WidgetsBin
                 child: Center(
                   child: Column(
                     children: [
-                      Icon(Icons.receipt_long_outlined, size: 48, color: AppColors.textSecondaryLight.withValues(alpha: 0.5)),
+                      Icon(Icons.receipt_long_outlined, size: 48, color: theme.colorScheme.onSurface.withValues(alpha: 0.5)),
                       const SizedBox(height: 16),
-                      Text("No recent transactions", style: GoogleFonts.inter(color: AppColors.textSecondaryLight)),
+                      Text("No recent transactions", style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withValues(alpha: 0.6))),
                     ],
                   ),
                 ),
@@ -306,11 +303,11 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> with WidgetsBin
                           children: [
                             Text(
                               tx.customerName, 
-                              style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: AppColors.deepInk),
+                              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
                             ),
                             Text(
                               tx.paymentMethod, 
-                              style: GoogleFonts.inter(fontSize: 12, color: AppColors.textSecondaryLight),
+                              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
                             ),
                           ],
                         ),
@@ -320,15 +317,15 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> with WidgetsBin
                         children: [
                           Text(
                             '€${tx.amount.toStringAsFixed(2)}',
-                            style: GoogleFonts.inter(
+                            style: theme.textTheme.bodyLarge?.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: tx.status == TransactionStatus.refunded ? AppColors.textSecondaryLight : AppColors.deepInk,
+                              color: tx.status == TransactionStatus.refunded ? theme.colorScheme.onSurface.withValues(alpha: 0.6) : theme.colorScheme.onSurface,
                               decoration: tx.status == TransactionStatus.refunded ? TextDecoration.lineThrough : null,
                             ),
                           ),
                           Text(
                             DateFormat('MMM d').format(tx.date),
-                            style: GoogleFonts.inter(fontSize: 12, color: AppColors.textSecondaryLight),
+                            style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
                           ),
                         ],
                       ),
@@ -344,13 +341,13 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> with WidgetsBin
     );
   }
 
-  Widget _buildBalanceCard(String title, String amount, bool isPrimary) {
+  Widget _buildBalanceCard(String title, String amount, bool isPrimary, ThemeData theme) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isPrimary ? AppColors.deepInk : Colors.white,
+        color: isPrimary ? theme.colorScheme.primary : theme.cardTheme.color,
         borderRadius: BorderRadius.circular(20),
-        border: isPrimary ? null : Border.all(color: AppColors.softBorder),
+        border: isPrimary ? null : Border.all(color: theme.dividerColor),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -364,19 +361,17 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> with WidgetsBin
         children: [
           Text(
             title, 
-            style: GoogleFonts.inter(
-              fontSize: 12, 
-              color: isPrimary ? Colors.white70 : AppColors.textSecondaryLight,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: isPrimary ? theme.colorScheme.onPrimary.withValues(alpha: 0.8) : theme.colorScheme.onSurface.withValues(alpha: 0.6),
               fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             amount, 
-            style: GoogleFonts.inter(
-              fontSize: 24, 
+            style: theme.textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.bold,
-              color: isPrimary ? Colors.white : AppColors.deepInk,
+              color: isPrimary ? theme.colorScheme.onPrimary : theme.colorScheme.onSurface,
             ),
           ),
         ],
@@ -389,7 +384,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> with WidgetsBin
       case TransactionStatus.completed:
         return AppColors.success;
       case TransactionStatus.pending:
-        return AppColors.burntTerracotta;
+        return AppColors.liquidAmber;
       case TransactionStatus.failed:
         return AppColors.error;
       case TransactionStatus.refunded:
