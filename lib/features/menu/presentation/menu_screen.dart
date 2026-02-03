@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:rockster/core/theme/app_colors.dart';
-import 'package:rockster/core/theme/app_text_styles.dart';
-import 'package:rockster/core/components/elite_button.dart';
 import 'package:rockster/core/components/modern_card.dart';
 import 'package:rockster/features/menu/presentation/menu_provider.dart';
 import 'package:rockster/features/menu/domain/menu_models.dart';
@@ -49,16 +46,18 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
 
   void _showAddCategoryDialog(BuildContext context) {
     final controller = TextEditingController();
+    final theme = Theme.of(context);
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
-        title: Text('New Category', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+        backgroundColor: theme.colorScheme.surface,
+        title: Text('New Category', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
         content: TextField(
           controller: controller,
           decoration: InputDecoration(
             labelText: 'Category Name',
-            labelStyle: GoogleFonts.inter(),
+            labelStyle: theme.textTheme.bodyMedium,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           ),
           autofocus: true,
@@ -66,7 +65,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel', style: GoogleFonts.inter(color: AppColors.textSecondaryLight)),
+            child: Text('Cancel', style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.textSecondaryLight)),
           ),
           FilledButton(
             onPressed: () {
@@ -76,10 +75,10 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
               }
             },
             style: FilledButton.styleFrom(
-              backgroundColor: AppColors.burntTerracotta,
+              backgroundColor: AppColors.liquidAmber,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            child: Text('Add', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+            child: Text('Add', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600, color: Colors.white)),
           ),
         ],
       ),
@@ -87,20 +86,21 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
   }
 
   Future<void> _confirmDeleteCategory(BuildContext context, MenuCategory category) async {
+    final theme = Theme.of(context);
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Delete Category', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
-        content: Text('Are you sure you want to delete "${category.name}"? This cannot be undone.', style: GoogleFonts.inter()),
+        title: Text('Delete Category', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+        content: Text('Are you sure you want to delete "${category.name}"? This cannot be undone.', style: theme.textTheme.bodyMedium),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancel', style: GoogleFonts.inter(color: AppColors.textSecondaryLight)),
+            child: Text('Cancel', style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.textSecondaryLight)),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
-            child: Text('Delete', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+            child: Text('Delete', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600, color: Colors.white)),
           ),
         ],
       ),
@@ -111,48 +111,23 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
     }
   }
 
-  Future<void> _confirmDeleteProduct(BuildContext context, MenuItem product) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Delete Product', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
-        content: Text('Are you sure you want to delete "${product.name}"?', style: GoogleFonts.inter()),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancel', style: GoogleFonts.inter(color: AppColors.textSecondaryLight)),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
-            child: Text('Delete', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm == true) {
-      await ref.read(menuProvider.notifier).deleteProduct(product.id);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final menuState = ref.watch(menuProvider);
     final categories = menuState.categories;
-    final products = menuState.products;
     final isLoading = menuState.status == DataStatus.loading && categories.isEmpty;
+    final theme = Theme.of(context);
 
     if (categories.isNotEmpty) {
       _initTabController(categories.length);
     }
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           SliverAppBar(
-            backgroundColor: Colors.transparent,
+            backgroundColor: theme.scaffoldBackgroundColor,
             surfaceTintColor: Colors.transparent,
             pinned: true,
             floating: true,
@@ -163,7 +138,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
                   ? TextField(
                       controller: _searchController,
                       autofocus: true,
-                      style: AppTextStyles.headlineSmall,
+                      style: theme.textTheme.headlineSmall,
                       decoration: const InputDecoration(
                         hintText: 'Search collection...',
                         border: InputBorder.none,
@@ -171,12 +146,12 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
                     )
                   : Text(
                       'Menu Collection',
-                      style: AppTextStyles.headlineLarge,
+                      style: theme.textTheme.headlineMedium,
                     ),
             ),
             actions: [
               IconButton(
-                icon: Icon(_isSearching ? Icons.close : Icons.search, color: AppColors.deepInk),
+                icon: Icon(_isSearching ? Icons.close : Icons.search, color: theme.colorScheme.onSurface),
                 onPressed: () => setState(() => _isSearching = !_isSearching),
               ),
               if (!_isSearching) ...[
@@ -196,11 +171,11 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
                         controller: _tabController,
                         isScrollable: true,
                         labelColor: AppColors.liquidAmber,
-                        unselectedLabelColor: Colors.grey,
+                        unselectedLabelColor: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                         indicatorColor: AppColors.liquidAmber,
                         indicatorWeight: 3,
                         indicatorPadding: const EdgeInsets.symmetric(horizontal: 16),
-                        labelStyle: AppTextStyles.labelLarge,
+                        labelStyle: theme.textTheme.labelLarge,
                         dividerColor: Colors.transparent,
                         tabs: categories.map((c) => Tab(text: c.name)).toList(),
                       ),
@@ -211,7 +186,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
         body: isLoading
             ? _buildSkeletonGrid()
             : categories.isEmpty
-                ? _buildEmptyState()
+                ? _buildEmptyState(theme)
                 : TabBarView(
                     controller: _tabController,
                     children: categories.map((category) {
@@ -223,7 +198,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
                         return Center(
                           child: Text(
                             'No exquisite items found',
-                            style: AppTextStyles.bodyMedium.copyWith(color: Colors.grey),
+                            style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withValues(alpha: 0.5)),
                           ),
                         );
                       }
@@ -239,7 +214,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
                         itemCount: categoryProducts.length,
                         itemBuilder: (context, index) {
                           final product = categoryProducts[index];
-                          return _buildEliteProductCard(product);
+                          return _buildEliteProductCard(product, theme);
                         },
                       );
                     }).toList(),
@@ -255,7 +230,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
     );
   }
 
-  Widget _buildEliteProductCard(MenuItem product) {
+  Widget _buildEliteProductCard(MenuItem product, ThemeData theme) {
     return ModernCard(
       padding: EdgeInsets.zero,
       onTap: () => context.go('/menu/edit/${product.id}', extra: product),
@@ -268,7 +243,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
               children: [
                 ClipRRect(
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                  child: product.imageUrl != null
+                  child: product.imageUrl != null && product.imageUrl!.isNotEmpty
                       ? Image.network(product.imageUrl!, fit: BoxFit.cover)
                       : Container(
                           color: AppColors.etherealBorder,
@@ -282,7 +257,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.withValues(alpha: 0.8),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Transform.scale(
@@ -305,14 +280,14 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
               children: [
                 Text(
                   product.name,
-                  style: AppTextStyles.labelLarge,
+                  style: theme.textTheme.labelLarge,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
                 Text(
                   '€${product.price.toStringAsFixed(2)}',
-                  style: AppTextStyles.headlineSmall.copyWith(
+                  style: theme.textTheme.headlineSmall?.copyWith(
                     color: AppColors.liquidAmber,
                     fontWeight: FontWeight.w800,
                   ),
@@ -339,7 +314,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(ThemeData theme) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -348,25 +323,24 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
           const SizedBox(height: 24),
           Text(
             'Curate your first collection',
-            style: AppTextStyles.headlineSmall.copyWith(color: Colors.grey),
+            style: theme.textTheme.headlineSmall?.copyWith(color: Colors.grey),
           ),
           const SizedBox(height: 32),
-          EliteButton(
-            text: 'Add Category',
-            onPressed: () => _showAddCategoryDialog(context),
+          SizedBox(
             width: 220,
+            child: ElevatedButton(
+              onPressed: () => _showAddCategoryDialog(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.liquidAmber,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text('Add Category', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            ),
           ),
         ],
       ),
-    );
-  }
-}
-
-extension PaddingExtension on Widget {
-  Widget paddingSymmetric({double horizontal = 0, double vertical = 0}) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: horizontal, vertical: vertical),
-      child: this,
     );
   }
 }

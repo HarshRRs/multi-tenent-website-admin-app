@@ -17,3 +17,7 @@ This journal records critical UX and accessibility learnings specific to this pr
 ## 2024-05-23 - KDS Uptime
 **Learning:** For operational screens like "Live Orders" that act as Kitchen Display Systems (KDS), preventing screen timeout is a critical UX requirement.
 **Action:** Maintained `WakelockPlus` integration in the `OrdersScreen` refactor to ensure the device never sleeps while monitoring orders.
+
+## 2024-05-23 - Avoiding Custom Widget Wrappers
+**Learning:** Wrapping standard Flutter widgets (like `TextField`, `ElevatedButton`) in custom classes (`CustomTextField`, `CustomButton`) often leads to inconsistent styling and harder maintenance when the global theme changes.
+**Action:** Refactored `MenuScreen` and `AddEditProductScreen` to use standard widgets that inherit properties directly from `AppTheme`, reducing code duplication and enforcing the design system automatically.

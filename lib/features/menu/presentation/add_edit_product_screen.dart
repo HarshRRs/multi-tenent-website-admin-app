@@ -4,13 +4,9 @@ import 'package:flutter/foundation.dart'; // for kIsWeb
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:rockster/core/components/custom_button.dart';
-import 'package:rockster/core/components/custom_text_field.dart';
 import 'package:rockster/core/theme/app_colors.dart';
-import 'package:rockster/core/theme/app_text_styles.dart';
 import 'package:rockster/features/menu/domain/menu_models.dart';
 import 'package:rockster/features/menu/presentation/menu_provider.dart';
-import 'package:rockster/features/menu/data/menu_service.dart';
 import 'package:rockster/core/providers/providers.dart';
 import 'package:rockster/features/auth/presentation/auth_provider.dart';
 
@@ -226,10 +222,14 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
     final categories = menuState.categories;
     final maxImages = _maxImages;
     final currentCount = _currentImages.length + _pickedImages.length;
+    final theme = Theme.of(context);
 
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(isEditing ? 'Edit Product' : 'Add New Product'),
+        backgroundColor: theme.scaffoldBackgroundColor,
+        surfaceTintColor: Colors.transparent,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
@@ -243,7 +243,7 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Image Gallery / Picker
-              Text('Images ($currentCount/$maxImages)', style: AppTextStyles.labelMedium.copyWith(color: AppColors.deepInk)),
+              Text('Images ($currentCount/$maxImages)', style: theme.textTheme.titleMedium),
               const SizedBox(height: 12),
               
               SizedBox(
@@ -259,16 +259,16 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
                                     width: 120,
                                     margin: const EdgeInsets.only(right: 12),
                                     decoration: BoxDecoration(
-                                        color: AppColors.surfaceLight,
+                                        color: theme.colorScheme.surface,
                                         borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+                                        border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.3)),
                                     ),
-                                    child: const Column(
+                                    child: Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                            Icon(Icons.add_a_photo, color: AppColors.primaryLight),
-                                            SizedBox(height: 4),
-                                            Text('Add', style: TextStyle(color: AppColors.textSecondaryLight, fontSize: 12)),
+                                            Icon(Icons.add_a_photo, color: theme.colorScheme.primary),
+                                            const SizedBox(height: 4),
+                                            Text('Add', style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 12)),
                                         ],
                                     ),
                                 ),
@@ -296,19 +296,23 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
               ),
               const SizedBox(height: 24),
 
-              CustomTextField(
-                label: 'Product Name',
-                hint: 'e.g., Truffle Burger',
+              TextFormField(
                 controller: _nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Product Name',
+                  hintText: 'e.g., Truffle Burger',
+                ),
                 validator: (val) => val == null || val.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 16),
 
-              CustomTextField(
-                label: 'Description',
-                hint: 'Ingredients and details...',
+              TextFormField(
                 controller: _descriptionController,
                 maxLines: 3,
+                decoration: const InputDecoration(
+                  labelText: 'Description',
+                  hintText: 'Ingredients and details...',
+                ),
                 validator: (val) => val == null || val.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 16),
@@ -316,12 +320,14 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: CustomTextField(
-                      label: 'Price',
-                      hint: '0.00',
+                    child: TextFormField(
                       controller: _priceController,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      prefixIcon: Icons.euro,
+                      decoration: const InputDecoration(
+                        labelText: 'Price',
+                        hintText: '0.00',
+                        prefixIcon: Icon(Icons.euro),
+                      ),
                       validator: (val) {
                         if (val == null || val.isEmpty) return 'Required';
                         if (double.tryParse(val) == null) return 'Invalid';
@@ -331,32 +337,17 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Category', style: AppTextStyles.labelMedium.copyWith(color: AppColors.deepInk)),
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
-                          ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              value: _selectedCategory,
-                              isExpanded: true,
-                              hint: const Text('Select'),
-                              items: categories.map((c) => DropdownMenuItem(
-                                value: c.id,
-                                child: Text(c.name),
-                              )).toList(),
-                              onChanged: (val) => setState(() => _selectedCategory = val),
-                            ),
-                          ),
-                        ),
-                      ],
+                    child: DropdownButtonFormField<String>(
+                      value: _selectedCategory,
+                      decoration: const InputDecoration(
+                        labelText: 'Category',
+                      ),
+                      hint: const Text('Select'),
+                      items: categories.map((c) => DropdownMenuItem(
+                        value: c.id,
+                        child: Text(c.name),
+                      )).toList(),
+                      onChanged: (val) => setState(() => _selectedCategory = val),
                     ),
                   ),
                 ],
@@ -367,7 +358,7 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
               Theme(
                 data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
                 child: ExpansionTile(
-                  title: Text('Menu Modifiers', style: AppTextStyles.headlineMedium.copyWith(fontSize: 18)),
+                  title: Text('Menu Modifiers', style: theme.textTheme.headlineSmall?.copyWith(fontSize: 18)),
                   subtitle: const Text('Add extras like "Extra Cheese" or "Large Size"', style: TextStyle(fontSize: 12)),
                   children: [
                     ..._modifierGroups.asMap().entries.map((groupEntry) {
@@ -377,9 +368,9 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
                         margin: const EdgeInsets.only(bottom: 16, left: 8, right: 8),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: AppColors.surfaceLight,
+                          color: theme.colorScheme.surface,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.softBorder),
+                          border: Border.all(color: theme.dividerColor),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -387,10 +378,12 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
                             Row(
                               children: [
                                 Expanded(
-                                  child: CustomTextField(
-                                    label: 'Group Name',
-                                    hint: 'e.g., Size',
+                                  child: TextFormField(
                                     controller: group.nameController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Group Name',
+                                      hintText: 'e.g., Size',
+                                    ),
                                   ),
                                 ),
                                 IconButton(
@@ -403,26 +396,30 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
                             Row(
                               children: [
                                 Expanded(
-                                  child: CustomTextField(
-                                    label: 'Min Select',
-                                    hint: '0',
+                                  child: TextFormField(
                                     controller: group.minController,
                                     keyboardType: TextInputType.number,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Min Select',
+                                      hintText: '0',
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(width: 8),
                                 Expanded(
-                                  child: CustomTextField(
-                                    label: 'Max Select',
-                                    hint: '1',
+                                  child: TextFormField(
                                     controller: group.maxController,
                                     keyboardType: TextInputType.number,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Max Select',
+                                      hintText: '1',
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
                             const Divider(height: 24),
-                            Text('Options', style: AppTextStyles.labelMedium),
+                            Text('Options', style: theme.textTheme.titleSmall),
                             ...group.modifiers.asMap().entries.map((modEntry) {
                               final modIndex = modEntry.key;
                               final mod = modEntry.value;
@@ -432,20 +429,24 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
                                   children: [
                                     Expanded(
                                       flex: 3,
-                                      child: CustomTextField(
-                                        label: 'Name',
-                                        hint: 'Name',
+                                      child: TextFormField(
                                         controller: mod.nameController,
+                                        decoration: const InputDecoration(
+                                          labelText: 'Name',
+                                          hintText: 'Option Name',
+                                        ),
                                       ),
                                     ),
                                     const SizedBox(width: 8),
                                     Expanded(
                                       flex: 2,
-                                      child: CustomTextField(
-                                        label: 'Price',
-                                        hint: 'Extra €',
+                                      child: TextFormField(
                                         controller: mod.priceController,
                                         keyboardType: TextInputType.number,
+                                        decoration: const InputDecoration(
+                                          labelText: 'Price',
+                                          hintText: 'Extra €',
+                                        ),
                                       ),
                                     ),
                                     IconButton(
@@ -467,10 +468,14 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
                     }),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: CustomButton(
-                        text: 'Add Modifier Group',
-                        isOutlined: true,
+                      child: OutlinedButton(
                         onPressed: () => setState(() => _modifierGroups.add(ModifierGroupEditState())),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          side: BorderSide(color: theme.colorScheme.primary),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: Text('Add Modifier Group', style: TextStyle(color: theme.colorScheme.primary)),
                       ),
                     ),
                   ],
@@ -478,18 +483,29 @@ class _AddEditProductScreenState extends ConsumerState<AddEditProductScreen> {
               ),
               const SizedBox(height: 32),
 
-              CustomButton(
-                text: 'Save Product',
-                isLoading: _isLoading,
-                onPressed: _handleSave,
+              SizedBox(
+                height: 56,
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : _handleSave,
+                  child: _isLoading
+                      ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                      : const Text('Save Product', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                ),
               ),
               
               if (isEditing) ...[
                 const SizedBox(height: 16),
-                CustomButton(
-                  text: 'Delete Product',
-                  isOutlined: true,
-                  onPressed: _handleDelete,
+                SizedBox(
+                  height: 56,
+                  child: OutlinedButton(
+                    onPressed: _handleDelete,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.error,
+                      side: const BorderSide(color: AppColors.error),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: const Text('Delete Product', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  ),
                 ),
               ],
             ],
