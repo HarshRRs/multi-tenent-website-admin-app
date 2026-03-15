@@ -1,7 +1,7 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'dart:convert';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:rockster/core/utils/secure_storage.dart';
+import 'package:event_bite/core/utils/secure_storage.dart';
 
 enum WebSocketStatus { disconnected, connecting, connected, error }
 

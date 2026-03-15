@@ -1,7 +1,7 @@
-import 'package:rockster/core/utils/secure_storage.dart';
-import 'package:rockster/features/auth/data/auth_service.dart';
-import 'package:rockster/features/auth/domain/auth_models.dart';
-import 'package:rockster/features/auth/domain/auth_repository.dart';
+﻿import 'package:event_bite/core/utils/secure_storage.dart';
+import 'package:event_bite/features/auth/data/auth_service.dart';
+import 'package:event_bite/features/auth/domain/auth_models.dart';
+import 'package:event_bite/features/auth/domain/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthService _authService;

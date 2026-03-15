@@ -1,4 +1,4 @@
-import 'package:rockster/features/menu/domain/menu_models.dart';
+﻿import 'package:event_bite/features/menu/domain/menu_models.dart';
 
 // Categories
 List<MenuCategory> categoriesFromJson(List<dynamic> json) {

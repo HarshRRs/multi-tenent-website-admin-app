@@ -1,4 +1,4 @@
-import 'package:rockster/features/reservations/domain/reservation_models.dart';
+﻿import 'package:event_bite/features/reservations/domain/reservation_models.dart';
 
 // Tables
 List<RestaurantTable> tablesFromJson(List<dynamic> json) {

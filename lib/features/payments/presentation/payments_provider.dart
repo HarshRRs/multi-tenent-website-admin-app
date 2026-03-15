@@ -1,8 +1,8 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:rockster/core/providers/providers.dart';
-import 'package:rockster/features/payments/data/payment_dto.dart';
-import 'package:rockster/features/payments/data/payment_service.dart';
-import 'package:rockster/features/payments/domain/payment_models.dart';
+﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:event_bite/core/providers/providers.dart';
+import 'package:event_bite/features/payments/data/payment_dto.dart';
+import 'package:event_bite/features/payments/data/payment_service.dart';
+import 'package:event_bite/features/payments/domain/payment_models.dart';
 // import 'package:url_launcher/url_launcher.dart';
 
 enum DataStatus { initial, loading, success, error }

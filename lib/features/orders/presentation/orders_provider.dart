@@ -1,10 +1,10 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:rockster/core/providers/providers.dart';
-import 'package:rockster/core/utils/cache_service.dart';
-import 'package:rockster/features/orders/data/order_dto.dart';
-import 'package:rockster/features/orders/data/order_service.dart';
-import 'package:rockster/features/orders/domain/order_model.dart';
-import 'package:rockster/features/dashboard/presentation/dashboard_provider.dart';
+﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:event_bite/core/providers/providers.dart';
+import 'package:event_bite/core/utils/cache_service.dart';
+import 'package:event_bite/features/orders/data/order_dto.dart';
+import 'package:event_bite/features/orders/data/order_service.dart';
+import 'package:event_bite/features/orders/domain/order_model.dart';
+import 'package:event_bite/features/dashboard/presentation/dashboard_provider.dart';
 
 enum DataStatus { initial, loading, success, error }
 

@@ -1,8 +1,8 @@
-import 'package:dio/dio.dart';
+﻿import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:rockster/core/network/interceptors/auth_interceptor.dart';
-import 'package:rockster/core/network/interceptors/error_interceptor.dart';
-import 'package:rockster/core/network/interceptors/logging_interceptor.dart';
+import 'package:event_bite/core/network/interceptors/auth_interceptor.dart';
+import 'package:event_bite/core/network/interceptors/error_interceptor.dart';
+import 'package:event_bite/core/network/interceptors/logging_interceptor.dart';
 
 import 'package:flutter/material.dart';
 

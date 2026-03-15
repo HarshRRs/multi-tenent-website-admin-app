@@ -1,4 +1,4 @@
-import 'package:rockster/features/payments/domain/payment_models.dart';
+﻿import 'package:event_bite/features/payments/domain/payment_models.dart';
 
 // Transactions
 List<Transaction> transactionsFromJson(List<dynamic> json) {

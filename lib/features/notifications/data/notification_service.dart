@@ -1,5 +1,5 @@
-import 'package:dio/dio.dart';
-import 'package:rockster/features/notifications/domain/notification_model.dart';
+﻿import 'package:dio/dio.dart';
+import 'package:event_bite/features/notifications/domain/notification_model.dart';
 
 class NotificationService {
   final Dio _dio;

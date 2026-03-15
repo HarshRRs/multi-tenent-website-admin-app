@@ -1,13 +1,13 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:rockster/core/network/api_client.dart';
-import 'package:rockster/core/utils/secure_storage.dart';
-import 'package:rockster/features/auth/data/auth_repository_impl.dart';
-import 'package:rockster/features/auth/data/auth_service.dart';
-import 'package:rockster/features/auth/domain/auth_models.dart';
-import 'package:rockster/features/auth/domain/auth_repository.dart';
-import 'package:rockster/core/providers/messenger_provider.dart';
+﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:event_bite/core/network/api_client.dart';
+import 'package:event_bite/core/utils/secure_storage.dart';
+import 'package:event_bite/features/auth/data/auth_repository_impl.dart';
+import 'package:event_bite/features/auth/data/auth_service.dart';
+import 'package:event_bite/features/auth/domain/auth_models.dart';
+import 'package:event_bite/features/auth/domain/auth_repository.dart';
+import 'package:event_bite/core/providers/messenger_provider.dart';
 
-import 'package:rockster/core/providers/providers.dart';
+import 'package:event_bite/core/providers/providers.dart';
 
 // Auth State
 enum AuthStatus { initial, authenticated, unauthenticated, loading, error }

@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:rockster/core/theme/app_colors.dart';
-import 'package:rockster/core/theme/app_text_styles.dart';
-import 'package:rockster/features/reservations/domain/reservation_models.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:event_bite/core/theme/app_colors.dart';
+import 'package:event_bite/core/theme/app_text_styles.dart';
+import 'package:event_bite/features/reservations/domain/reservation_models.dart';
 
 class FloorMapWidget extends StatelessWidget {
   final List<RestaurantTable> tables;

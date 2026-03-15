@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:rockster/core/components/custom_button.dart';
-import 'package:rockster/core/components/custom_text_field.dart';
-import 'package:rockster/core/theme/app_colors.dart';
-import 'package:rockster/core/theme/app_text_styles.dart';
+import 'package:event_bite/core/components/custom_button.dart';
+import 'package:event_bite/core/components/custom_text_field.dart';
+import 'package:event_bite/core/theme/app_colors.dart';
+import 'package:event_bite/core/theme/app_text_styles.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});

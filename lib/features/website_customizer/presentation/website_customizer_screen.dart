@@ -1,15 +1,15 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-// import 'package:rockster/core/components/custom_button.dart';
-import 'package:rockster/core/components/custom_text_field.dart';
-import 'package:rockster/core/theme/app_colors.dart';
-import 'package:rockster/core/components/modern_card.dart';
-// import 'package:rockster/features/website_customizer/data/website_service.dart';
-import 'package:rockster/features/website_customizer/domain/website_models.dart';
-import 'package:rockster/features/website_customizer/presentation/widgets/website_preview_widget.dart';
+// import 'package:event_bite/core/components/custom_button.dart';
+import 'package:event_bite/core/components/custom_text_field.dart';
+import 'package:event_bite/core/theme/app_colors.dart';
+import 'package:event_bite/core/components/modern_card.dart';
+// import 'package:event_bite/features/website_customizer/data/website_service.dart';
+import 'package:event_bite/features/website_customizer/domain/website_models.dart';
+import 'package:event_bite/features/website_customizer/presentation/widgets/website_preview_widget.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:rockster/core/providers/providers.dart';
+import 'package:event_bite/core/providers/providers.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class WebsiteCustomizerScreen extends ConsumerStatefulWidget {

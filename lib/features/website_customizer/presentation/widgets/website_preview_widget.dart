@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:rockster/features/website_customizer/domain/website_models.dart';
+import 'package:event_bite/features/website_customizer/domain/website_models.dart';
 
 class WebsitePreviewWidget extends StatelessWidget {
   final WebsiteConfig config;

@@ -1,7 +1,7 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:rockster/core/providers/providers.dart';
-import 'package:rockster/features/notifications/data/notification_service.dart';
-import 'package:rockster/features/notifications/domain/notification_model.dart';
+﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:event_bite/core/providers/providers.dart';
+import 'package:event_bite/features/notifications/data/notification_service.dart';
+import 'package:event_bite/features/notifications/domain/notification_model.dart';
 
 final notificationServiceProvider = Provider<NotificationService>((ref) {
   final apiClient = ref.watch(apiClientProvider);

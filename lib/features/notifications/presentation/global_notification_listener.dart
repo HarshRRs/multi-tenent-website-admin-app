@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:rockster/core/network/websocket_service.dart';
-import 'package:rockster/core/services/sound_service.dart';
-import 'package:rockster/features/notifications/presentation/notifications_provider.dart';
-import 'package:rockster/features/orders/presentation/orders_provider.dart';
-import 'package:rockster/core/providers/providers.dart'; // For API client if needed directly or other providers
+import 'package:event_bite/core/network/websocket_service.dart';
+import 'package:event_bite/core/services/sound_service.dart';
+import 'package:event_bite/features/notifications/presentation/notifications_provider.dart';
+import 'package:event_bite/features/orders/presentation/orders_provider.dart';
+import 'package:event_bite/core/providers/providers.dart'; // For API client if needed directly or other providers
 
 class GlobalNotificationListener extends ConsumerStatefulWidget {
   final Widget child;

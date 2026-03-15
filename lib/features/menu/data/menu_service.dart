@@ -1,6 +1,6 @@
-import 'package:dio/dio.dart';
-import 'package:rockster/features/menu/data/menu_dto.dart';
-import 'package:rockster/features/menu/domain/menu_models.dart';
+﻿import 'package:dio/dio.dart';
+import 'package:event_bite/features/menu/data/menu_dto.dart';
+import 'package:event_bite/features/menu/domain/menu_models.dart';
 
 class MenuService {
   final Dio _dio;

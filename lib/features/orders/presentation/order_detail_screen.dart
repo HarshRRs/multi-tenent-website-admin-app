@@ -1,12 +1,12 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:rockster/core/components/custom_button.dart';
-import 'package:rockster/core/theme/app_colors.dart';
-import 'package:rockster/core/theme/app_text_styles.dart';
-import 'package:rockster/features/orders/domain/order_model.dart';
-import 'package:rockster/features/orders/presentation/order_detail_provider.dart';
+import 'package:event_bite/core/components/custom_button.dart';
+import 'package:event_bite/core/theme/app_colors.dart';
+import 'package:event_bite/core/theme/app_text_styles.dart';
+import 'package:event_bite/features/orders/domain/order_model.dart';
+import 'package:event_bite/features/orders/presentation/order_detail_provider.dart';
 
 class OrderDetailScreen extends ConsumerWidget {
   final String orderId;
@@ -100,7 +100,7 @@ class OrderDetailScreen extends ConsumerWidget {
                               const SizedBox(width: 12),
                               Expanded(child: Text(item.name, style: AppTextStyles.bodyMedium)),
                               // Price is missing in OrderItem model, so hiding it or showing placeholder
-                              // Text('€--', style: AppTextStyles.bodyMedium),
+                              // Text('â‚¬--', style: AppTextStyles.bodyMedium),
                             ],
                           ),
                         )),
@@ -109,7 +109,7 @@ class OrderDetailScreen extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text('Total', style: AppTextStyles.headlineMedium),
-                        Text('€${order.totalAmount.toStringAsFixed(2)}',
+                        Text('â‚¬${order.totalAmount.toStringAsFixed(2)}',
                             style: AppTextStyles.headlineMedium.copyWith(color: AppColors.primaryLight)),
                       ],
                     ),

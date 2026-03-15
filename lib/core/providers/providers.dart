@@ -1,19 +1,19 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:rockster/core/network/api_client.dart';
-import 'package:rockster/core/utils/cache_service.dart';
-import 'package:rockster/core/utils/secure_storage.dart';
-import 'package:rockster/features/auth/data/auth_repository_impl.dart';
-import 'package:rockster/features/auth/data/auth_service.dart';
-import 'package:rockster/features/auth/domain/auth_repository.dart';
-import 'package:rockster/features/dashboard/data/dashboard_service.dart';
-import 'package:rockster/features/menu/data/menu_service.dart';
-import 'package:rockster/features/orders/data/order_service.dart';
-import 'package:rockster/features/payments/data/payment_service.dart';
-import 'package:rockster/features/reservations/data/reservation_service.dart';
-import 'package:rockster/features/website_customizer/data/website_service.dart';
-import 'package:rockster/core/network/websocket_service.dart';
+﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:event_bite/core/network/api_client.dart';
+import 'package:event_bite/core/utils/cache_service.dart';
+import 'package:event_bite/core/utils/secure_storage.dart';
+import 'package:event_bite/features/auth/data/auth_repository_impl.dart';
+import 'package:event_bite/features/auth/data/auth_service.dart';
+import 'package:event_bite/features/auth/domain/auth_repository.dart';
+import 'package:event_bite/features/dashboard/data/dashboard_service.dart';
+import 'package:event_bite/features/menu/data/menu_service.dart';
+import 'package:event_bite/features/orders/data/order_service.dart';
+import 'package:event_bite/features/payments/data/payment_service.dart';
+import 'package:event_bite/features/reservations/data/reservation_service.dart';
+import 'package:event_bite/features/website_customizer/data/website_service.dart';
+import 'package:event_bite/core/network/websocket_service.dart';
 
-import 'package:rockster/core/providers/messenger_provider.dart';
+import 'package:event_bite/core/providers/messenger_provider.dart';
 
 // Core Providers
 final apiClientProvider = Provider<ApiClient>((ref) {

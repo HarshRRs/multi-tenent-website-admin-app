@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:rockster/core/theme/app_colors.dart';
-import 'package:rockster/core/theme/app_text_styles.dart';
+import 'package:event_bite/core/theme/app_colors.dart';
+import 'package:event_bite/core/theme/app_text_styles.dart';
 
 class HeroStatCard extends StatelessWidget {
   final String title;

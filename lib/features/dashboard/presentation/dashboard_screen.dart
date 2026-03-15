@@ -1,13 +1,13 @@
-import 'dart:async'; // Added
+﻿import 'dart:async'; // Added
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:rockster/core/theme/app_colors.dart';
-import 'package:rockster/core/components/modern_card.dart';
-import 'package:rockster/core/components/glossy_metric_card.dart';
-import 'package:rockster/features/auth/presentation/auth_provider.dart';
-import 'package:rockster/features/dashboard/presentation/dashboard_provider.dart';
-import 'package:rockster/features/dashboard/data/dashboard_models.dart';
+import 'package:event_bite/core/theme/app_colors.dart';
+import 'package:event_bite/core/components/modern_card.dart';
+import 'package:event_bite/core/components/glossy_metric_card.dart';
+import 'package:event_bite/features/auth/presentation/auth_provider.dart';
+import 'package:event_bite/features/dashboard/presentation/dashboard_provider.dart';
+import 'package:event_bite/features/dashboard/data/dashboard_models.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -197,7 +197,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         // Featured Metric (Revenue)
                         GlossyMetricCard(
                           title: 'Total Revenue',
-                          value: stats != null ? '€${stats.totalRevenue.toStringAsFixed(0)}' : '€0',
+                          value: stats != null ? 'â‚¬${stats.totalRevenue.toStringAsFixed(0)}' : 'â‚¬0',
                           icon: Icons.euro_outlined,
                           color: AppColors.burntTerracotta,
                         ),
@@ -333,7 +333,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '€${order.amount.toStringAsFixed(2)}',
+                'â‚¬${order.amount.toStringAsFixed(2)}',
                 style: GoogleFonts.inter(
                   fontWeight: FontWeight.bold,
                   color: AppColors.deepInk,

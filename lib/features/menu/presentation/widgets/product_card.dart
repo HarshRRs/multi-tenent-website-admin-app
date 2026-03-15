@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:rockster/core/theme/app_colors.dart';
-import 'package:rockster/core/theme/app_text_styles.dart';
-import 'package:rockster/features/menu/domain/menu_models.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:event_bite/core/theme/app_colors.dart';
+import 'package:event_bite/core/theme/app_text_styles.dart';
+import 'package:event_bite/features/menu/domain/menu_models.dart';
 
 class ProductCard extends StatelessWidget {
   final MenuItem product;
@@ -110,7 +110,7 @@ class ProductCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '€\${product.price}',
+                      'â‚¬\${product.price}',
                       style: AppTextStyles.labelLarge.copyWith(color: AppColors.primaryLight),
                     ),
                   ],

@@ -1,14 +1,14 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:rockster/core/theme/app_colors.dart';
-// import 'package:rockster/core/theme/app_text_styles.dart';
-import 'package:rockster/features/notifications/domain/notification_model.dart';
-import 'package:rockster/features/notifications/presentation/notifications_provider.dart';
+import 'package:event_bite/core/theme/app_colors.dart';
+// import 'package:event_bite/core/theme/app_text_styles.dart';
+import 'package:event_bite/features/notifications/domain/notification_model.dart';
+import 'package:event_bite/features/notifications/presentation/notifications_provider.dart';
 import 'package:intl/intl.dart';
-import 'package:rockster/core/components/modern_card.dart';
+import 'package:event_bite/core/components/modern_card.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:rockster/features/notifications/presentation/widgets/notification_settings_sheet.dart';
+import 'package:event_bite/features/notifications/presentation/widgets/notification_settings_sheet.dart';
 
 class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});

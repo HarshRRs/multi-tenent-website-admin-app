@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
-import 'package:rockster/core/theme/app_colors.dart';
-import 'package:rockster/core/components/cosmic_background.dart';
-import 'package:rockster/core/components/glowing_text.dart';
-import 'package:rockster/core/components/cosmic_input_field.dart';
-import 'package:rockster/core/components/cosmic_button.dart';
-import 'package:rockster/features/auth/presentation/auth_provider.dart';
+import 'package:event_bite/core/theme/app_colors.dart';
+import 'package:event_bite/core/components/cosmic_background.dart';
+import 'package:event_bite/core/components/glowing_text.dart';
+import 'package:event_bite/core/components/cosmic_input_field.dart';
+import 'package:event_bite/core/components/cosmic_button.dart';
+import 'package:event_bite/features/auth/presentation/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -165,7 +165,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     // Password Input
                     CosmicInputField(
                       label: 'Password',
-                      hint: '••••••••',
+                      hint: 'â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢',
                       icon: Icons.lock_outline,
                       controller: _passwordController,
                       obscureText: _obscurePassword,

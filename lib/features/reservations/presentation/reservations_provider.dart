@@ -1,7 +1,7 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:rockster/core/providers/providers.dart';
-import 'package:rockster/features/reservations/data/reservation_service.dart';
-import 'package:rockster/features/reservations/domain/reservation_models.dart';
+﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:event_bite/core/providers/providers.dart';
+import 'package:event_bite/features/reservations/data/reservation_service.dart';
+import 'package:event_bite/features/reservations/domain/reservation_models.dart';
 
 enum DataStatus { initial, loading, success, error }
 

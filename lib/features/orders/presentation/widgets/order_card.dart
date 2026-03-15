@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:rockster/core/theme/app_colors.dart';
-import 'package:rockster/core/theme/app_text_styles.dart';
-import 'package:rockster/features/orders/domain/order_model.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:event_bite/core/theme/app_colors.dart';
+import 'package:event_bite/core/theme/app_text_styles.dart';
+import 'package:event_bite/features/orders/domain/order_model.dart';
 import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
 
@@ -90,7 +90,7 @@ class OrderCard extends StatelessWidget {
                 child: const Icon(Icons.delivery_dining, size: 16, color: AppColors.textSecondaryLight),
               ),
               Text(
-                '€\${order.totalAmount.toStringAsFixed(2)}',
+                'â‚¬\${order.totalAmount.toStringAsFixed(2)}',
                 style: AppTextStyles.headlineMedium.copyWith(color: AppColors.primaryLight),
               ),
             ],

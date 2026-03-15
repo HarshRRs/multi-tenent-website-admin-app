@@ -1,12 +1,12 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:rockster/core/providers/providers.dart';
-import 'package:rockster/core/theme/app_colors.dart';
-import 'package:rockster/core/theme/app_text_styles.dart';
-import 'package:rockster/core/components/glossy_metric_card.dart';
-import 'package:rockster/features/orders/domain/order_model.dart';
-import 'package:rockster/features/orders/presentation/orders_provider.dart';
-import 'package:rockster/features/orders/presentation/widgets/kanban_column.dart';
+import 'package:event_bite/core/providers/providers.dart';
+import 'package:event_bite/core/theme/app_colors.dart';
+import 'package:event_bite/core/theme/app_text_styles.dart';
+import 'package:event_bite/core/components/glossy_metric_card.dart';
+import 'package:event_bite/features/orders/domain/order_model.dart';
+import 'package:event_bite/features/orders/presentation/orders_provider.dart';
+import 'package:event_bite/features/orders/presentation/widgets/kanban_column.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 class OrdersScreen extends ConsumerStatefulWidget {

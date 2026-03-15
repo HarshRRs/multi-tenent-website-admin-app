@@ -1,12 +1,12 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:rockster/core/theme/app_colors.dart';
-import 'package:rockster/core/theme/app_text_styles.dart';
-import 'package:rockster/features/payments/domain/payment_models.dart';
-import 'package:rockster/features/payments/presentation/payments_provider.dart';
+import 'package:event_bite/core/theme/app_colors.dart';
+import 'package:event_bite/core/theme/app_text_styles.dart';
+import 'package:event_bite/features/payments/domain/payment_models.dart';
+import 'package:event_bite/features/payments/presentation/payments_provider.dart';
 import 'package:intl/intl.dart';
-import 'package:rockster/core/components/modern_card.dart';
+import 'package:event_bite/core/components/modern_card.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class PaymentsScreen extends ConsumerStatefulWidget {
@@ -167,7 +167,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                   Expanded(
                     child: _buildBalanceCard(
                       'Available Balance',
-                      '€${(stripeStatus?.availableBalance ?? 0).toStringAsFixed(2)}',
+                      'â‚¬${(stripeStatus?.availableBalance ?? 0).toStringAsFixed(2)}',
                       true, // Is Primary
                     ),
                   ),
@@ -175,7 +175,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                   Expanded(
                     child: _buildBalanceCard(
                       'Pending Payout',
-                      '€${(stripeStatus?.pendingBalance ?? 0).toStringAsFixed(2)}',
+                      'â‚¬${(stripeStatus?.pendingBalance ?? 0).toStringAsFixed(2)}',
                       false, // Is Secondary
                     ),
                   ),
@@ -251,7 +251,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            '€${tx.amount.toStringAsFixed(2)}',
+                            'â‚¬${tx.amount.toStringAsFixed(2)}',
                             style: GoogleFonts.inter(
                               fontWeight: FontWeight.bold,
                               color: tx.status == TransactionStatus.refunded ? AppColors.textSecondaryLight : AppColors.deepInk,

@@ -1,6 +1,6 @@
-import 'package:dio/dio.dart';
-import 'package:rockster/features/orders/data/order_dto.dart';
-import 'package:rockster/features/orders/domain/order_model.dart';
+﻿import 'package:dio/dio.dart';
+import 'package:event_bite/features/orders/data/order_dto.dart';
+import 'package:event_bite/features/orders/domain/order_model.dart';
 
 class OrderService {
   final Dio _dio;

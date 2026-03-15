@@ -1,5 +1,5 @@
-import 'package:dio/dio.dart';
-import 'package:rockster/features/auth/domain/auth_models.dart';
+﻿import 'package:dio/dio.dart';
+import 'package:event_bite/features/auth/domain/auth_models.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 

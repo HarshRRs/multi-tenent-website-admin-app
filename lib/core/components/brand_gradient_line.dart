@@ -1,8 +1,8 @@
-import 'dart:ui';
+﻿import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:rockster/core/theme/app_colors.dart';
+import 'package:event_bite/core/theme/app_colors.dart';
 
-/// 2px Brand Gradient Line (Orange → Rose)
+/// 2px Brand Gradient Line (Orange â†’ Rose)
 class BrandGradientLine extends StatelessWidget {
   const BrandGradientLine({super.key});
 

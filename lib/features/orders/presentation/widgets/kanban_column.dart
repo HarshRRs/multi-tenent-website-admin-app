@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:rockster/core/theme/app_colors.dart';
-import 'package:rockster/core/theme/app_text_styles.dart';
-import 'package:rockster/features/orders/domain/order_model.dart';
-import 'package:rockster/features/orders/presentation/widgets/order_card.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:event_bite/core/theme/app_colors.dart';
+import 'package:event_bite/core/theme/app_text_styles.dart';
+import 'package:event_bite/features/orders/domain/order_model.dart';
+import 'package:event_bite/features/orders/presentation/widgets/order_card.dart';
 
 class KanbanColumn extends StatelessWidget {
   final String title;

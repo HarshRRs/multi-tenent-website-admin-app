@@ -1,7 +1,7 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:rockster/core/providers/providers.dart';
-import 'package:rockster/features/menu/data/menu_service.dart';
-import 'package:rockster/features/menu/domain/menu_models.dart';
+﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:event_bite/core/providers/providers.dart';
+import 'package:event_bite/features/menu/data/menu_service.dart';
+import 'package:event_bite/features/menu/domain/menu_models.dart';
 
 enum DataStatus { initial, loading, success, error }
 

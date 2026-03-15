@@ -1,6 +1,6 @@
-import 'package:dio/dio.dart';
-import 'package:rockster/features/reservations/data/reservation_dto.dart';
-import 'package:rockster/features/reservations/domain/reservation_models.dart';
+﻿import 'package:dio/dio.dart';
+import 'package:event_bite/features/reservations/data/reservation_dto.dart';
+import 'package:event_bite/features/reservations/domain/reservation_models.dart';
 
 class ReservationService {
   final Dio _dio;

@@ -1,6 +1,6 @@
-import 'package:dio/dio.dart';
-import 'package:rockster/core/utils/secure_storage.dart';
-import 'package:rockster/core/network/api_client.dart';
+﻿import 'package:dio/dio.dart';
+import 'package:event_bite/core/utils/secure_storage.dart';
+import 'package:event_bite/core/network/api_client.dart';
 
 class AuthInterceptor extends Interceptor {
   final SecureStorage _secureStorage = SecureStorage();

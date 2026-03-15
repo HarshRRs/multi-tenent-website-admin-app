@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:rockster/core/services/sound_service.dart';
-import 'package:rockster/core/theme/app_colors.dart';
+import 'package:event_bite/core/services/sound_service.dart';
+import 'package:event_bite/core/theme/app_colors.dart';
 
 class NotificationSettingsSheet extends StatefulWidget {
   const NotificationSettingsSheet({super.key});

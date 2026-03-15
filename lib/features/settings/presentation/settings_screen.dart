@@ -1,14 +1,14 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:rockster/core/theme/app_colors.dart';
-import 'package:rockster/core/components/modern_card.dart';
-// import 'package:rockster/core/theme/theme_provider.dart';
-import 'package:rockster/features/auth/presentation/auth_provider.dart';
+import 'package:event_bite/core/theme/app_colors.dart';
+import 'package:event_bite/core/components/modern_card.dart';
+// import 'package:event_bite/core/theme/theme_provider.dart';
+import 'package:event_bite/features/auth/presentation/auth_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:rockster/core/providers/locale_provider.dart';
-import 'package:rockster/features/settings/presentation/printer_settings_screen.dart';
+import 'package:event_bite/core/providers/locale_provider.dart';
+import 'package:event_bite/features/settings/presentation/printer_settings_screen.dart';
 
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -190,7 +190,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 _buildSettingTile(
                   icon: Icons.language,
                   title: l10n.settingsLanguage,
-                  subtitle: currentLocale.languageCode == 'en' ? 'English (US)' : 'Français',
+                  subtitle: currentLocale.languageCode == 'en' ? 'English (US)' : 'FranÃ§ais',
                   onTap: () {
                      // Toggle Language
                      final newLocale = currentLocale.languageCode == 'en' 

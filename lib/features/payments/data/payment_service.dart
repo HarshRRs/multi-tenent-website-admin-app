@@ -1,6 +1,6 @@
-import 'package:dio/dio.dart';
-import 'package:rockster/features/payments/data/payment_dto.dart';
-import 'package:rockster/features/payments/domain/payment_models.dart';
+﻿import 'package:dio/dio.dart';
+import 'package:event_bite/features/payments/data/payment_dto.dart';
+import 'package:event_bite/features/payments/domain/payment_models.dart';
 
 class PaymentService {
   final Dio _dio;

@@ -1,6 +1,6 @@
-import 'package:dio/dio.dart';
-// import 'package:rockster/core/network/api_client.dart';
-import 'package:rockster/features/website_customizer/domain/website_models.dart';
+﻿import 'package:dio/dio.dart';
+// import 'package:event_bite/core/network/api_client.dart';
+import 'package:event_bite/features/website_customizer/domain/website_models.dart';
 
 class WebsiteService {
   final Dio _dio;

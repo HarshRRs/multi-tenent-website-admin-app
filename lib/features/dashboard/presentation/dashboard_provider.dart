@@ -1,8 +1,8 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:rockster/core/providers/providers.dart';
-import 'package:rockster/core/utils/cache_service.dart';
-import 'package:rockster/features/dashboard/data/dashboard_models.dart';
-import 'package:rockster/features/dashboard/data/dashboard_service.dart';
+﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:event_bite/core/providers/providers.dart';
+import 'package:event_bite/core/utils/cache_service.dart';
+import 'package:event_bite/features/dashboard/data/dashboard_models.dart';
+import 'package:event_bite/features/dashboard/data/dashboard_service.dart';
 
 enum DataStatus { initial, loading, success, error }
 

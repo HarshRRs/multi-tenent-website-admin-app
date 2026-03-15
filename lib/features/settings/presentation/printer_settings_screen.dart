@@ -1,9 +1,9 @@
-import 'package:blue_thermal_printer/blue_thermal_printer.dart';
+﻿import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:rockster/core/providers/printer_provider.dart';
-import 'package:rockster/core/theme/app_colors.dart';
+import 'package:event_bite/core/providers/printer_provider.dart';
+import 'package:event_bite/core/theme/app_colors.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PrinterSettingsScreen extends ConsumerStatefulWidget {

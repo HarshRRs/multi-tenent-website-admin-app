@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:rockster/core/router/app_router.dart';
-import 'package:rockster/core/theme/app_theme.dart';
-import 'package:rockster/core/theme/theme_provider.dart';
-import 'package:rockster/core/providers/messenger_provider.dart';
+import 'package:event_bite/core/router/app_router.dart';
+import 'package:event_bite/core/theme/app_theme.dart';
+import 'package:event_bite/core/theme/theme_provider.dart';
+import 'package:event_bite/core/providers/messenger_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:rockster/core/providers/locale_provider.dart';
+import 'package:event_bite/core/providers/locale_provider.dart';
 
 
-import 'package:rockster/features/notifications/presentation/global_notification_listener.dart';
+import 'package:event_bite/features/notifications/presentation/global_notification_listener.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -53,7 +53,7 @@ class RocksterApp extends ConsumerWidget {
     final router = ref.watch(routerProvider);
 
     return MaterialApp.router(
-      title: 'Cosmos',
+      title: 'Event Bite',
       scaffoldMessengerKey: ref.watch(messengerKeyProvider),
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,

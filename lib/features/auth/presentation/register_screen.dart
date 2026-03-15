@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
-import 'package:rockster/core/theme/app_colors.dart';
-import 'package:rockster/core/components/cosmic_background.dart';
-import 'package:rockster/core/components/glowing_text.dart';
-import 'package:rockster/core/components/cosmic_input_field.dart';
-import 'package:rockster/core/components/cosmic_button.dart';
-import 'package:rockster/features/auth/presentation/auth_provider.dart';
+import 'package:event_bite/core/theme/app_colors.dart';
+import 'package:event_bite/core/components/cosmic_background.dart';
+import 'package:event_bite/core/components/glowing_text.dart';
+import 'package:event_bite/core/components/cosmic_input_field.dart';
+import 'package:event_bite/core/components/cosmic_button.dart';
+import 'package:event_bite/features/auth/presentation/auth_provider.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -34,7 +34,7 @@ Last Updated: January 2026
 Cosmos Admin provides a multi-tenant management system for businesses.
 
 2. Subscription & Fees
-Monthly fee: €48.00. No commissions on your sales.
+Monthly fee: â‚¬48.00. No commissions on your sales.
 
 3. Payments
 Direct payouts via Stripe Connect to your account.
@@ -213,9 +213,9 @@ Cancel anytime. Data export available for 30 days after cancellation.''';
                           prefixIcon: Icon(Icons.business_center_outlined, color: Colors.cyan),
                         ),
                         items: const [
-                          DropdownMenuItem(value: 'restaurant', child: Text('🍛 Restaurant / Cafe')),
-                          DropdownMenuItem(value: 'retail', child: Text('🛍️ Retail / Grocery')),
-                          DropdownMenuItem(value: 'service', child: Text('💐 Service / Other')),
+                          DropdownMenuItem(value: 'restaurant', child: Text('ðŸ› Restaurant / Cafe')),
+                          DropdownMenuItem(value: 'retail', child: Text('ðŸ›ï¸ Retail / Grocery')),
+                          DropdownMenuItem(value: 'service', child: Text('ðŸ’ Service / Other')),
                         ],
                         onChanged: (val) {
                           if (val != null) setState(() => _businessType = val);
@@ -250,7 +250,7 @@ Cancel anytime. Data export available for 30 days after cancellation.''';
                     // Password
                     CosmicInputField(
                       label: 'Password',
-                      hint: '••••••••',
+                      hint: 'â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢',
                       icon: Icons.lock_outline,
                       controller: _passwordController,
                       obscureText: _obscurePassword,

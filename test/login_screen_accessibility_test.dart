@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:rockster/features/auth/presentation/login_screen.dart';
+import 'package:event_bite/features/auth/presentation/login_screen.dart';
 
 void main() {
   testWidgets('LoginScreen password visibility button has tooltip', (WidgetTester tester) async {

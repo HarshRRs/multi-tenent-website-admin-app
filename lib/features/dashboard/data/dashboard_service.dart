@@ -1,5 +1,5 @@
-import 'package:dio/dio.dart';
-import 'package:rockster/features/dashboard/data/dashboard_models.dart';
+﻿import 'package:dio/dio.dart';
+import 'package:event_bite/features/dashboard/data/dashboard_models.dart';
 
 class DashboardService {
   final Dio _dio;

@@ -1,4 +1,4 @@
-import 'package:rockster/features/auth/domain/auth_models.dart';
+﻿import 'package:event_bite/features/auth/domain/auth_models.dart';
 
 abstract class AuthRepository {
   Future<AuthResponse> login(String email, String password);

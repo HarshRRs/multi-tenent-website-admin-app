@@ -1,17 +1,17 @@
-import 'dart:io';
+﻿import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'; // for kIsWeb
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:rockster/core/components/custom_button.dart';
-import 'package:rockster/core/components/custom_text_field.dart';
-import 'package:rockster/core/theme/app_colors.dart';
-import 'package:rockster/core/theme/app_text_styles.dart';
-import 'package:rockster/features/menu/domain/menu_models.dart';
-import 'package:rockster/features/menu/presentation/menu_provider.dart';
-import 'package:rockster/features/menu/data/menu_service.dart';
-import 'package:rockster/core/providers/providers.dart';
+import 'package:event_bite/core/components/custom_button.dart';
+import 'package:event_bite/core/components/custom_text_field.dart';
+import 'package:event_bite/core/theme/app_colors.dart';
+import 'package:event_bite/core/theme/app_text_styles.dart';
+import 'package:event_bite/features/menu/domain/menu_models.dart';
+import 'package:event_bite/features/menu/presentation/menu_provider.dart';
+import 'package:event_bite/features/menu/data/menu_service.dart';
+import 'package:event_bite/core/providers/providers.dart';
 
 class AddEditProductScreen extends ConsumerStatefulWidget {
   final String? productId;

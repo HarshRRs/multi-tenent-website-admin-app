@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
-import 'package:rockster/core/exceptions/app_exception.dart';
+import 'package:event_bite/core/exceptions/app_exception.dart';
 
 class ErrorInterceptor extends Interceptor {
   final GlobalKey<ScaffoldMessengerState>? messengerKey;

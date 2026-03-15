@@ -1,6 +1,6 @@
-import 'dart:ui';
+﻿import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:rockster/core/theme/app_colors.dart';
+import 'package:event_bite/core/theme/app_colors.dart';
 
 /// Modern card component following 2026 design principles
 /// - 16px rounded corners

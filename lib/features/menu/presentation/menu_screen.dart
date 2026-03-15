@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:rockster/core/theme/app_colors.dart';
-import 'package:rockster/core/components/modern_button.dart';
-import 'package:rockster/core/components/modern_card.dart';
-import 'package:rockster/core/components/glossy_metric_card.dart';
-import 'package:rockster/features/menu/presentation/menu_provider.dart';
-import 'package:rockster/features/menu/presentation/widgets/product_card.dart';
+import 'package:event_bite/core/theme/app_colors.dart';
+import 'package:event_bite/core/components/modern_button.dart';
+import 'package:event_bite/core/components/modern_card.dart';
+import 'package:event_bite/core/components/glossy_metric_card.dart';
+import 'package:event_bite/features/menu/presentation/menu_provider.dart';
+import 'package:event_bite/features/menu/presentation/widgets/product_card.dart';
 
 class MenuScreen extends ConsumerStatefulWidget {
   const MenuScreen({super.key});
@@ -329,7 +329,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> with TickerProviderStat
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
-                                        '€\${product.price.toStringAsFixed(2)}',
+                                        'â‚¬\${product.price.toStringAsFixed(2)}',
                                         style: GoogleFonts.inter(
                                           fontWeight: FontWeight.bold,
                                           color: AppColors.burntTerracotta,
