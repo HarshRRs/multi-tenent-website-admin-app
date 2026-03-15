@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:rockster/core/components/custom_button.dart';
+// import 'package:rockster/core/components/custom_button.dart';
 import 'package:rockster/core/components/custom_text_field.dart';
 import 'package:rockster/core/theme/app_colors.dart';
-import 'package:rockster/features/website_customizer/data/website_service.dart';
+import 'package:rockster/core/components/modern_card.dart';
+// import 'package:rockster/features/website_customizer/data/website_service.dart';
 import 'package:rockster/features/website_customizer/domain/website_models.dart';
 import 'package:rockster/features/website_customizer/presentation/widgets/website_preview_widget.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rockster/core/providers/providers.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class WebsiteCustomizerScreen extends ConsumerStatefulWidget {
   const WebsiteCustomizerScreen({super.key});
@@ -123,27 +125,41 @@ class _WebsiteCustomizerScreenState extends ConsumerState<WebsiteCustomizerScree
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppColors.burntTerracotta)));
     }
 
     return Scaffold(
+      backgroundColor: AppColors.cloudDancer,
       appBar: AppBar(
-        title: const Text('Website Customizer'),
+        title: Text(
+          'Website Customizer',
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: AppColors.deepInk),
+        ),
+        backgroundColor: AppColors.cloudDancer,
+        surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: AppColors.deepInk),
           onPressed: () => context.pop(),
         ),
         actions: [
           TextButton(
             onPressed: _saveConfig,
-            child: const Text('Publish', style: TextStyle(fontWeight: FontWeight.bold)),
+            child: Text(
+              'Publish',
+              style: GoogleFonts.inter(
+                color: AppColors.burntTerracotta,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
         bottom: TabBar(
           controller: _tabController,
-          labelColor: AppColors.primaryLight,
+          labelColor: AppColors.burntTerracotta,
           unselectedLabelColor: AppColors.textSecondaryLight,
-          indicatorColor: AppColors.primaryLight,
+          indicatorColor: AppColors.burntTerracotta,
+          indicatorSize: TabBarIndicatorSize.tab,
+          labelStyle: GoogleFonts.inter(fontWeight: FontWeight.w600),
           tabs: const [
             Tab(text: 'Edit'),
             Tab(text: 'Preview'),
@@ -155,89 +171,141 @@ class _WebsiteCustomizerScreenState extends ConsumerState<WebsiteCustomizerScree
         children: [
           // Editor Tab
           SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text('Branding', style: Theme.of(context).textTheme.titleLarge),
-                const SizedBox(height: 16),
+                _buildSectionTitle('Branding'),
+                const SizedBox(height: 12),
                 
-                // Color Picker
-                Text('Primary Color', style: Theme.of(context).textTheme.bodyMedium),
-                const SizedBox(height: 8),
-                Row(
-                  children: _brandColors.map((color) {
-                    final isSelected = _config.primaryColor.value == color.value;
-                    return GestureDetector(
-                      onTap: () => setState(() => _config = _config.copyWith(primaryColor: color)),
-                      child: Container(
-                        margin: const EdgeInsets.only(right: 12),
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: color,
-                          shape: BoxShape.circle,
-                          border: isSelected ? Border.all(color: Colors.black, width: 2) : null,
+                ModernCard(
+                  child: Column(
+                    children: [
+                      // Color Picker
+                      Text('Primary Color', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: AppColors.deepInk)),
+                      const SizedBox(height: 12),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: _brandColors.map((color) {
+                            final isSelected = _config.primaryColor == color;
+                            return GestureDetector(
+                              onTap: () => setState(() => _config = _config.copyWith(primaryColor: color)),
+                              child: Container(
+                                margin: const EdgeInsets.only(right: 12),
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  color: color,
+                                  shape: BoxShape.circle,
+                                  border: isSelected ? Border.all(color: Colors.white, width: 3) : null,
+                                  boxShadow: isSelected ? [
+                                    BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 8, spreadRadius: 1),
+                                  ] : null,
+                                ),
+                                child: isSelected ? const Icon(Icons.check, color: Colors.white, size: 24) : null,
+                              ),
+                            );
+                          }).toList(),
                         ),
-                        child: isSelected ? const Icon(Icons.check, color: Colors.white, size: 20) : null,
                       ),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 24),
-
-                Text('Content', style: Theme.of(context).textTheme.titleLarge),
-                const SizedBox(height: 16),
-
-                CustomTextField(
-                  label: 'Headline',
-                  controller: _headlineController,
-                ),
-                const SizedBox(height: 16),
-                CustomTextField(
-                  label: 'Sub-headline',
-                  controller: _subheadlineController,
-                ),
-                const SizedBox(height: 16),
-                CustomTextField(
-                  label: 'Button Text',
-                  controller: _btnTextController,
-                ),
-                
-                const SizedBox(height: 24),
-                Text('Assets', style: Theme.of(context).textTheme.titleLarge),
-                const SizedBox(height: 16),
-                
-                Container(
-                  height: 120,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
-                    borderRadius: BorderRadius.circular(12),
+                    ],
                   ),
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.image, size: 32, color: Colors.grey),
-                        const SizedBox(height: 8),
-                        Text('Change Hero Image', style: TextStyle(color: Colors.grey[600])),
-                      ],
+                ),
+                
+                const SizedBox(height: 24),
+                _buildSectionTitle('Content'),
+                const SizedBox(height: 12),
+
+                ModernCard(
+                  child: Column(
+                    children: [
+                      CustomTextField(
+                        label: 'Headline',
+                        controller: _headlineController,
+                      ),
+                      const SizedBox(height: 16),
+                      CustomTextField(
+                        label: 'Sub-headline',
+                        controller: _subheadlineController,
+                      ),
+                      const SizedBox(height: 16),
+                      CustomTextField(
+                        label: 'Button Text',
+                        controller: _btnTextController,
+                      ),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 24),
+                _buildSectionTitle('Assets'),
+                const SizedBox(height: 12),
+                
+                ModernCard(
+                  padding: EdgeInsets.zero,
+                  child: InkWell(
+                    onTap: () {}, // Add image picker logic later
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      height: 140,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.softBorder, style: BorderStyle.none),
+                        borderRadius: BorderRadius.circular(16),
+                        image: DecorationImage(
+                           image: NetworkImage(_config.heroImageUrl),
+                           fit: BoxFit.cover,
+                           colorFilter: ColorFilter.mode(Colors.black.withValues(alpha: 0.3), BlendMode.darken),
+                        )
+                      ),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.camera_alt_outlined, size: 32, color: Colors.white),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Change Hero Image', 
+                              style: GoogleFonts.inter(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
+                const SizedBox(height: 48),
               ],
             ),
           ),
 
           // Preview Tab
           Container(
-            color: Colors.grey[100],
+            color: Colors.grey[50],
             padding: const EdgeInsets.all(24),
             child: Center(
               child: WebsitePreviewWidget(config: _config),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4),
+      child: Text(
+        title.toUpperCase(),
+        style: GoogleFonts.inter(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textSecondaryLight,
+          letterSpacing: 1.2,
+        ),
       ),
     );
   }

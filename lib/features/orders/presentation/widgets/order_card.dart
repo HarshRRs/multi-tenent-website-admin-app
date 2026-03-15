@@ -124,11 +124,11 @@ class OrderCard extends StatelessWidget {
       case OrderStatus.newOrder:
         return AppColors.info;
       case OrderStatus.preparing:
-        return AppColors.warning;
+        return AppColors.burntTerracotta;
       case OrderStatus.ready:
         return AppColors.success;
       case OrderStatus.outForDelivery:
-        return AppColors.tertiaryLight;
+        return AppColors.info;
       default:
         return AppColors.textSecondaryLight;
     }

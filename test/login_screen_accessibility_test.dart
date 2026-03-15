@@ -13,9 +13,10 @@ void main() {
         ),
       ),
     );
+    await tester.pump(const Duration(seconds: 2));
 
     // Find the visibility toggle IconButton
-    final visibilityButtonFinder = find.byType(IconButton);
+    // final visibilityButtonFinder = find.byType(IconButton);
 
     // There might be more than one IconButton, so we can check by Icon
     // The initial state is obscured, so we look for visibility_outlined
@@ -29,14 +30,19 @@ void main() {
 
     // Check if tooltip is present and correct
     expect(button.tooltip, isNotNull, reason: 'Password visibility button should have a tooltip');
+    // Verify first tooltip
     expect(button.tooltip, 'Show password');
 
     // Tap to toggle
     await tester.tap(buttonFinder);
     await tester.pump();
 
-    // Now it should be 'Hide password'
-    final IconButton buttonToggled = tester.widget(buttonFinder);
+    // Now it should be 'Hide password' and the icon should have changed
+    final iconFinderToggled = find.byIcon(Icons.visibility_off_outlined);
+    final buttonFinderToggled = find.ancestor(of: iconFinderToggled, matching: find.byType(IconButton));
+    
+    expect(buttonFinderToggled, findsOneWidget);
+    final IconButton buttonToggled = tester.widget(buttonFinderToggled);
     expect(buttonToggled.tooltip, 'Hide password');
   });
 }

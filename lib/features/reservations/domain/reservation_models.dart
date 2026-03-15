@@ -25,6 +25,7 @@ class RestaurantTable {
 class Reservation {
   final String id;
   final String customerName;
+  final String? customerPhone;
   final int partySize;
   final DateTime time;
   final String tableId; // Optional, might not be assigned yet
@@ -32,6 +33,7 @@ class Reservation {
   Reservation({
     required this.id,
     required this.customerName,
+    this.customerPhone,
     required this.partySize,
     required this.time,
     this.tableId = '',

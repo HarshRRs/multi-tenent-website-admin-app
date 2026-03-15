@@ -18,14 +18,20 @@ class AuthService {
     return AuthResponse.fromJson(response.data);
   }
 
-  Future<AuthResponse> register(String email, String password, String name) async {
+  Future<AuthResponse> register({
+    required String email,
+    required String password,
+    required String name,
+    String businessType = 'restaurant',
+  }) async {
     final response = await _dio.post(
       '/auth/register',
       data: {
         'email': email,
         'password': password,
         'name': name,
-        'role': 'manager'
+        'role': 'manager',
+        'businessType': businessType,
       },
     );
 
@@ -38,6 +44,13 @@ class AuthService {
 
   Future<User> getCurrentUser() async {
     final response = await _dio.get('/auth/me');
+    return User.fromJson(response.data);
+  }
+  Future<User> updateProfile(String name, String address) async {
+    final response = await _dio.put(
+      '/auth/profile',
+      data: {'name': name, 'address': address},
+    );
     return User.fromJson(response.data);
   }
 }

@@ -94,7 +94,7 @@ class FloorMapWidget extends StatelessWidget {
       case TableStatus.available:
         return AppColors.success;
       case TableStatus.reserved:
-        return AppColors.warning;
+
       case TableStatus.occupied:
         return AppColors.error;
     }

@@ -6,6 +6,8 @@ import 'package:rockster/core/theme/app_text_styles.dart';
 import 'package:rockster/features/payments/domain/payment_models.dart';
 import 'package:rockster/features/payments/presentation/payments_provider.dart';
 import 'package:intl/intl.dart';
+import 'package:rockster/core/components/modern_card.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class PaymentsScreen extends ConsumerStatefulWidget {
   const PaymentsScreen({super.key});
@@ -28,22 +30,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
     ref.read(paymentsProvider.notifier).connectStripe();
   }
   
-  Future<void> _handlePayment() async {
-      try {
-          await ref.read(paymentsProvider.notifier).processPayment(10.00, 'EUR');
-          if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Payment Successful!'), backgroundColor: AppColors.success),
-              );
-          }
-      } catch (e) {
-          if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Payment Failed: $e'), backgroundColor: AppColors.error),
-              );
-          }
-      }
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -54,74 +41,50 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
     final isConnected = stripeStatus?.isConnected ?? false;
 
     return Scaffold(
+      backgroundColor: AppColors.cloudDancer,
       appBar: AppBar(
-        title: const Text('Payments & Reports'),
+        backgroundColor: AppColors.cloudDancer,
+        surfaceTintColor: Colors.transparent,
+        title: Text(
+          'Payments & Reports',
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: AppColors.deepInk),
+        ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: AppColors.deepInk),
           onPressed: () => context.pop(),
         ),
          actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh, color: AppColors.deepInk),
             onPressed: () => ref.read(paymentsProvider.notifier).refresh(),
           ),
         ],
       ),
       body: isLoading 
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppColors.burntTerracotta))
           : SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             // Payment Terminal (Test)
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4)),
-                ],
-              ),
-              child: Row(
-                children: [
-                   const Icon(Icons.point_of_sale, size: 32, color: AppColors.primaryLight),
-                   const SizedBox(width: 16),
-                   Expanded(
-                       child: Column(
-                           crossAxisAlignment: CrossAxisAlignment.start,
-                           children: [
-                               Text('Payment Terminal', style: AppTextStyles.headlineSmall),
-                               Text('Simulate a card payment', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryLight)),
-                           ],
-                       ),
-                   ),
-                   FilledButton.icon(
-                       onPressed: _handlePayment, 
-                       icon: const Icon(Icons.credit_card), 
-                       label: const Text('Charge €10.00'),
-                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
 
-            // Stripe Connect Card
+
+
+            // Stripe Connect Card - Keeping Purple as it's Stripe's Brand, but modernizing shape
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFF635BFF), Color(0xFF5650D8)], // Stripe Blurple
+                  colors: [Color(0xFF635BFF), Color(0xFF5650D8)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(24), // Modern rounded
                 boxShadow: [
                   BoxShadow(
                     color: const Color(0xFF635BFF).withValues(alpha: 0.3),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
+                    blurRadius: 16,
+                    offset: const Offset(0, 8),
                   ),
                 ],
               ),
@@ -131,10 +94,14 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Icon(Icons.payment, color: Colors.white, size: 28),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 10),
                       Text(
                         'Stripe Connect',
-                        style: AppTextStyles.headlineMedium.copyWith(color: Colors.white),
+                        style: GoogleFonts.inter(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ],
                   ),
@@ -143,7 +110,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                     isConnected
                         ? 'Your account is connected and ready to receive payouts.'
                         : 'Connect your Stripe account to start accepting payments securely.',
-                    style: AppTextStyles.bodyMedium.copyWith(color: Colors.white.withValues(alpha: 0.9)),
+                    style: GoogleFonts.inter(color: Colors.white.withValues(alpha: 0.9)),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 24),
@@ -161,8 +128,8 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                           const Icon(Icons.check_circle, color: Colors.white, size: 16),
                           const SizedBox(width: 8),
                           Text(
-                            'Connected: \${stripeStatus?.accountId ?? "Unknown"}',
-                            style: AppTextStyles.labelMedium.copyWith(color: Colors.white),
+                            'Connected: ${stripeStatus?.accountId ?? "Unknown"}',
+                            style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600),
                           ),
                         ],
                       ),
@@ -176,7 +143,8 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                           backgroundColor: Colors.white,
                           foregroundColor: const Color(0xFF635BFF),
                           padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          elevation: 0,
                         ),
                         child: state.status == DataStatus.loading
                             ? const SizedBox(
@@ -184,7 +152,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                                 height: 20,
                                 child: CircularProgressIndicator(strokeWidth: 2),
                               )
-                            : Text('Connect with Stripe', style: AppTextStyles.labelLarge),
+                            : Text('Connect with Stripe', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
                       ),
                     ),
                 ],
@@ -192,25 +160,23 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
             ),
             const SizedBox(height: 24),
 
-            // Balance Overview (Only if connected)
+            // Balance Overview
             if (isConnected) ...[
               Row(
                 children: [
                   Expanded(
                     child: _buildBalanceCard(
                       'Available Balance',
-                      '€\${(stripeStatus?.availableBalance ?? 0).toStringAsFixed(2)}',
-                      Colors.white,
-                      AppColors.textDark
+                      '€${(stripeStatus?.availableBalance ?? 0).toStringAsFixed(2)}',
+                      true, // Is Primary
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: _buildBalanceCard(
                       'Pending Payout',
-                      '€\${(stripeStatus?.pendingBalance ?? 0).toStringAsFixed(2)}',
-                      AppColors.surfaceLight,
-                      AppColors.textSecondaryLight
+                      '€${(stripeStatus?.pendingBalance ?? 0).toStringAsFixed(2)}',
+                      false, // Is Secondary
                     ),
                   ),
                 ],
@@ -219,10 +185,28 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
             ],
 
             // Recent Transactions
-            Text('Recent Transactions', style: AppTextStyles.headlineMedium),
+            Text(
+              'Recent Transactions', 
+              style: GoogleFonts.inter(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.deepInk
+              ),
+            ),
             const SizedBox(height: 16),
             if (transactions.isEmpty)
-              const Center(child: Text("No recent transactions"))
+              Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Icon(Icons.receipt_long_outlined, size: 48, color: AppColors.textSecondaryLight.withValues(alpha: 0.5)),
+                      const SizedBox(height: 16),
+                      Text("No recent transactions", style: GoogleFonts.inter(color: AppColors.textSecondaryLight)),
+                    ],
+                  ),
+                ),
+              )
             else
             ListView.separated(
               shrinkWrap: true,
@@ -231,15 +215,8 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
               separatorBuilder: (context, index) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
                 final tx = transactions[index];
-                return Container(
+                return ModernCard(
                   padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4),
-                    ],
-                  ),
                   child: Row(
                     children: [
                       Container(
@@ -259,8 +236,14 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(tx.customerName, style: AppTextStyles.labelLarge),
-                            Text(tx.paymentMethod, style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryLight)),
+                            Text(
+                              tx.customerName, 
+                              style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: AppColors.deepInk),
+                            ),
+                            Text(
+                              tx.paymentMethod, 
+                              style: GoogleFonts.inter(fontSize: 12, color: AppColors.textSecondaryLight),
+                            ),
                           ],
                         ),
                       ),
@@ -268,15 +251,16 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            '€\${tx.amount.toStringAsFixed(2)}',
-                            style: AppTextStyles.labelLarge.copyWith(
-                              color: tx.status == TransactionStatus.refunded ? AppColors.textSecondaryLight : AppColors.textDark,
+                            '€${tx.amount.toStringAsFixed(2)}',
+                            style: GoogleFonts.inter(
+                              fontWeight: FontWeight.bold,
+                              color: tx.status == TransactionStatus.refunded ? AppColors.textSecondaryLight : AppColors.deepInk,
                               decoration: tx.status == TransactionStatus.refunded ? TextDecoration.lineThrough : null,
                             ),
                           ),
                           Text(
                             DateFormat('MMM d').format(tx.date),
-                            style: AppTextStyles.bodySmall,
+                            style: GoogleFonts.inter(fontSize: 12, color: AppColors.textSecondaryLight),
                           ),
                         ],
                       ),
@@ -285,29 +269,48 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
                 );
               },
             ),
+             const SizedBox(height: 40),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildBalanceCard(String title, String amount, Color bgColor, Color textColor) {
+  Widget _buildBalanceCard(String title, String amount, bool isPrimary) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+        color: isPrimary ? AppColors.deepInk : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: isPrimary ? null : Border.all(color: AppColors.softBorder),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppTextStyles.labelMedium.copyWith(color: AppColors.textSecondaryLight)),
+          Text(
+            title, 
+            style: GoogleFonts.inter(
+              fontSize: 12, 
+              color: isPrimary ? Colors.white70 : AppColors.textSecondaryLight,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
           const SizedBox(height: 8),
-          Text(amount, style: AppTextStyles.headlineMedium.copyWith(color: textColor)),
+          Text(
+            amount, 
+            style: GoogleFonts.inter(
+              fontSize: 24, 
+              fontWeight: FontWeight.bold,
+              color: isPrimary ? Colors.white : AppColors.deepInk,
+            ),
+          ),
         ],
       ),
     );
@@ -318,7 +321,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
       case TransactionStatus.completed:
         return AppColors.success;
       case TransactionStatus.pending:
-        return AppColors.warning;
+        return AppColors.burntTerracotta;
       case TransactionStatus.failed:
         return AppColors.error;
       case TransactionStatus.refunded:

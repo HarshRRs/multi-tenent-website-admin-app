@@ -1,6 +1,6 @@
 # restaurant_admin
 
-A new Flutter project.
+# Rockster Project
 
 ## Getting Started
 

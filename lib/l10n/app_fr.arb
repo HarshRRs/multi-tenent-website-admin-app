@@ -1,0 +1,15 @@
+{
+    "settingsTitle": "Paramètres",
+    "settingsProfile": "Modifier le profil",
+    "settingsLanguage": "Langue",
+    "settingsPrinter": "Configuration de l'imprimante",
+    "settingsNotifications": "Notifications",
+    "settingsSignOut": "Se déconnecter",
+    "printConnect": "Connecter l'imprimante",
+    "printDisconnect": "Déconnecter",
+    "printTest": "Impression test",
+    "printScanning": "Recherche...",
+    "printNoDevice": "Aucun appareil trouvé",
+    "printConnected": "Connecté",
+    "printDisconnected": "Déconnecté"
+}

@@ -5,7 +5,6 @@ import 'package:rockster/core/theme/app_colors.dart';
 import 'package:rockster/core/theme/app_text_styles.dart';
 import 'package:rockster/features/reservations/domain/reservation_models.dart';
 import 'package:rockster/features/reservations/presentation/reservations_provider.dart';
-import 'package:rockster/features/reservations/presentation/widgets/floor_map_widget.dart';
 import 'package:intl/intl.dart';
 
 class ReservationsScreen extends ConsumerStatefulWidget {
@@ -16,8 +15,6 @@ class ReservationsScreen extends ConsumerStatefulWidget {
 }
 
 class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
-  bool _showMap = false;
-
   @override
   void initState() {
     super.initState();
@@ -29,6 +26,7 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
   Future<void> _showAddReservationDialog() async {
     final nameController = TextEditingController();
     final sizeController = TextEditingController();
+    final phoneController = TextEditingController(); // Added controller
     final formKey = GlobalKey<FormState>(); // Added form key for validation
     
     await showDialog(
@@ -47,6 +45,16 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: phoneController, // Phone field
+                decoration: InputDecoration(
+                  labelText: 'Customer Contact Number',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  prefixIcon: const Icon(Icons.phone),
+                ),
+                keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 16),
                TextFormField(
@@ -68,16 +76,33 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
         actions: [
           TextButton(onPressed: () => context.pop(), child: const Text('Cancel')),
           FilledButton(
-            onPressed: () {
+            onPressed: () async {
               if (formKey.currentState!.validate()) {
-                // Mock adding reservation
-                context.pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Reservation added for \${nameController.text}'),
-                    backgroundColor: AppColors.success,
-                  ),
-                );
+                try {
+                  await ref.read(reservationsProvider.notifier).addReservation(
+                    nameController.text,
+                    phoneController.text.isNotEmpty ? phoneController.text : null,
+                    int.parse(sizeController.text),
+                  );
+                  if (context.mounted) {
+                    context.pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Reservation added for \${nameController.text}'),
+                        backgroundColor: AppColors.success,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Error: $e'),
+                        backgroundColor: AppColors.error,
+                      ),
+                    );
+                  }
+                }
               }
             },
             child: const Text('Add'),
@@ -87,77 +112,7 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
     );
   }
 
-  Future<void> _showAddTableDialog() async {
-    final nameController = TextEditingController();
-    final seatsController = TextEditingController();
-    final xController = TextEditingController(text: '0.5');
-    final yController = TextEditingController(text: '0.5');
-    final formKey = GlobalKey<FormState>();
 
-    await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('New Table', style: AppTextStyles.headlineMedium),
-        content: Form(
-          key: formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: nameController,
-                  decoration: const InputDecoration(labelText: 'Table Name'),
-                  validator: (v) => v!.isEmpty ? 'Required' : null,
-                ),
-                TextFormField(
-                  controller: seatsController,
-                  decoration: const InputDecoration(labelText: 'Seats'),
-                  keyboardType: TextInputType.number,
-                  validator: (v) => v!.isEmpty ? 'Required' : null,
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: xController,
-                        decoration: const InputDecoration(labelText: 'X (0.0-1.0)'),
-                        keyboardType: TextInputType.number,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: TextFormField(
-                        controller: yController,
-                        decoration: const InputDecoration(labelText: 'Y (0.0-1.0)'),
-                        keyboardType: TextInputType.number,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(onPressed: () => context.pop(), child: const Text('Cancel')),
-          FilledButton(
-            onPressed: () {
-              if (formKey.currentState!.validate()) {
-                final name = nameController.text;
-                final seats = int.tryParse(seatsController.text) ?? 4;
-                final x = double.tryParse(xController.text) ?? 0.5;
-                final y = double.tryParse(yController.text) ?? 0.5;
-                
-                ref.read(reservationsProvider.notifier).addTable(name, seats, x, y);
-                context.pop();
-              }
-            },
-            child: const Text('Add Table'),
-          ),
-        ],
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -175,53 +130,26 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
             onPressed: () => ref.read(reservationsProvider.notifier).refresh(),
           ),
           IconButton(
-            icon: Icon(_showMap ? Icons.add_location_alt : Icons.add_circle),
-            tooltip: _showMap ? 'Add Table' : 'Add Reservation',
-            onPressed: _showMap ? _showAddTableDialog : _showAddReservationDialog,
+            icon: const Icon(Icons.add_circle),
+            tooltip: 'Add Reservation',
+            onPressed: _showAddReservationDialog,
           ),
         ],
       ),
-      body: _buildBody(isLoading, _showMap, reservations, tables),
+      body: _buildBody(isLoading, reservations, tables),
     );
   }
 
-  Widget _buildBody(bool isLoading, bool showMap, List<Reservation> reservations, List<RestaurantTable> tables) {
+  Widget _buildBody(bool isLoading, List<Reservation> reservations, List<RestaurantTable> tables) {
     if (isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
     return Column(
       children: [
-        // View Toggle
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: AppColors.backgroundLight,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
-            ),
-            child: Row(
-              children: [
-                _buildToggleOption('List View', Icons.list, !showMap),
-                _buildToggleOption('Floor Map', Icons.map, showMap),
-              ],
-            ),
-          ),
-        ),
-
         // Content
         Expanded(
-          child: showMap
-              ? Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: FloorMapWidget(
-                    tables: tables,
-                    onTableTap: (table) {},
-                  ),
-                )
-              : _buildReservationList(reservations, tables),
+          child: _buildReservationList(reservations, tables),
         ),
       ],
     );
@@ -286,6 +214,8 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(reservation.customerName, style: AppTextStyles.labelLarge),
+                    if (reservation.customerPhone != null && reservation.customerPhone!.isNotEmpty)
+                      Text(reservation.customerPhone!, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryLight, fontSize: 12)),
                     const SizedBox(height: 4),
                     Row(
                       children: [
@@ -320,41 +250,5 @@ class _ReservationsScreenState extends ConsumerState<ReservationsScreen> {
     );
   }
 
-  Widget _buildToggleOption(String label, IconData icon, bool isSelected) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => setState(() => _showMap = label == 'Floor Map'),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.white : Colors.transparent,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
-                : null,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 18, color: isSelected ? AppColors.primaryLight : AppColors.textSecondaryLight),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: AppTextStyles.labelMedium.copyWith(
-                  color: isSelected ? AppColors.textDark : AppColors.textSecondaryLight,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+
 

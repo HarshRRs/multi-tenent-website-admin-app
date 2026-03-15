@@ -3,12 +3,16 @@ class User {
   final String email;
   final String name;
   final String role;
+  final String businessType;
+  final String address; // Added address
 
   User({
     required this.id,
     required this.email,
     required this.name,
     required this.role,
+    this.address = '', // Default empty
+    this.businessType = 'restaurant',
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -17,6 +21,8 @@ class User {
       email: json['email'] ?? '',
       name: json['name'] ?? '',
       role: json['role'] ?? 'manager',
+      address: json['address'] ?? '', // Map address
+      businessType: json['businessType'] ?? 'restaurant',
     );
   }
 
@@ -26,6 +32,8 @@ class User {
       'email': email,
       'name': name,
       'role': role,
+      'address': address, // Serialize address
+      'businessType': businessType,
     };
   }
 }

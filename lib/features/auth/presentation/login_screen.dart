@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rockster/core/theme/app_colors.dart';
-import 'package:rockster/core/theme/app_text_styles.dart';
+import 'package:rockster/core/components/cosmic_background.dart';
+import 'package:rockster/core/components/glowing_text.dart';
+import 'package:rockster/core/components/cosmic_input_field.dart';
+import 'package:rockster/core/components/cosmic_button.dart';
 import 'package:rockster/features/auth/presentation/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -16,7 +20,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _obscurePassword = true; // State for password visibility
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
@@ -34,8 +38,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     ref.listen(authNotifierProvider, (previous, next) {
@@ -50,7 +52,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           if (errorLower.contains('connection timeout') || 
               errorLower.contains('no internet') || 
               errorLower.contains('connection error')) {
-             errorMessage = 'Network Error: Cannot connect to server. Please check your internet.';
+             errorMessage = 'Network Error: Cannot connect to server';
           } else if (errorLower.contains('401') || errorLower.contains('400')) {
              errorMessage = 'Invalid Email or Password';
           } else {
@@ -67,7 +69,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 Expanded(child: Text(errorMessage)),
               ],
             ),
-            backgroundColor: AppColors.error,
+            backgroundColor: Colors.red.shade800,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
@@ -79,198 +81,164 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final isLoading = authState.status == AuthStatus.loading;
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 400),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Minimalist Text Logo
-                Column(
-                  children: [
-                    Text(
-                      'ROCKSTAR',
-                      style: AppTextStyles.displayLarge.copyWith(
-                        color: AppColors.gold,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 2.0,
-                        fontSize: 42,
-                      ),
-                    ),
-                     const SizedBox(height: 4),
-                    Text(
-                      'RESTAURANT ADMIN',
-                      style: AppTextStyles.labelLarge.copyWith(
-                        color: Colors.black54,
-                        letterSpacing: 4.0,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-                
-                const SizedBox(height: 64),
-                
-                // Greeting
-                Text(
-                  'Welcome Back',
-                  style: AppTextStyles.headlineMedium.copyWith(
-                    color: Colors.black87,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Sign in to manage your restaurant',
-                  style: AppTextStyles.bodyMedium.copyWith(color: Colors.black54),
-                  textAlign: TextAlign.center,
-                ),
-                
-                const SizedBox(height: 48),
-
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      // Email Field
-                      TextFormField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        style: const TextStyle(color: Colors.black87),
-                        decoration: InputDecoration(
-                          labelText: 'Email Address',
-                          hintText: 'owner@restaurant.com',
-                          labelStyle: TextStyle(color: Colors.black54),
-                          hintStyle: TextStyle(color: Colors.black38),
-                          prefixIcon: const Icon(Icons.email_outlined, color: AppColors.gold),
-                          filled: true,
-                          fillColor: const Color(0xFFFAFAFA),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: AppColors.gold, width: 1.5),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) return 'Please enter your email';
-                          if (!value.contains('@')) return 'Please enter a valid email';
-                          return null;
-                        },
-                      ),
-                      
-                      const SizedBox(height: 20),
-                      
-                      // Password Field
-                      TextFormField(
-                        controller: _passwordController,
-                        obscureText: _obscurePassword,
-                        style: const TextStyle(color: Colors.black87),
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          labelStyle: TextStyle(color: Colors.black54),
-                          prefixIcon: const Icon(Icons.lock_outline, color: AppColors.gold),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                              color: Colors.black45,
-                            ),
-                            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-                          ),
-                          filled: true,
-                          fillColor: const Color(0xFFFAFAFA),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: AppColors.gold, width: 1.5),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                        ),
-                        validator: (value) => (value == null || value.isEmpty) ? 'Required' : null,
-                      ),
-                      
-                      const SizedBox(height: 12),
-                      
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(
-                          onPressed: () => context.push('/forgot-password'),
-                          style: TextButton.styleFrom(
-                            foregroundColor: Colors.black54,
-                          ),
-                          child: const Text('Forgot Password?'),
-                        ),
-                      ),
-                      
-                      const SizedBox(height: 32),
-                      
-                      // Login Button
-                      SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: ElevatedButton(
-                          onPressed: isLoading ? null : _handleLogin,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.gold,
-                            foregroundColor: Colors.white,
-                            elevation: 2,
-                            shadowColor: AppColors.gold.withValues(alpha: 0.4),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: isLoading 
-                              ? const SizedBox(
-                                  height: 24, 
-                                  width: 24, 
-                                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5)
-                                )
-                              : const Text(
-                                  'SIGN IN',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 1.0,
-                                  ),
-                                ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                
-                const SizedBox(height: 40),
-                
-                Row(
+      body: CosmicBackground(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 60),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 440),
+              child: Form(
+                key: _formKey,
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const Text(
-                      "New to Rockstar? ",
-                      style: TextStyle(color: Colors.black54),
-                    ),
-                    TextButton(
-                      onPressed: () => context.push('/register'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppColors.gold,
-                        textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                    // Glowing COSMOS title - CENTERED (no hero image)
+                    const GlowingText(
+                      text: 'COSMOS',
+                      style: TextStyle(
+                        fontSize: 56,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 4.0,
                       ),
-                      child: const Text('Create Account'),
-                    ),
+                      glowColor: Colors.cyan,
+                      glowRadius: 28,
+                    ).animate().fadeIn(duration: 800.ms).slideY(begin: -0.2, end: 0),
+                    
+                    const SizedBox(height: 12),
+                    
+                    // BUSINESS ADMIN subtitle
+                    Text(
+                      'BUSINESS ADMIN',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 3.5,
+                      ),
+                    ).animate().fadeIn(duration: 800.ms, delay: 200.ms),
+                    
+                    const SizedBox(height: 56),
+                    
+                    // Welcome Back
+                    Text(
+                      'Welcome Back',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ).animate().fadeIn(duration: 600.ms, delay: 300.ms),
+                    
+                    const SizedBox(height: 8),
+                    
+                    // Subtitle
+                    Text(
+                      'Sign in to manage your business',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                      ),
+                    ).animate().fadeIn(duration: 600.ms, delay: 400.ms),
+                    
+                    const SizedBox(height: 48),
+                    
+                    // Email Input
+                    CosmicInputField(
+                      label: 'Email Address',
+                      hint: 'owner@business.com',
+                      icon: Icons.email_outlined,
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) return 'Required';
+                        if (!value.contains('@')) return 'Invalid email';
+                        return null;
+                      },
+                    ).animate().fadeIn(duration: 600.ms, delay: 500.ms).slideX(begin: -0.2, end: 0),
+                    
+                    const SizedBox(height: 20),
+                    
+                    // Password Input
+                    CosmicInputField(
+                      label: 'Password',
+                      hint: '••••••••',
+                      icon: Icons.lock_outline,
+                      controller: _passwordController,
+                      obscureText: _obscurePassword,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                          color: Colors.white60,
+                        ),
+                        tooltip: _obscurePassword ? 'Show password' : 'Hide password',
+                        onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                      ),
+                      validator: (value) => (value == null || value.isEmpty) ? 'Required' : null,
+                    ).animate().fadeIn(duration: 600.ms, delay: 600.ms).slideX(begin: -0.2, end: 0),
+                    
+                    const SizedBox(height: 16),
+                    
+                    // Forgot Password
+                    Center(
+                      child: TextButton(
+                        onPressed: () {},
+                        child: const Text(
+                          'Forgot Password?',
+                          style: TextStyle(
+                            color: Colors.cyan,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ).animate().fadeIn(duration: 600.ms, delay: 700.ms),
+                    
+                    const SizedBox(height: 32),
+                    
+                    // Sign In Button
+                    CosmicButton(
+                      text: 'SIGN IN',
+                      onPressed: _handleLogin,
+                      isLoading: isLoading,
+                    ).animate().fadeIn(duration: 600.ms, delay: 800.ms).scale(begin: const Offset(0.95, 0.95)),
+                    
+                    const SizedBox(height: 40),
+                    
+                    // New to Cosmos?
+                    Center(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'New to Cosmos?  ',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          TextButton(
+                            onPressed: () => context.push('/register'),
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                              minimumSize: const Size(0, 0),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            child: const Text(
+                              'Create Account',
+                              style: TextStyle(
+                                color: Colors.cyan,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ).animate().fadeIn(duration: 600.ms, delay: 900.ms),
                   ],
                 ),
-              ],
+              ),
             ),
           ),
         ),

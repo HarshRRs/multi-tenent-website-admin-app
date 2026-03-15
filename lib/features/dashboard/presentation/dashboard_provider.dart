@@ -61,11 +61,11 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     await refresh();
   }
 
-  Future<void> refresh() async {
+  Future<void> refresh({DateTime? date}) async {
     state = state.copyWith(status: DataStatus.loading);
 
     try {
-      final stats = await _dashboardService.getDashboardStats();
+      final stats = await _dashboardService.getDashboardStats(date: date);
       final recentOrders = await _dashboardService.getRecentOrders();
 
       // Cache the results

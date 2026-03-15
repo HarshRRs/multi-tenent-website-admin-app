@@ -6,8 +6,12 @@ class DashboardService {
 
   DashboardService(this._dio);
 
-  Future<DashboardStats> getDashboardStats() async {
-    final response = await _dio.get('/dashboard/stats');
+  Future<DashboardStats> getDashboardStats({DateTime? date}) async {
+    final queryParams = <String, dynamic>{};
+    if (date != null) {
+      queryParams['date'] = date.toIso8601String();
+    }
+    final response = await _dio.get('/dashboard/stats', queryParameters: queryParams);
     return DashboardStats.fromJson(response.data);
   }
 

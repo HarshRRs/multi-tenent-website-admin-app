@@ -3,7 +3,7 @@ import 'package:rockster/core/providers/providers.dart';
 import 'package:rockster/features/payments/data/payment_dto.dart';
 import 'package:rockster/features/payments/data/payment_service.dart';
 import 'package:rockster/features/payments/domain/payment_models.dart';
-import 'package:url_launcher/url_launcher.dart';
+// import 'package:url_launcher/url_launcher.dart';
 
 enum DataStatus { initial, loading, success, error }
 

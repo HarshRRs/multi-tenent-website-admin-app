@@ -6,6 +6,11 @@ import 'package:rockster/core/router/app_router.dart';
 import 'package:rockster/core/theme/app_theme.dart';
 import 'package:rockster/core/theme/theme_provider.dart';
 import 'package:rockster/core/providers/messenger_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:rockster/core/providers/locale_provider.dart';
+
+
+import 'package:rockster/features/notifications/presentation/global_notification_listener.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,7 +26,13 @@ void main() async {
   // Request permissions on startup
   await _requestPermissions();
   
-  runApp(const ProviderScope(child: RocksterApp()));
+  runApp(
+    const ProviderScope(
+      child: GlobalNotificationListener(
+        child: RocksterApp(),
+      ),
+    ),
+  );
 }
 
 Future<void> _requestPermissions() async {
@@ -42,13 +53,16 @@ class RocksterApp extends ConsumerWidget {
     final router = ref.watch(routerProvider);
 
     return MaterialApp.router(
-      title: 'Rockster',
+      title: 'Cosmos',
       scaffoldMessengerKey: ref.watch(messengerKeyProvider),
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ref.watch(themeModeProvider),
       routerConfig: router,
+      locale: ref.watch(localeProvider),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
     );
   }
 }

@@ -69,6 +69,10 @@ class MenuService {
     await _dio.delete('/menu/products/$id');
   }
 
+  Future<void> deleteCategory(String id) async {
+    await _dio.delete('/menu/categories/$id');
+  }
+
   Future<String> uploadImage(dynamic file) async {
     // Handling XFile from image_picker
     String fileName = 'upload.jpg';

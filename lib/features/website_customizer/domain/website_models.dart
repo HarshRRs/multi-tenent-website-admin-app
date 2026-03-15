@@ -45,7 +45,7 @@ class WebsiteConfig {
     return {
       'headline': headline,
       'subheadline': subheadline,
-      'primaryColor': '#${primaryColor.value.toRadixString(16).padLeft(8, '0').substring(2)}',
+      'primaryColor': '#${primaryColor.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
       'heroImageUrl': heroImageUrl,
       'startButtonText': startButtonText,
     };

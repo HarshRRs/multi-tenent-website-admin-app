@@ -23,9 +23,14 @@ class PaymentService {
     return response.data; // { clientSecret: '...' }
   }
 
-  // Keep these for now, returning empty/default to avoid UI errors since I removed backend mocks
   Future<StripeStatus> getStripeStatus() async {
-      return StripeStatus(isConnected: false, accountId: '', availableBalance: 0, pendingBalance: 0);
+    try {
+      final response = await _dio.get('/payments/account');
+      return StripeStatus.fromJson(response.data);
+    } catch (e) {
+      // If error (e.g. 503), return default disconnected status
+      return StripeStatus(isConnected: false, availableBalance: 0, pendingBalance: 0);
+    }
   }
 
   Future<String> connectStripe() async {
@@ -36,6 +41,11 @@ class PaymentService {
   }
 
   Future<List<Transaction>> getTransactions() async {
-    return []; 
+    try {
+      final response = await _dio.get('/payments/transactions');
+      return transactionsFromJson(response.data);
+    } catch (e) {
+      return [];
+    }
   }
 }

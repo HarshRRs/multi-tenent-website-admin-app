@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:rockster/core/theme/app_colors.dart';
-import 'package:rockster/core/theme/app_text_styles.dart';
-import 'package:rockster/core/theme/theme_provider.dart';
+import 'package:rockster/core/components/modern_card.dart';
+// import 'package:rockster/core/theme/theme_provider.dart';
+import 'package:rockster/features/auth/presentation/auth_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:rockster/core/providers/locale_provider.dart';
+import 'package:rockster/features/settings/presentation/printer_settings_screen.dart';
+
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -13,34 +19,67 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  // Local state for "Edit" simulation
-  String _restaurantName = 'Rockstar Diner';
-  String _address = '123 Music Ave, Nashville, TN';
-  String _phone = '+1 (555) 123-4567';
-  bool _autoPrint = true;
+  final _nameController = TextEditingController();
+  final _addressController = TextEditingController();
 
-  Future<void> _showEditDialog(String title, String currentValue, Function(String) onSave) async {
-    final controller = TextEditingController(text: currentValue);
-    await showDialog(
+  @override
+  void initState() {
+    super.initState();
+    final user = ref.read(authNotifierProvider).user;
+    if (user != null) {
+      _nameController.text = user.name;
+      _addressController.text = user.address;
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _addressController.dispose();
+    super.dispose();
+  }
+
+  void _showEditProfileDialog() {
+    final user = ref.read(authNotifierProvider).user;
+    if (user == null) return;
+    
+    _nameController.text = user.name;
+    _addressController.text = user.address;
+
+    showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Edit \$title', style: AppTextStyles.headlineMedium),
-        content: TextField(
-          controller: controller,
-          decoration: InputDecoration(
-            hintText: 'Enter new \$title',
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-          ),
+        title: Text('Edit Profile', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _nameController,
+              decoration: const InputDecoration(labelText: 'Restaurant Name'),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _addressController,
+              decoration: const InputDecoration(labelText: 'Address'),
+            ),
+          ],
         ),
         actions: [
-          TextButton(onPressed: () => context.pop(), child: const Text('Cancel')),
-          FilledButton(
-            onPressed: () {
-              onSave(controller.text);
-              context.pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('\$title updated successfully!')),
-              );
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              try {
+                await ref.read(authNotifierProvider.notifier).updateProfile(
+                  _nameController.text,
+                  _addressController.text,
+                );
+                if (context.mounted) Navigator.pop(context);
+              } catch (e) {
+                // Handle error
+              }
             },
             child: const Text('Save'),
           ),
@@ -51,76 +90,147 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = ref.watch(isDarkModeProvider);
+    final authState = ref.watch(authNotifierProvider);
+    final user = authState.user;
+    final restaurantName = user?.name ?? 'Cosmos Diner';
+    final address = user?.address.isNotEmpty == true ? user!.address : 'Add address...';
+    
+    // Localization
+    final l10n = AppLocalizations.of(context)!;
+    final currentLocale = ref.watch(localeProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _buildSectionHeader('Preferences'),
-          _buildSwitchTile(
-            context,
-            icon: Icons.dark_mode,
-            title: 'Dark Mode',
-            subtitle: 'Switch between light and dark themes',
-            value: isDarkMode,
-            onChanged: (val) => ref.read(isDarkModeProvider.notifier).state = val,
+      backgroundColor: AppColors.cloudDancer,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            backgroundColor: AppColors.cloudDancer,
+            surfaceTintColor: Colors.transparent,
+            pinned: true,
+            title: Text(
+              l10n.settingsTitle,
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.bold,
+                color: AppColors.deepInk,
+              ),
+            ),
           ),
           
-          const SizedBox(height: 24),
-          _buildSectionHeader('Restaurant Info'),
-          _buildInfoTile(
-            icon: Icons.store,
-            title: 'Restaurant Name',
-            value: _restaurantName,
-            onTap: () => _showEditDialog('Restaurant Name', _restaurantName, (val) => setState(() => _restaurantName = val)),
-          ),
-          _buildInfoTile(
-            icon: Icons.location_on,
-            title: 'Address',
-            value: _address,
-            onTap: () => _showEditDialog('Address', _address, (val) => setState(() => _address = val)),
-          ),
-           _buildInfoTile(
-            icon: Icons.phone,
-            title: 'Phone',
-            value: _phone,
-            onTap: () => _showEditDialog('Phone', _phone, (val) => setState(() => _phone = val)),
-          ),
-
-          const SizedBox(height: 24),
-          _buildSectionHeader('Hardware & Printing'),
-          _buildSwitchTile(
-            context,
-            icon: Icons.print,
-            title: 'Auto-print Orders',
-            subtitle: 'Print receipt when order arrives',
-            value: _autoPrint,
-            onChanged: (val) => setState(() => _autoPrint = val),
-          ),
-          _buildStatusTile(
-            icon: Icons.wifi_tethering,
-            title: 'Kitchen Printer',
-            status: 'Connected',
-            isGood: true,
-          ),
-           _buildStatusTile(
-            icon: Icons.receipt_long,
-            title: 'Receipt Printer',
-            status: 'Offline',
-            isGood: false,
-          ),
-          _buildSectionHeader('About'),
-          ListTile(
-            title: const Text('Version'),
-            subtitle: const Text('2.1.0 (Build 42)'),
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                // Profile Section with Floral Background
+                ModernCard(
+                  padding: EdgeInsets.zero,
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      image: const DecorationImage(
+                        image: AssetImage('assets/images/flower_background.jpg'),
+                        fit: BoxFit.cover,
+                        opacity: 0.15, // Subtle floral effect
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 30,
+                          backgroundColor: AppColors.burntTerracotta,
+                          child: Text(
+                            restaurantName.isNotEmpty ? restaurantName[0].toUpperCase() : 'C',
+                            style: GoogleFonts.inter(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                restaurantName,
+                                style: GoogleFonts.inter(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.deepInk,
+                                ),
+                              ),
+                              Text(
+                                address,
+                                style: GoogleFonts.inter(
+                                  fontSize: 14,
+                                  color: AppColors.textSecondaryLight,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.edit_outlined, color: AppColors.burntTerracotta),
+                          onPressed: _showEditProfileDialog,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                
+                const SizedBox(height: 24),
+                
+                _buildSectionHeader(l10n.settingsTitle.toUpperCase()), // Reusing title for section header example
+                _buildSettingTile(
+                  icon: Icons.notifications_outlined,
+                  title: l10n.settingsNotifications,
+                  subtitle: 'Manage alerts and sounds',
+                ),
+                _buildSettingTile(
+                  icon: Icons.language,
+                  title: l10n.settingsLanguage,
+                  subtitle: currentLocale.languageCode == 'en' ? 'English (US)' : 'Français',
+                  onTap: () {
+                     // Toggle Language
+                     final newLocale = currentLocale.languageCode == 'en' 
+                        ? const Locale('fr') 
+                        : const Locale('en');
+                     ref.read(localeProvider.notifier).setLocale(newLocale);
+                  },
+                ),
+                
+                const SizedBox(height: 24),
+                
+                _buildSectionHeader('HARDWARE'),
+                _buildSettingTile(
+                  icon: Icons.print_outlined,
+                  title: l10n.settingsPrinter,
+                  subtitle: 'Epson TM Series / ESC/POS',
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const PrinterSettingsScreen()),
+                    );
+                  },
+                ),
+                
+                const SizedBox(height: 24),
+                
+                _buildSectionHeader('ACCOUNT'),
+                 _buildSettingTile(
+                  icon: Icons.logout,
+                   title: l10n.settingsSignOut,
+                   subtitle: 'Log out of your account',
+                   onTap: () {
+                     ref.read(authNotifierProvider.notifier).logout();
+                     context.go('/login');
+                   },
+                   isDestructive: true,
+                 ),
+                 
+                 const SizedBox(height: 100),
+              ]),
+            ),
           ),
         ],
       ),
@@ -129,105 +239,72 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8, left: 4),
+      padding: const EdgeInsets.only(left: 4, bottom: 12),
       child: Text(
         title.toUpperCase(),
-        style: AppTextStyles.labelMedium.copyWith(
+        style: GoogleFonts.inter(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
           color: AppColors.textSecondaryLight,
-          fontWeight: FontWeight.bold,
           letterSpacing: 1.2,
         ),
       ),
     );
   }
 
-  Widget _buildSwitchTile(
-    BuildContext context, {
+  Widget _buildSettingTile({
     required IconData icon,
     required String title,
     required String subtitle,
-    required bool value,
-    required ValueChanged<bool> onChanged,
+    Widget? trailing,
+    VoidCallback? onTap,
+    bool isDestructive = false,
   }) {
-    return Container(
+    return ModernCard(
       margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4),
-        ],
-      ),
-      child: SwitchListTile(
-        secondary: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-             color: AppColors.primaryLight.withValues(alpha: 0.1),
-             shape: BoxShape.circle,
-          ),
-          child: Icon(icon, color: AppColors.primaryLight),
-        ),
-        title: Text(title, style: AppTextStyles.labelLarge),
-        subtitle: Text(subtitle, style: AppTextStyles.bodySmall),
-        value: value,
-        onChanged: onChanged,
-        activeColor: AppColors.primaryLight,
-      ),
-    );
-  }
-
-  Widget _buildInfoTile({
-    required IconData icon,
-    required String title,
-    required String value,
-    required VoidCallback onTap,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: Colors.white, // In real app, use Theme color
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
-      ),
-      child: ListTile(
-        leading: Icon(icon, color: Colors.grey),
-        title: Text(title, style: AppTextStyles.bodySmall),
-        subtitle: Text(value, style: AppTextStyles.labelLarge),
-        trailing: const Icon(Icons.edit, size: 16),
-        onTap: onTap,
-      ),
-    );
-  }
-
-  Widget _buildStatusTile({
-    required IconData icon,
-    required String title,
-    required String status,
-    required bool isGood,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-         borderRadius: BorderRadius.circular(12),
-         border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
-      ),
-      child: ListTile(
-        leading: Icon(icon, color: Colors.grey),
-        title: Text(title, style: AppTextStyles.labelLarge),
-        trailing: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          decoration: BoxDecoration(
-            color: isGood ? AppColors.success.withValues(alpha: 0.1) : AppColors.error.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Text(
-            status,
-            style: AppTextStyles.labelSmall.copyWith(
-              color: isGood ? AppColors.success : AppColors.error,
+      onTap: onTap,
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: isDestructive 
+                  ? AppColors.error.withValues(alpha: 0.1)
+                  : AppColors.burntTerracotta.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              icon,
+              color: isDestructive ? AppColors.error : AppColors.burntTerracotta,
+              size: 20,
             ),
           ),
-        ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w600,
+                    color: isDestructive ? AppColors.error : AppColors.deepInk,
+                    fontSize: 15,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: GoogleFonts.inter(
+                    color: AppColors.textSecondaryLight,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (trailing != null) trailing
+          else Icon(Icons.chevron_right, color: AppColors.softBorder),
+        ],
       ),
     );
   }
